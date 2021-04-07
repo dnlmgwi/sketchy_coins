@@ -9,14 +9,14 @@ void main() {
       var b = Blockchain();
       expect(b, isNotNull);
       var blockIndex =
-          b.newTransaction(sender: "john", recipient: "steve", amount: 0.50);
+          b.newTransaction(sender: 'john', recipient: 'steve', amount: 0.50);
+
       expect(blockIndex, 1);
       blockIndex =
-          b.newTransaction(sender: "steve", recipient: "john", amount: 1.50);
+          b.newTransaction(sender: 'steve', recipient: 'john', amount: 1.50);
       expect(blockIndex, 1);
     });
   });
-
   group('Block', () {
     test('json encode', () {
       var b = Block(
@@ -37,7 +37,6 @@ void main() {
       var result = miner.mine();
       expect(result, isNotNull);
       expect(result.prevHash, isNotNull);
-      print(result.transactions.length);
     });
   });
 }
