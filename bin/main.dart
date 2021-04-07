@@ -1,49 +1,36 @@
-import 'package:sketchy_coins/blockchain.dart';
-import 'package:sketchy_coins/miner.dart';
+import 'dart:convert';
+import 'package:shelf_router/shelf_router.dart';
+import 'package:shelf/shelf.dart';
+import 'package:shelf/shelf_io.dart' as io;
+import 'package:sketchy_coins/src/Blockchain_api/blockchain_api.dart';
 
-void main(List<String> arguments) {
-  var blockchain = Blockchain();
-  var miner = Miner(blockchain);
+void main(List<String> arguments) async {
+  var app = Router();
+  final _hostName = 'localhost';
+  final _port = 8081;
+  var server = await io.serve(app, _hostName, _port);
+  print('Serving at http://${server.address.host}:${server.port}');
 
-  blockchain.newTransaction(
-      sender: 'Daniel', recipient: 'Jvvames', amount: 100);
-  blockchain.newTransaction(
-      sender: 'Daniels', recipient: 'Jamdttes', amount: 1000);
-  blockchain.newTransaction(
-      sender: 'Danielyyss', recipient: 'Jam767es', amount: 15000);
+  final data = {
+    'message': 'Welcome to the KKoin.',
+    'status': 'Testing',
+    'version': '0.0.0-alpha',
+    'activeEndpoints': [
+      'http://$_hostName:$_port/v1/chain',
+      'http://$_hostName:$_port/v1/transactions/create',
+      'http://$_hostName:$_port/v1/mine'
+    ]
+  };
 
-  blockchain.newTransaction(
-      sender: 'Daniel76ss', recipient: 'Jamfhes', amount: 10600);
-  blockchain.newTransaction(
-      sender: 'Danieluju76ss', recipient: 'Jamyjtufhes', amount: 1002560);
-  print('before mine ${miner.blockchain.chain().last.toJson()}');
-  miner.mine();
-  print('After mine 1 ${miner.blockchain.chain().last.toJson()}');
-  blockchain.newTransaction(
-      sender: 'Daniel', recipient: 'Jvvames', amount: 100);
-  blockchain.newTransaction(
-      sender: 'Daniels', recipient: 'Jamdttes', amount: 1000);
-  blockchain.newTransaction(
-      sender: 'Danielyyss', recipient: 'Jam767es', amount: 15000);
-
-  blockchain.newTransaction(
-      sender: 'Daniel76ss', recipient: 'Jamfhes', amount: 10600);
-  blockchain.newTransaction(
-      sender: 'Danieluju76ss', recipient: 'Jamyjtufhes', amount: 1002560);
-  print('Before mine 2 ${miner.blockchain.chain().last.toJson()}');
-
-  blockchain.newTransaction(
-      sender: 'Daniel76ss', recipient: 'Jamfhes', amount: 10600);
-
-  blockchain.newTransaction(
-      sender: 'Danieluju76ss', recipient: 'Jamyjtufhes', amount: 1002560);
-  print(miner.blockchain.chain().last.toJson());
-
-  var result = miner.mine();
-  print(result.message);
-  result.transactions.forEach((element) {
-    print('Mined Data ${element.toJson()}');
+  app.get('/', (Request request) async {
+    return Response.ok(
+      json.encode(data),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
   });
-  print('After mine 2 ${miner.blockchain.chain().last.toJson()}');
-  print('Full chain: ${blockchain.getJsonChain()}');
+
+  //v1 of KKoin Api
+  app.mount('/v1/', BlockChainApi().router);
 }

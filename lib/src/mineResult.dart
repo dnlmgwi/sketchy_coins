@@ -1,4 +1,3 @@
-
 import 'package:sketchy_coins/src/transaction.dart';
 
 class MineResult {
@@ -8,11 +7,25 @@ class MineResult {
   final int proof;
   final String prevHash;
 
-  MineResult(
+  MineResult({
     this.message,
     this.blockIndex,
     this.transactions,
     this.proof,
     this.prevHash,
-  );
+  });
+
+  Map<String, dynamic> toJson() {
+    // keys must be ordered for consistent hashing
+    var block = <String, dynamic>{};
+
+    block['message'] = message;
+    block['blockIndex'] = blockIndex;
+    block['proof'] = proof;
+    block['prevHash'] = prevHash;
+    //Sort in acending order of time.
+    block['transactions'] = transactions.map((t) => t.toJson()).toList();
+
+    return block;
+  }
 }

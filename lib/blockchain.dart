@@ -1,5 +1,5 @@
 library blockchain;
 
-export 'src/blockchain.dart';
-export 'src/block.dart';
+export 'src/Blockchain_api/blockchain.dart';
+export 'src/Blockchain_api/block.dart';
 

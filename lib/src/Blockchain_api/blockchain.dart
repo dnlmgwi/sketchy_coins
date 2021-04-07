@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'transaction.dart';
+import '../transaction.dart';
 import 'block.dart';
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:hex/hex.dart';
@@ -18,36 +18,41 @@ class Blockchain {
   Block newBlock(int proof, String previousHash) {
     var pendingTransactions = _pendingTransactions;
 
-    if (previousHash == '') {
-      previousHash = hash(_chain.last);
-    }
+    previousHash ??= hash(_chain.last);
 
     var block = Block(
       index: _chain.length,
       timestamp: DateTime.now().millisecondsSinceEpoch,
       prevHash: previousHash,
       proof: proof,
-      transactions: pendingTransactions,
+      transactions: List.from(pendingTransactions),
     );
 
     _chain.add(block);
 
-    _pendingTransactions.clear(); // = [] ?
+    _pendingTransactions.clear(); //Successfully Mined
 
     return block;
   }
 
   int newTransaction({String sender, String recipient, double amount}) {
-    _pendingTransactions.add(Transaction(
-      sender,
-      recipient,
-      amount,
-    ));
+    _pendingTransactions.add(
+      Transaction(
+        sender: sender,
+        amount: amount,
+        recipient: recipient,
+        timestamp: DateTime.now().millisecondsSinceEpoch,
+      ),
+    );
     return lastBlock.index + 1;
   }
 
   Block get lastBlock {
     return _chain.last;
+  }
+
+  List<Transaction> get pendingTransactions {
+    return _pendingTransactions;
   }
 
   String hash(Block block) {
@@ -71,7 +76,7 @@ class Blockchain {
     return HEX.encode(guessHash).substring(0, 4) == '0000';
   }
 
-  String getJsonChain() {
+  String getBlockchain() {
     var jsonChain = json.encode(_chain);
     return jsonChain;
   }

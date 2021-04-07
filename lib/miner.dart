@@ -8,7 +8,13 @@ class Miner {
 
   Miner(this.blockchain) : nodeId = Uuid().v4();
 
-  MineResult mine() {
+  Map<String, dynamic> mine() {
+    if (blockchain.pendingTransactions.isEmpty) {
+      return {
+        'message': 'Nothing to Mine',
+      };
+    }
+
     var lastBlock = blockchain.lastBlock;
     var lastProof = lastBlock.proof;
     var proof = blockchain.proofOfWork(lastProof);
@@ -21,7 +27,13 @@ class Miner {
       proof,
       prevHash,
     );
+
     return MineResult(
-        'New Block Forged', block.index, block.transactions, proof, prevHash);
+      message: 'New Block Forged',
+      blockIndex: block.index,
+      transactions: block.transactions,
+      proof: proof,
+      prevHash: prevHash,
+    ).toJson();
   }
 }

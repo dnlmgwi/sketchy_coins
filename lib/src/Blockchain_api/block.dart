@@ -1,4 +1,5 @@
-import 'transaction.dart';
+
+import 'package:sketchy_coins/src/transaction.dart';
 
 class Block {
   final int index;
