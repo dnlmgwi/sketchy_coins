@@ -1,38 +1,79 @@
 import 'package:shelf_router/shelf_router.dart';
 import 'package:sketchy_coins/blockchain.dart';
-import 'package:sketchy_coins/miner.dart';
+import 'package:sketchy_coins/src/Blockchain_api/blockchainValidation.dart';
+import 'package:sketchy_coins/src/Blockchain_api/miner.dart';
 import 'dart:convert';
-
 import 'package:shelf/shelf.dart';
+import 'package:sketchy_coins/src/kkoin.dart';
 
 class BlockChainApi {
   static final blockchain = Blockchain();
   var miner = Miner(blockchain);
+  var blockChainValidity = BlockChainValidity();
 
   Router get router {
     final router = Router();
 
     router.post(
-      '/transactions/create/<sender>/<recipient>/<amount|[0-9]+>',
+      '/transactions/pay',
       ((
         Request request, {
         String sender,
         String recipient,
         String amount,
-      }) {
-        sender = params(request, 'sender');
-        recipient = params(request, 'recipient');
-        amount = params(request, 'amount');
-        final parsedAmount = double.tryParse(amount);
+      }) async {
+        final payload = await request.readAsString();
+        final data = json.decode(payload);
+
+        if (data['sender'] == '' || data['sender'] == null) {
+          return Response.forbidden(
+            json.encode({
+              'data': {
+                'message': 'Please Provide Sender Address',
+              }
+            }),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          );
+        }
+
+        if (data['recipient'] == '' || data['recipient'] == null) {
+          return Response.forbidden(
+            json.encode({
+              'data': {
+                'message': 'Please Provide Recipient Address',
+              }
+            }),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          );
+        }
+
+        if (data['amount'] == '' ||
+            data['amount'] == null ||
+            data['amount'] <= kKoin.minAmount) {
+          return Response.forbidden(
+            json.encode({
+              'data': {
+                'message': 'Please include valid amount Greater Than KK10.00',
+              }
+            }),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          );
+        }
 
         blockchain.newTransaction(
-          sender: sender,
-          recipient: recipient,
-          amount: parsedAmount,
+          sender: data['sender'],
+          recipient: data['recipient'],
+          amount: double.parse(data['amount'].toString()),
         );
 
         return Response.ok(
-          'Transaction Complete',
+          payload,
           headers: {
             'Content-Type': 'application/json',
           },
@@ -40,24 +81,77 @@ class BlockChainApi {
       }),
     );
 
-    router.get('/mine', (Request request) async {
-      var mineResult = miner.mine();
-      return Response.ok(
-        json.encode(mineResult),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      );
-    });
+    router.get(
+      '/mine/<address|.*>',
+      (Request request, String address) async {
+        var mineResult = miner.mine(token: address);
 
-    router.get('/chain', (Request request) async {
-      return Response.ok(
-        miner.blockchain.getBlockchain(),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      );
-    });
+        //Does user exist?
+        //Award User with KKoin
+
+        if (address == '223') {
+          return Response.ok(
+            json.encode({'data': mineResult}),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          );
+        } else if (address.isEmpty) {
+          return Response.forbidden(
+            json.encode(
+              {
+                'data': {
+                  'message': 'Please provide a valid token',
+                }
+              },
+            ),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          );
+        } else {
+          return Response.forbidden(
+            json.encode(
+              {
+                'data': {
+                  'message': 'Invalid Token',
+                }
+              },
+            ),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          );
+        }
+      },
+    );
+
+    router.get(
+      '/chain',
+      (
+        Request request,
+      ) async {
+        if (blockChainValidity.isBlockChainValid(
+          chain: miner.blockchain.getFullChain(),
+          blockchain: blockchain,
+        )) {
+          return Response.ok(
+            miner.blockchain.getBlockchain(),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          );
+        } else {
+          return Response.notFound(
+            'Invalid Blockchain',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          );
+        }
+      },
+    );
+
     return router;
   }
 }

@@ -1,6 +1,0 @@
-{
-  "message": "Welcome to the KKoin.",
-  "status": "Testing",
-  "version": "0.0.0-alpha",
-  "activeEndpoints": ["http://localhost:8080/v1/chain", "http://localhost:8080/v1/transactions/create", "http://localhost:8080/v1/mine"]
-}

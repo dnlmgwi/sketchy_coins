@@ -1,14 +1,15 @@
 import 'package:sketchy_coins/blockchain.dart';
-import 'package:sketchy_coins/src/mineResult.dart';
-import 'package:uuid/uuid.dart';
+import 'package:sketchy_coins/src/Blockchain_api/blockchainValidation.dart';
+import 'package:sketchy_coins/src/Blockchain_api/mineResult.dart';
+import 'package:sketchy_coins/src/kkoin.dart';
 
 class Miner {
   final Blockchain blockchain;
-  final String nodeId;
+  var blockChainValidity = BlockChainValidity();
 
-  Miner(this.blockchain) : nodeId = Uuid().v4();
+  Miner(this.blockchain);
 
-  Map<String, dynamic> mine() {
+  Map<String, dynamic> mine({String token}) {
     if (blockchain.pendingTransactions.isEmpty) {
       return {
         'message': 'Nothing to Mine',
@@ -19,7 +20,11 @@ class Miner {
     var lastProof = lastBlock.proof;
     var proof = blockchain.proofOfWork(lastProof);
     // Proof found - receive award for finding the proof
-    blockchain.newTransaction(sender: '0', recipient: nodeId, amount: 1.0);
+    blockchain.newTransaction(
+      sender: '0',
+      recipient: token,
+      amount: kKoin.reward,
+    );
 
     // Forge the new Block by adding it to the chain
     var prevHash = blockchain.hash(lastBlock);
@@ -28,8 +33,15 @@ class Miner {
       prevHash,
     );
 
+    var validblock = blockChainValidity.isValidNewBlock(
+      blockchain: blockchain,
+      newBlock: block,
+      previousBlock: lastBlock,
+    );
+
     return MineResult(
       message: 'New Block Forged',
+      validBlock: validblock,
       blockIndex: block.index,
       transactions: block.transactions,
       proof: proof,

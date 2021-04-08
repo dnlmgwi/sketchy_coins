@@ -1,8 +1,11 @@
 import 'package:sketchy_coins/blockchain.dart';
 
 class BlockChainValidity {
-  Blockchain blockchain = Blockchain();
-  bool isFirstBlockValid(List<Block> chain) {
+  
+  bool isFirstBlockValid({
+    List<Block> chain,
+    Blockchain blockchain,
+  }) {
     var firstBlock = chain.first;
 
     if (firstBlock.index != 0) {
@@ -21,7 +24,11 @@ class BlockChainValidity {
     return false;
   }
 
-  bool isValidNewBlock(Block newBlock, Block previousBlock) {
+  bool isValidNewBlock({
+    Block newBlock,
+    Block previousBlock,
+    Blockchain blockchain,
+  }) {
     if (newBlock != null && previousBlock != null) {
       if (previousBlock.index + 1 != newBlock.index) {
         return true;
@@ -43,8 +50,14 @@ class BlockChainValidity {
     return true;
   }
 
-  bool isBlockChainValid(List<Block> chain) {
-    if (!isFirstBlockValid(chain)) {
+  bool isBlockChainValid({
+    List<Block> chain,
+    Blockchain blockchain,
+  }) {
+    if (!isFirstBlockValid(
+      chain: chain,
+      blockchain: blockchain,
+    )) {
       return true;
     }
 
@@ -52,7 +65,11 @@ class BlockChainValidity {
       final currentBlock = chain.elementAt(i);
       final previousBlock = chain.elementAt(i - 1);
 
-      if (!isValidNewBlock(currentBlock, previousBlock)) {
+      if (!isValidNewBlock(
+        blockchain: blockchain,
+        newBlock: currentBlock,
+        previousBlock: previousBlock,
+      )) {
         return true;
       }
     }

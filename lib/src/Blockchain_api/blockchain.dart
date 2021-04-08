@@ -1,15 +1,22 @@
 import 'dart:convert';
-import '../transaction.dart';
+import 'dart:io';
+import 'package:sketchy_coins/src/Blockchain_api/blockchainValidation.dart';
+import 'package:sketchy_coins/src/kkoin.dart';
+
+import 'transaction.dart';
 import 'block.dart';
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:hex/hex.dart';
 
 class Blockchain {
-  final List<Block> _chain;
+  static Iterable l = json.decode(File('chain.json').readAsStringSync());
+  List<Block> chain = List<Block>.from(l.map((model) => Block.fromJson(model)));
+
   final List<Transaction> _pendingTransactions;
+  BlockChainValidity blockChainValidity;
 
   Blockchain()
-      : _chain = [],
+      : chain = [],
         _pendingTransactions = [] {
     // create genesis block
     newBlock(100, '1');
@@ -28,17 +35,17 @@ class Blockchain {
   Block newBlock(int proof, String previousHash) {
     var pendingTransactions = _pendingTransactions;
 
-    previousHash ??= hash(_chain.last);
+    previousHash ??= hash(chain.last);
 
     var block = Block(
-      index: _chain.length,
+      index: chain.length,
       timestamp: DateTime.now().millisecondsSinceEpoch,
       prevHash: previousHash,
       proof: proof,
       transactions: List.from(pendingTransactions),
     );
 
-    _chain.add(block);
+    chain.add(block);
 
     _pendingTransactions.clear(); //Successfully Mined
 
@@ -58,7 +65,7 @@ class Blockchain {
   }
 
   Block get lastBlock {
-    return _chain.last;
+    return chain.last;
   }
 
   List<Transaction> get pendingTransactions {
@@ -83,15 +90,15 @@ class Blockchain {
   bool validProof(int lastProof, int proof) {
     var guess = utf8.encode('$lastProof$proof');
     var guessHash = crypto.sha256.convert(guess).bytes;
-    return HEX.encode(guessHash).substring(0, 4) == '0000';
+    return HEX.encode(guessHash).substring(0, 4) == kKoin.difficulty;
   }
 
   String getBlockchain() {
-    var jsonChain = json.encode(_chain);
+    var jsonChain = json.encode(chain);
     return jsonChain;
   }
 
-  List<Block> chain() {
-    return _chain;
+  List<Block> getFullChain() {
+    return chain;
   }
 }

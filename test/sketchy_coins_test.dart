@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:sketchy_coins/blockchain.dart';
-import 'package:sketchy_coins/miner.dart';
-import 'package:sketchy_coins/src/blockchainValidation.dart';
+import 'package:sketchy_coins/src/Account_api/account.dart';
+import 'package:sketchy_coins/src/Account_api/accountValidation.dart';
+import 'package:sketchy_coins/src/Blockchain_api/miner.dart';
+import 'package:sketchy_coins/src/Blockchain_api/blockchainValidation.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -39,25 +41,43 @@ void main() {
       expect(result, isNotNull);
       expect(result.containsKey('prevHash'), isNotNull);
       b.newTransaction(sender: 'steve', recipient: 'john', amount: 1.50);
-      var isValid = a.isFirstBlockValid(miner.blockchain.chain());
+      var isValid =
+          a.isFirstBlockValid(chain: miner.blockchain.getFullChain(), blockchain: b);
       expect(isValid, true);
 
-      var result2 = a.isBlockChainValid(b.chain());
+      var result2 = a.isBlockChainValid(chain: b.getFullChain(), blockchain: b);
 
       expect(result2, isNotNull);
       expect(result2, true);
     });
   });
 
+  group('Account', () {
+    test('Account Validation', () {
+      final accountValidity = AccountValidation();
+      var accounts = [
+        Account(address: '123', balance: 100000, transactions: []),
+        Account(address: 'wwwe', balance: 100000, transactions: []),
+      ];
+
+      expect(
+          accountValidity.findAccount(
+            data: accounts,
+            address: '123',
+          ),
+          true);
+    });
+  });
+
   group('Blockchain Validation', () {
     test('isFirstBlockValid', () {
-      var result = a.isFirstBlockValid(b.chain());
+      var result = a.isFirstBlockValid(chain: b.getFullChain(), blockchain: b);
       expect(result, isNotNull);
       expect(result, true);
     });
 
     test('isBlockChainValid', () {
-      var result = a.isBlockChainValid(b.chain());
+      var result = a.isBlockChainValid(chain: b.getFullChain(), blockchain: b);
       expect(result, isNotNull);
       expect(result, true);
     });
@@ -65,7 +85,9 @@ void main() {
     test('isValidNewBlock', () {
       expect(
           a.isValidNewBlock(
-              miner.blockchain.chain().last, miner.blockchain.chain().first),
+              previousBlock: miner.blockchain.getFullChain().last,
+              newBlock: miner.blockchain.getFullChain().first,
+              blockchain: b),
           true);
     });
   });
