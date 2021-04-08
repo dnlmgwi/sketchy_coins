@@ -37,37 +37,3 @@ void main() {
     test('Test', () {
       var result = miner.mine();
       expect(result, isNotNull);
-      expect(result.containsKey('prevHash'), isNotNull);
-      b.newTransaction(sender: 'steve', recipient: 'john', amount: 1.50);
-      var isValid = a.isFirstBlockValid(miner.blockchain.chain());
-      expect(isValid, true);
-
-      var result2 = a.isBlockChainValid(b.chain());
-
-      expect(result2, isNotNull);
-      expect(result2, true);
-    });
-  });
-
-  group('Blockchain Validation', () {
-    test('isFirstBlockValid', () {
-      var result = a.isFirstBlockValid(b.chain());
-      expect(result, isNotNull);
-      expect(result, true);
-    });
-
-    test('isBlockChainValid', () {
-      print(b.chain().first.index);
-      var result = a.isBlockChainValid(b.chain());
-      expect(result, isNotNull);
-      expect(result, true);
-    });
-
-    test('isValidNewBlock', () {
-      expect(
-          a.isValidNewBlock(
-              miner.blockchain.chain().last, miner.blockchain.chain().first),
-          true);
-    });
-  });
-}

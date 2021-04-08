@@ -15,6 +15,16 @@ class Blockchain {
     newBlock(100, '1');
   }
 
+  // //Adds a node to our peer table
+  // Set addPeer(host) {
+  //   return peers.union(host);
+  // }
+
+  // //Adds a node to our peer table
+  // Set getPeers() {
+  //   return peers;
+  // }
+
   Block newBlock(int proof, String previousHash) {
     var pendingTransactions = _pendingTransactions;
 

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:shelf_router/shelf_router.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
 import 'package:sketchy_coins/src/Blockchain_api/blockchain_api.dart';
@@ -23,14 +22,3 @@ void main(List<String> arguments) async {
   };
 
   app.get('/', (Request request) async {
-    return Response.ok(
-      json.encode(data),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    );
-  });
-
-  //v1 of KKoin Api
-  app.mount('/v1/', BlockChainApi().router);
-}

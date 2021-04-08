@@ -1,4 +1,3 @@
-
 import 'package:sketchy_coins/src/transaction.dart';
 
 class Block {
