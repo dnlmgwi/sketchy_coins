@@ -11,3 +11,14 @@ class Transaction {
     this.recipient,
     this.amount,
     this.timestamp,
+  });
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'sender': sender,
+      'recipient': recipient,
+      'amount': amount,
+      'timeStamp': timestamp,
+    };
+  }
+}

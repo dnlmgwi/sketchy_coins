@@ -13,7 +13,11 @@ class MineResult {
     this.transactions,
     this.proof,
     this.prevHash,
+  });
 
+  Map<String, dynamic> toJson() {
+    // keys must be ordered for consistent hashing
+    var block = <String, dynamic>{};
     block['message'] = message;
     block['blockIndex'] = blockIndex;
     block['proof'] = proof;
