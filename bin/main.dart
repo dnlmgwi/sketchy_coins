@@ -8,7 +8,7 @@ import 'package:sketchy_coins/src/Blockchain_api/blockchain_api.dart';
 void main(List<String> arguments) async {
   var app = Router();
   final _hostName = 'localhost';
-  final _port = 8080;
+  final _port = 8089;
   var server = await io.serve(app, _hostName, _port);
   print('Serving at http://${server.address.host}:${server.port}');
 

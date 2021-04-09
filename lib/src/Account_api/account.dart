@@ -1,10 +1,10 @@
-import 'package:sketchy_coins/src/Blockchain_api/transaction.dart';
+import 'package:sketchy_coins/src/Blockchain_api/transaction/transaction.dart';
 
 class Account {
-  final String address;
-  final String status;
-  final double balance;
-  final List<Transaction> transactions;
+  final String? address;
+  final String? status;
+  final double? balance;
+  final List<Transaction>? transactions;
 
   Account({
     this.address,
@@ -21,7 +21,7 @@ class Account {
     block['status'] = status;
     block['balance'] = balance;
     //Sort in acending order of time.
-    block['transactions'] = transactions.map((t) => t.toJson()).toList();
+    block['transactions'] = transactions!.map((t) => t.toJson()).toList();
 
     return block;
   }
@@ -30,5 +30,5 @@ class Account {
       : address = json['address'],
         status = json['status'],
         balance = json['balance'],
-        transactions = json['transactions'] as List<Transaction>;
+        transactions = json['transactions'] as List<Transaction>?;
 }

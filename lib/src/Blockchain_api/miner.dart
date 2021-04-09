@@ -1,7 +1,7 @@
 import 'package:sketchy_coins/blockchain.dart';
 import 'package:sketchy_coins/src/Blockchain_api/blockchainValidation.dart';
-import 'package:sketchy_coins/src/Blockchain_api/mineResult.dart';
-import 'package:sketchy_coins/src/kkoin.dart';
+import 'package:sketchy_coins/src/Blockchain_api/kkoin.dart';
+import 'package:sketchy_coins/src/Blockchain_api/mineResult/mineResult.dart';
 
 class Miner {
   final Blockchain blockchain;
@@ -9,7 +9,7 @@ class Miner {
 
   Miner(this.blockchain);
 
-  Map<String, dynamic> mine({String token}) {
+  Map<String, dynamic> mine({String? token}) {
     if (blockchain.pendingTransactions.isEmpty) {
       return {
         'message': 'Nothing to Mine',

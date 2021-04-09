@@ -1,10 +1,11 @@
 import 'package:shelf_router/shelf_router.dart';
-import 'package:sketchy_coins/blockchain.dart';
-import 'package:sketchy_coins/src/Blockchain_api/blockchainValidation.dart';
-import 'package:sketchy_coins/src/Blockchain_api/miner.dart';
+import 'package:uuid/uuid.dart';
+import 'blockchain.dart';
+import 'blockchainValidation.dart';
+import 'miner.dart';
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
-import 'package:sketchy_coins/src/kkoin.dart';
+import 'package:sketchy_coins/src/Blockchain_api/kkoin.dart';
 
 class BlockChainApi {
   static final blockchain = Blockchain();
@@ -18,66 +19,82 @@ class BlockChainApi {
       '/transactions/pay',
       ((
         Request request, {
-        String sender,
-        String recipient,
-        String amount,
+        String? sender,
+        String? recipient,
+        String? amount,
       }) async {
         final payload = await request.readAsString();
-        final data = json.decode(payload);
+        //TODO: Empty Payload
+        try {
+          final data = json.decode(payload);
 
-        if (data['sender'] == '' || data['sender'] == null) {
-          return Response.forbidden(
+          if (data['sender'] == '' || data['sender'] == null) {
+            return Response.forbidden(
+              json.encode({
+                'data': {
+                  'message': 'Please Provide Sender Address',
+                }
+              }),
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            );
+          }
+
+          if (data['recipient'] == '' || data['recipient'] == null) {
+            return Response.forbidden(
+              json.encode({
+                'data': {
+                  'message': 'Please Provide Recipient Address',
+                }
+              }),
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            );
+          }
+
+          if (data['amount'] == '' ||
+              data['amount'] == null ||
+              data['amount'] <= kKoin.minAmount) {
+            return Response.forbidden(
+              json.encode({
+                'data': {
+                  'message': 'Please include valid amount Greater Than KK10.00',
+                }
+              }),
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            );
+          }
+
+          blockchain.newTransaction(
+            sender: data['sender'],
+            recipient: data['recipient'],
+            amount: double.parse(data['amount'].toString()),
+          );
+
+          return Response.ok(
             json.encode({
               'data': {
-                'message': 'Please Provide Sender Address',
+                'message': 'Transaction Complete',
+                'TransID': Uuid().v4(),
+                'balance': 8.22,
+                'data': json.decode(payload),
               }
             }),
             headers: {
               'Content-Type': 'application/json',
             },
           );
+        } catch (e) {
+          return Response.forbidden(json.encode({
+            'data': {
+              'message': 'No Data Recieved',
+            }
+          }));
         }
-
-        if (data['recipient'] == '' || data['recipient'] == null) {
-          return Response.forbidden(
-            json.encode({
-              'data': {
-                'message': 'Please Provide Recipient Address',
-              }
-            }),
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          );
-        }
-
-        if (data['amount'] == '' ||
-            data['amount'] == null ||
-            data['amount'] <= kKoin.minAmount) {
-          return Response.forbidden(
-            json.encode({
-              'data': {
-                'message': 'Please include valid amount Greater Than KK10.00',
-              }
-            }),
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          );
-        }
-
-        blockchain.newTransaction(
-          sender: data['sender'],
-          recipient: data['recipient'],
-          amount: double.parse(data['amount'].toString()),
-        );
-
-        return Response.ok(
-          payload,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        );
       }),
     );
 
