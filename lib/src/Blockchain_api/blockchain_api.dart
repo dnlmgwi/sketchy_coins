@@ -1,5 +1,5 @@
 import 'package:shelf_router/shelf_router.dart';
-import 'package:uuid/uuid.dart';
+import 'package:sketchy_coins/src/Models/newTransaction/transactionPost.dart';
 import 'blockchain.dart';
 import 'blockchainValidation.dart';
 import 'miner.dart';
@@ -26,9 +26,9 @@ class BlockChainApi {
         //if emptry payload
         final payload = await request.readAsString();
         try {
-          final data = json.decode(payload);
+          final data = TransactionPost.fromJson(json.decode(payload));
 
-          if (data['sender'] == '' || data['sender'] == null) {
+          if (data.sender == '') {
             return Response.forbidden(
               json.encode({
                 'data': {
@@ -41,7 +41,7 @@ class BlockChainApi {
             );
           }
 
-          if (data['recipient'] == '' || data['recipient'] == null) {
+          if (data.recipient == '') {
             return Response.forbidden(
               json.encode({
                 'data': {
@@ -54,9 +54,7 @@ class BlockChainApi {
             );
           }
 
-          if (data['amount'] == '' ||
-              data['amount'] == null ||
-              data['amount'] <= kKoin.minAmount) {
+          if (data.amount.isNegative || data.amount < kKoin.minAmount) {
             return Response.forbidden(
               json.encode({
                 'data': {
@@ -70,18 +68,18 @@ class BlockChainApi {
           }
 
           blockchain.newTransaction(
-            sender: data['sender'],
-            recipient: data['recipient'],
-            amount: double.parse(data['amount'].toString()),
+            sender: data.sender,
+            recipient: data.recipient,
+            amount: double.parse(data.amount.toString()),
           );
 
           return Response.ok(
+            //TODO: Process Payments and Responed
             json.encode({
               'data': {
                 'message': 'Transaction Complete',
-                'TransID': Uuid().v4(),
                 'balance': 8.22,
-                'data': json.decode(payload),
+                'transaction': json.decode(payload),
               }
             }),
             headers: {
@@ -101,7 +99,7 @@ class BlockChainApi {
     router.get(
       '/mine/<address|.*>',
       (Request request, String address) async {
-        var mineResult = miner.mine(token: address);
+        var mineResult = miner.mine(address: address);
 
         //Does user exist?
         //Award User with KKoin

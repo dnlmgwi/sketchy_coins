@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'transaction.dart';
+import 'package:sketchy_coins/src/Models/transaction/transaction.dart';
 part 'mineResult.g.dart';
 
 @JsonSerializable(explicitToJson: true)

@@ -8,13 +8,14 @@ part of 'transaction.dart';
 
 Transaction _$TransactionFromJson(Map<String, dynamic> json) {
   return Transaction(
-    json['sender'] as String?,
-    json['recipient'] as String?,
-    (json['amount'] as num?)?.toDouble(),
-    json['timestamp'] as int?,
-  )
-    ..proof = json['proof'] as int?
-    ..prevHash = json['prevHash'] as String?;
+    sender: json['sender'] as String,
+    recipient: json['recipient'] as String,
+    amount: (json['amount'] as num).toDouble(),
+    timestamp: json['timestamp'] as int,
+    transID: json['transID'] as String,
+    proof: json['proof'] as int,
+    prevHash: json['prevHash'] as String,
+  );
 }
 
 Map<String, dynamic> _$TransactionToJson(Transaction instance) =>
@@ -23,6 +24,7 @@ Map<String, dynamic> _$TransactionToJson(Transaction instance) =>
       'recipient': instance.recipient,
       'amount': instance.amount,
       'timestamp': instance.timestamp,
+      'transID': instance.transID,
       'proof': instance.proof,
       'prevHash': instance.prevHash,
     };

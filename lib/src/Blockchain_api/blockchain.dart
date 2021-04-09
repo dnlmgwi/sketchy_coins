@@ -1,24 +1,16 @@
 import 'dart:convert';
-import 'package:sketchy_coins/src/Blockchain_api/block/block.dart';
-import 'package:sketchy_coins/src/Blockchain_api/transaction/transaction.dart';
-
+import 'package:sketchy_coins/blockchain.dart';
+import 'package:sketchy_coins/src/Models/transaction/transaction.dart';
+import 'package:uuid/uuid.dart';
 import 'kkoin.dart';
-import 'blockchainValidation.dart';
+import 'package:sketchy_coins/src/Blockchain_api/kkoin.dart';
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:hex/hex.dart';
 
 class Blockchain {
   final List<Block> _chain;
   final List<Transaction> _pendingTransactions;
-  BlockChainValidity? blockChainValidity;
-
-  Blockchain()
-      : _chain = [],
-        _pendingTransactions = [] {
-    // create genesis block
-    newBlock(100, '1');
-  }
-
+  static var i;
   // //Adds a node to our peer table
   // Set addPeer(host) {
   //   return peers.union(host);
@@ -29,6 +21,13 @@ class Blockchain {
   //   return peers;
   // }
 
+  Blockchain()
+      : _chain = [],
+        _pendingTransactions = [] {
+    // create genesis block
+    newBlock(100, '1');
+  }
+
   Block newBlock(int proof, String previousHash) {
     var pendingTransactions = _pendingTransactions;
 
@@ -37,30 +36,50 @@ class Blockchain {
     }
 
     var block = Block(
-      _chain.length,
-      DateTime.now().millisecondsSinceEpoch,
-      proof,
-      previousHash,
-      List.from(pendingTransactions),
+      index: _chain.length,
+      timestamp: DateTime.now().millisecondsSinceEpoch,
+      proof: proof,
+      prevHash: previousHash,
+      transactions: List.from(
+        pendingTransactions,
+      ),
     );
 
     _chain.add(block);
+
+    processPayments();
 
     _pendingTransactions.clear(); //Successfully Mined
 
     return block;
   }
 
-  int newTransaction({String? sender, String? recipient, double? amount}) {
+  void processPayments() {
+    if (DateTime.fromMillisecondsSinceEpoch(lastBlock.timestamp)
+        .isBefore(DateTime.now())) {
+      _pendingTransactions.forEach((element) {
+        print('Processing ${element.toJson()}');
+      });
+    }
+  }
+
+  int newTransaction({
+    required String sender,
+    required String recipient,
+    required double amount,
+  }) {
     _pendingTransactions.add(
       Transaction(
-        sender,
-        recipient,
-        amount,
-        DateTime.now().millisecondsSinceEpoch,
+        sender: sender,
+        recipient: recipient,
+        amount: amount,
+        timestamp: DateTime.now().millisecondsSinceEpoch,
+        transID: Uuid().v4(),
+        prevHash: lastBlock.prevHash,
+        proof: lastBlock.proof,
       ),
     );
-    return lastBlock.index! + 1;
+    return lastBlock.index + 1;
   }
 
   Block get lastBlock {

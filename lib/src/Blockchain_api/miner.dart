@@ -1,7 +1,7 @@
 import 'package:sketchy_coins/blockchain.dart';
 import 'package:sketchy_coins/src/Blockchain_api/blockchainValidation.dart';
 import 'package:sketchy_coins/src/Blockchain_api/kkoin.dart';
-import 'package:sketchy_coins/src/Blockchain_api/mineResult/mineResult.dart';
+import 'package:sketchy_coins/src/Models/mineResult/mineResult.dart';
 
 class Miner {
   final Blockchain blockchain;
@@ -9,7 +9,9 @@ class Miner {
 
   Miner(this.blockchain);
 
-  Map<String, dynamic> mine({String? token}) {
+  Map<String, dynamic> mine({
+    required String address,
+  }) {
     if (blockchain.pendingTransactions.isEmpty) {
       return {
         'message': 'Nothing to Mine',
@@ -22,7 +24,7 @@ class Miner {
     // Proof found - receive award for finding the proof
     blockchain.newTransaction(
       sender: '0',
-      recipient: token,
+      recipient: address,
       amount: kKoin.reward,
     );
 

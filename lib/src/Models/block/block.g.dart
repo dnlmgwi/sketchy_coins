@@ -8,12 +8,12 @@ part of 'block.dart';
 
 Block _$BlockFromJson(Map<String, dynamic> json) {
   return Block(
-    json['index'] as int?,
-    json['timestamp'] as int?,
-    json['proof'] as int?,
-    json['prevHash'] as String?,
-    (json['transactions'] as List<dynamic>?)
-        ?.map((e) => Transaction.fromJson(e as Map<String, dynamic>))
+    index: json['index'] as int,
+    timestamp: json['timestamp'] as int,
+    proof: json['proof'] as int,
+    prevHash: json['prevHash'] as String,
+    transactions: (json['transactions'] as List<dynamic>)
+        .map((e) => Transaction.fromJson(e as Map<String, dynamic>))
         .toList(),
   );
 }
@@ -21,7 +21,7 @@ Block _$BlockFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$BlockToJson(Block instance) => <String, dynamic>{
       'index': instance.index,
       'timestamp': instance.timestamp,
-      'transactions': instance.transactions?.map((e) => e.toJson()).toList(),
+      'transactions': instance.transactions.map((e) => e.toJson()).toList(),
       'proof': instance.proof,
       'prevHash': instance.prevHash,
     };
