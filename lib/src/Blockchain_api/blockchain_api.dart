@@ -23,6 +23,7 @@ class BlockChainApi {
         String? recipient,
         String? amount,
       }) async {
+        //if emptry payload
         final payload = await request.readAsString();
         //TODO: Empty Payload
         try {
