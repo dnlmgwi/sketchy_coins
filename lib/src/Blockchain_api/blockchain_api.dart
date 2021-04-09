@@ -1,10 +1,10 @@
 import 'package:shelf_router/shelf_router.dart';
-import 'package:sketchy_coins/blockchain.dart';
-import 'package:sketchy_coins/src/Blockchain_api/blockchainValidation.dart';
-import 'package:sketchy_coins/src/Blockchain_api/miner.dart';
+import 'blockchain.dart';
+import 'blockchainValidation.dart';
+import 'miner.dart';
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
-import 'package:sketchy_coins/src/kkoin.dart';
+import 'package:sketchy_coins/src/Blockchain_api/kkoin.dart';
 
 class BlockChainApi {
   static final blockchain = Blockchain();
@@ -18,10 +18,11 @@ class BlockChainApi {
       '/transactions/pay',
       ((
         Request request, {
-        String sender,
-        String recipient,
-        String amount,
+        String? sender,
+        String? recipient,
+        String? amount,
       }) async {
+        //if emptry payload
         final payload = await request.readAsString();
         final data = json.decode(payload);
 

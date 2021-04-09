@@ -1,23 +1,21 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:sketchy_coins/src/Blockchain_api/blockchainValidation.dart';
-import 'package:sketchy_coins/src/kkoin.dart';
-
+import 'kkoin.dart';
+import 'blockchainValidation.dart';
 import 'transaction.dart';
 import 'block.dart';
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:hex/hex.dart';
 
 class Blockchain {
-  static Iterable l = json.decode(File('chain.json').readAsStringSync());
-  List<Block> chain = List<Block>.from(l.map((model) => Block.fromJson(model)));
-
+ 
+  List<Block> _chain;
   final List<Transaction> _pendingTransactions;
-  BlockChainValidity blockChainValidity;
+  BlockChainValidity? blockChainValidity;
 
   Blockchain()
-      : chain = [],
-        _pendingTransactions = [] {
+      : _chain = [],
+       _pendingTransactions = [] {
     // create genesis block
     newBlock(100, '1');
   }
@@ -35,37 +33,37 @@ class Blockchain {
   Block newBlock(int proof, String previousHash) {
     var pendingTransactions = _pendingTransactions;
 
-    previousHash ??= hash(chain.last);
+    previousHash ??= hash(_chain.last);
 
     var block = Block(
-      index: chain.length,
-      timestamp: DateTime.now().millisecondsSinceEpoch,
-      prevHash: previousHash,
-      proof: proof,
-      transactions: List.from(pendingTransactions),
+      _chain.length,
+      DateTime.now().millisecondsSinceEpoch,
+      proof,
+      previousHash,
+      List.from(pendingTransactions),
     );
 
-    chain.add(block);
+    _chain.add(block);
 
     _pendingTransactions.clear(); //Successfully Mined
 
     return block;
   }
 
-  int newTransaction({String sender, String recipient, double amount}) {
+  int newTransaction({String? sender, String? recipient, double? amount}) {
     _pendingTransactions.add(
       Transaction(
-        sender: sender,
-        amount: amount,
-        recipient: recipient,
-        timestamp: DateTime.now().millisecondsSinceEpoch,
+        sender,
+        recipient,
+        amount,
+        DateTime.now().millisecondsSinceEpoch,
       ),
     );
-    return lastBlock.index + 1;
+    return lastBlock.index! + 1;
   }
 
   Block get lastBlock {
-    return chain.last;
+    return _chain.last;
   }
 
   List<Transaction> get pendingTransactions {
@@ -79,7 +77,7 @@ class Blockchain {
     return HEX.encode(converted);
   }
 
-  int proofOfWork(int lastProof) {
+  int proofOfWork(int? lastProof) {
     var proof = 0;
     while (!validProof(lastProof, proof)) {
       proof++;
@@ -87,18 +85,18 @@ class Blockchain {
     return proof;
   }
 
-  bool validProof(int lastProof, int proof) {
+  bool validProof(int? lastProof, int proof) {
     var guess = utf8.encode('$lastProof$proof');
     var guessHash = crypto.sha256.convert(guess).bytes;
     return HEX.encode(guessHash).substring(0, 4) == kKoin.difficulty;
   }
 
   String getBlockchain() {
-    var jsonChain = json.encode(chain);
+    var jsonChain = json.encode(_chain);
     return jsonChain;
   }
 
   List<Block> getFullChain() {
-    return chain;
+    return _chain;
   }
 }

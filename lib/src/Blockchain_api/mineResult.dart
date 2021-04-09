@@ -1,12 +1,15 @@
-import 'package:sketchy_coins/src/Blockchain_api/transaction.dart';
+import 'package:json_annotation/json_annotation.dart';
+import 'transaction.dart';
+part 'mineResult.g.dart';
 
+@JsonSerializable(explicitToJson: true)
 class MineResult {
-  final String message;
-  final int blockIndex;
-  final bool validBlock;
-  final List<Transaction> transactions;
-  final int proof;
-  final String prevHash;
+  final String? message;
+  final int? blockIndex;
+  final bool? validBlock;
+  final List<Transaction>? transactions;
+  final int? proof;
+  final String? prevHash;
 
   MineResult({
     this.message,
@@ -17,25 +20,7 @@ class MineResult {
     this.prevHash,
   });
 
-  Map<String, dynamic> toJson() {
-    // keys must be ordered for consistent hashing
-    var block = <String, dynamic>{};
-    block['message'] = message;
-    block['validBlock'] = validBlock;
-    block['blockIndex'] = blockIndex;
-    block['proof'] = proof;
-    block['prevHash'] = prevHash;
-    //Sort in acending order of time.
-    block['transactions'] = transactions.map((t) => t.toJson()).toList();
-
-    return block;
-  }
-
-  MineResult.fromJson(Map<String, dynamic> json)
-      : message = json['address'],
-        validBlock = json['validBlock'],
-        blockIndex = json['blockIndex'],
-        proof = json['proof'],
-        prevHash = json['prevHash'],
-        transactions = json['transactions'] ;
+  factory MineResult.fromJson(Map<String, dynamic> json) =>
+      _$MineResultFromJson(json);
+  Map<String, dynamic> toJson() => _$MineResultToJson(this);
 }

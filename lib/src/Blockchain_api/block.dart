@@ -1,41 +1,49 @@
-import 'package:sketchy_coins/src/Blockchain_api/transaction.dart';
+import 'transaction.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-class Block {
-  int index;
-  int timestamp;
-  List<Transaction> transactions;
-  int proof;
-  final String prevHash;
+part 'block.g.dart';
 
-  Block({
+/// An annotation for the code generator to know that this class needs the
+/// JSON serialization logic to be generated.
+@JsonSerializable(explicitToJson: true)
+class Block {
+  int? index;
+  int? timestamp;
+  List<Transaction>? transactions;
+  int? proof;
+  final String? prevHash;
+
+  Block(
     this.index,
     this.timestamp,
-    this.transactions,
     this.proof,
     this.prevHash,
-  });
+    this.transactions,
+  );
 
-  Map<String, dynamic> toJson() {
-    // keys must be ordered for consistent hashing
-    var block = <String, dynamic>{};
+  factory Block.fromJson(Map<String, dynamic> json) => _$BlockFromJson(json);
 
-    block['index'] = index;
-    block['timestamp'] = timestamp;
-    block['proof'] = proof;
-    block['prevHash'] = prevHash;
-    //Sort in acending order of time.
-    block['transactions'] = transactions.map((t) => t.toJson()).toList();
+  Map<String, dynamic> toJson() => _$BlockToJson(this);
+  // Map<String, dynamic> toJson() {
+  //   // keys must be ordered for consistent hashing
+  //   var block = <String, dynamic>{};
 
-    return block;
-  }
+  //   block['index'] = index;
+  //   block['timestamp'] = timestamp;
+  //   block['proof'] = proof;
+  //   block['prevHash'] = prevHash;
+  //   //Sort in acending order of time.
+  //   block['transactions'] = transactions!.map((t) => t.toJson()).toList();
 
-  Block.fromJson(Map<String, dynamic> json)
-      : index = json['index'],
-        timestamp = json['timestamp'],
-        proof = json['proof'],
-        prevHash = json['prevHash'],
-        transactions = json['transactions'];
+  //   return block;
+  // }
+
+  // Block.fromJson(Map<String, dynamic> json)
+  //     : index = json['index'],
+  //       timestamp = json['timestamp'],
+  //       proof = json['proof'],
+  //       prevHash = json['prevHash'],
+  //       transactions = json['transactions'];
 
   //  Block.fromJson(Map<String, dynamic> json) => _$BlockFromJson(json);
   // Map<String, dynamic> toJson() => _$BlockToJson(this);

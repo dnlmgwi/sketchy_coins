@@ -4,13 +4,13 @@ version: 0.0.1
 homepage: https://www.example.com
 
 environment:
-  sdk: ">=2.10.0 <3.0.0"
+  sdk: ">=2.12.2 <3.0.0"
 
 dependencies:
   crypto: ^3.0.1
   hex: ^0.2.0
   uuid: ^3.0.3
-  args: ^1.6.0
+  args: ^2.0.0
   shelf_router: ^1.0.0
   json_annotation: ^4.0.1
 
