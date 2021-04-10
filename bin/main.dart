@@ -1,17 +1,22 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
 import 'package:sketchy_coins/src/Blockchain_api/blockchain_api.dart';
 
 void main(List<String> arguments) async {
-  var app = Router();
-  final _hostName = 'localhost';
-  final _port = 8080;
-  var server = await io.serve(app, _hostName, _port);
+  var handler = Router();
+
+  var portEnv = Platform.environment['PORT'];
+
+  final _hostName = '0.0.0.0';
+  final _port = portEnv == null ? 9999 : int.parse(portEnv);
+  ;
+  var server = await io.serve(handler, _hostName, _port);
   print('Serving at http://${server.address.host}:${server.port}');
 
-  app.get('/', (Request request) {
+  handler.get('/', (Request request) {
     final data = {
       'message': 'Welcome to the KKoin.',
       'status': 'Testing',
@@ -33,7 +38,6 @@ void main(List<String> arguments) async {
   });
 
   //v1 of KKoin Api
-  app.mount('/v1/blockchain/', BlockChainApi().router);
-  // app.mount('/v1/account/', AccountApi().router);
+  handler.mount('/v1/blockchain/', BlockChainApi().router);
   // app.mount('/v1/account/', AccountApi().router);
 }
