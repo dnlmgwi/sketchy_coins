@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'package:hive/hive.dart';
 import 'package:sketchy_coins/blockchain.dart';
 import 'package:sketchy_coins/src/Models/transaction/transaction.dart';
+import 'package:sketchy_coins/src/Services/localStore.dart';
 import 'package:uuid/uuid.dart';
 import 'kkoin.dart';
 import 'package:sketchy_coins/src/Blockchain_api/kkoin.dart';
@@ -9,8 +11,9 @@ import 'package:hex/hex.dart';
 
 class Blockchain {
   final List<Block> _chain;
+
   final List<Transaction> _pendingTransactions;
-  static var i;
+
   // //Adds a node to our peer table
   // Set addPeer(host) {
   //   return peers.union(host);
@@ -28,6 +31,9 @@ class Blockchain {
     newBlock(100, '1');
   }
 
+  var blockchain = Hive.box<Block>('blockchain');
+  var transactions = Hive.box<Transaction>('transactions');
+
   Block newBlock(int proof, String previousHash) {
     var pendingTransactions = _pendingTransactions;
 
@@ -44,6 +50,8 @@ class Blockchain {
         pendingTransactions,
       ),
     );
+
+    blockchain.add(block);
 
     _chain.add(block);
 

@@ -1,15 +1,25 @@
+import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:sketchy_coins/src/Models/transaction/transaction.dart';
 part 'block.g.dart';
 
-/// An annotation for the code generator to know that this class needs the
-/// JSON serialization logic to be generated.
+@HiveType(typeId: 1)
 @JsonSerializable(explicitToJson: true)
-class Block {
+class Block extends HiveObject {
+  
+  @HiveField(4)
   int index;
+
+  @HiveField(5)
   int timestamp;
+
+  @HiveField(6)
   List<Transaction> transactions;
+  
+  @HiveField(7)
   int proof;
+
+  @HiveField(8)
   final String prevHash;
 
   Block({

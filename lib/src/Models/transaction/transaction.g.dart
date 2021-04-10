@@ -3,6 +3,62 @@
 part of 'transaction.dart';
 
 // **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
+
+class TransactionAdapter extends TypeAdapter<Transaction> {
+  @override
+  final int typeId = 4;
+
+  @override
+  Transaction read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return Transaction(
+      sender: fields[18] as String,
+      recipient: fields[19] as String,
+      amount: fields[20] as double,
+      timestamp: fields[21] as int,
+      transID: fields[22] as String,
+      proof: fields[23] as int,
+      prevHash: fields[24] as String,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, Transaction obj) {
+    writer
+      ..writeByte(7)
+      ..writeByte(18)
+      ..write(obj.sender)
+      ..writeByte(19)
+      ..write(obj.recipient)
+      ..writeByte(20)
+      ..write(obj.amount)
+      ..writeByte(21)
+      ..write(obj.timestamp)
+      ..writeByte(22)
+      ..write(obj.transID)
+      ..writeByte(23)
+      ..write(obj.proof)
+      ..writeByte(24)
+      ..write(obj.prevHash);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TransactionAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
