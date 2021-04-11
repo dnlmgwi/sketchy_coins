@@ -1,65 +1,77 @@
-// import 'dart:convert';
-// import 'dart:io';
-// import 'package:sketchy_coins/src/Account_api/accountExeptions.dart';
-// import 'package:sketchy_coins/src/Models/Account/account.dart';
+import 'dart:math';
 
-// class AccountService {
-//   static Map<String, dynamic> accountMap = json.decode(
-//     File('accounts.json').readAsStringSync(),
-//   );
+import 'package:hive/hive.dart';
+import 'package:sketchy_coins/src/Account_api/accountExeptions.dart';
+import 'package:sketchy_coins/src/Models/Account/account.dart';
+import 'package:uuid/uuid.dart';
 
-//   var account = Account.fromJson(
-//     accountMap,
-//   );
+class AccountService {
+  final _accountList = Hive.box<Account>('accounts');
 
-//   Account findAccount({required List data, required String address}) {
-//     return data.firstWhere((account) => account['address'] == address,
-//         orElse: () => null);
-//   }
+  Account _findAccount({required Box<Account> data, required String address}) {
+    return data.values.firstWhere((element) => element.address == address);
+  }
 
-//   /// Edit User Account Balance
-//   /// String address - User Koin Address
-//   /// String value - Transaction Value
-//   /// String transactionType - 0: Withdraw, 1: Deposit
-//   // dynamic editAccountBalance({
-//   //   required String address,
-//   //   required double value,
-//   //   required int transactionType,
-//   // }) {
-//   //   try {
-//   //     var account = findAccount(data: _accountList, address: address);
-//   //     var operation = transactionType;
+  Box<Account> createAccount() {
+    var balance = Random();
 
-//   //     if (account != null) {
-//   //       if (operation == 0) {
-//   //         try {
-//   //           return withdraw(value, account);
-//   //         } catch (e) {
-//   //           print(e);
-//   //         }
-//   //       } else if (operation == 1) {
-//   //         return deposit(account, value);
-//   //       } else {
-//   //         AccountNotFoundException();
-//   //       }
-//   //     }
-//   //   } catch (e) {
-//   //     print(e);
-//   //   }
-//   // }
+    _accountList.add(
+      Account(
+          status: 'normal',
+          address: Uuid().v4(),
+          balance: balance.nextInt(1000).toDouble(),
+          transactions: []),
+    );
 
-//   double deposit(account, double value) => account['balance'] + value;
+    print('New Account: ${_accountList.values.first}');
+    return _accountList;
+  }
 
-//   double withdraw({required double value, required Account account}) {
-//     if (value > account.balance) {
-//       throw InsufficientFundsException();
-//     }
-//     return account.balance - value;
-//   }
+  /// Edit User Account Balance
+  /// String address - User Koin Address
+  /// String value - Transaction Value
+  /// String transactionType - 0: Withdraw, 1: Deposit
+  dynamic editAccountBalance({
+    required String address,
+    required double value,
+    required int transactionType,
+  }) {
+    try {
+      var account = _findAccount(data: _accountList, address: address);
+      var operation = transactionType;
 
-//   List get accountList {
-//     return account;
-//   }
-// }
+      if (operation == 0) {
+        try {
+          return withdraw(account: account, value: value);
+        } on InsufficientFundsException catch (e) {
+          return e.toString();
+        }
+      } else if (operation == 1) {
+        return deposit(account: account, value: value);
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  double deposit({required Account account, required double value}) =>
+      account.balance + value;
+
+  double withdraw({required double value, required Account account}) {
+    try {
+      if (value > account.balance) {
+        throw InsufficientFundsException();
+      }
+    } catch (e) {
+      return account.balance;
+    }
+
+    return account.balance - value;
+  }
+
+  List<Account> get accountList {
+    return _accountList.values.toList();
+  }
+}
 
 // AccountService accountService = AccountService();

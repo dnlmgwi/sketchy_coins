@@ -7,7 +7,7 @@ part 'account.g.dart';
 /// JSON serialization logic to be generated.
 @JsonSerializable(explicitToJson: true)
 @HiveType(typeId: 4)
-class Account {
+class Account extends HiveObject{
   
   @HiveField(22)
   final String address;

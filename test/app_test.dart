@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:hive/hive.dart';
 import 'package:sketchy_coins/blockchain.dart';
+import 'package:sketchy_coins/src/Account_api/accountExeptions.dart';
+import 'package:sketchy_coins/src/Account_api/accountService.dart';
 import 'package:sketchy_coins/src/Blockchain_api/miner.dart';
 import 'package:sketchy_coins/src/Blockchain_api/blockchainValidation.dart';
 import 'package:sketchy_coins/src/Models/Account/account.dart';
@@ -10,7 +12,7 @@ import 'package:sketchy_coins/src/Models/transaction/transaction.dart';
 import 'package:test/test.dart';
 
 void main() async {
-  Hive.init('kkoin');
+  Hive.init('kkoin_test');
   Hive.registerAdapter(AccountAdapter());
   Hive.registerAdapter(BlockAdapter());
   Hive.registerAdapter(MineResultAdapter());
@@ -18,10 +20,12 @@ void main() async {
   Hive.registerAdapter(TransactionPostAdapter());
 
   await Hive.openBox<Block>('blockchain');
+  await Hive.openBox<Account>('accounts');
   await Hive.openBox<Transaction>('transactions');
   var b = Blockchain();
   var a = BlockChainValidity();
   var miner = Miner(b);
+  var accountService = AccountService();
   group('Blockchain', () {
     test('Test', () {
       expect(b, isNotNull);
@@ -42,6 +46,60 @@ void main() async {
       expect(r, isNotNull);
     });
   });
+
+  group('Account_Api', () {
+    test(
+      'New Account',
+      () {
+        expect(accountService.createAccount().values.last.address, isNotNull);
+      },
+    );
+
+    test(
+      'New Deposit',
+      () {
+        var account;
+        print('Before: ${accountService.accountList.first.balance}');
+        expect(
+            account = accountService.deposit(
+                account: accountService.accountList.first, value: 1000),
+            account);
+
+        print('After: $account');
+      },
+    );
+
+    test(
+      'New Withdraw Fail',
+      () {
+        var account;
+        print('Before: ${accountService.accountList.first.balance}');
+        try {
+          expect(
+              account = accountService.withdraw(
+                  account: accountService.accountList.first, value: 100000),
+              account);
+        } on InsufficientFundsException catch (e) {
+          print(e.toString());
+          print('After: $account');
+        }
+      },
+    );
+
+    test(
+      'New Withdraw Pass',
+      () {
+        var account;
+        print('Before: ${accountService.accountList.first.balance}');
+        expect(
+            account = accountService.withdraw(
+                account: accountService.accountList.last, value: 10),
+            account);
+
+        print('After: $account');
+      },
+    );
+  });
   group('Miner', () {
     test('Test', () {
       var result = miner.mine(address: 'csdcsdcd');
@@ -60,58 +118,57 @@ void main() async {
     });
   });
 }
+// group('Account', () {
+// var accountService = AccountService();
+// test('Found', () {
+//   final account = accountService.findAccount(
+//     data: accountService.accountList,
+//     address: '89sdc89',
+//   );
+//   expect(account, isNotNull);
+// });
 
-//   group('Account', () {
-//     // var accountService = AccountService();
-//     // test('Found', () {
-//     //   final account = accountService.findAccount(
-//     //     data: accountService.accountList,
-//     //     address: '89sdc89',
-//     //   );
-//     //   expect(account, isNotNull);
-//     // });
+// test('Find Error ', () {
+//   expect(
+//     accountService.findAccount(
+//       data: accountService.accountList,
+//       address: '89sdcjj89',
+//     ),
+//     null,
+//   );
+// });
 
-//     // test('Find Error ', () {
-//     //   expect(
-//     //     accountService.findAccount(
-//     //       data: accountService.accountList,
-//     //       address: '89sdcjj89',
-//     //     ),
-//     //     null,
-//     //   );
-//     // });
+// test('Insufficient funds', () {
+//   expect(
+//       accountService.editAccountBalance(
+//           address: '8nj9ssdcs89', value: 10434.5, transactionType: 0),
+//       isNull);
+// });
 
-//     // test('Insufficient funds', () {
-//     //   expect(
-//     //       accountService.editAccountBalance(
-//     //           address: '8nj9ssdcs89', value: 10434.5, transactionType: 0),
-//     //       isNull);
-//     // });
+// test('Not Found', () {
+//   expect(
+//       accountService.editAccountBalance(
+//           address: '8scdcs989ff', value: 434.5, transactionType: 1),
+//       isNull);
+// });
 
-//     // test('Not Found', () {
-//     //   expect(
-//     //       accountService.editAccountBalance(
-//     //           address: '8scdcs989ff', value: 434.5, transactionType: 1),
-//     //       isNull);
-//     // });
+//   test('Withdraw', () {
+//     Iterable l = json.decode(
+//       File('accounts.json').readAsStringSync(),
+//     );
 
-//     test('Withdraw', () {
-//       Iterable l = json.decode(
-//         File('accounts.json').readAsStringSync(),
-//       );
+//     var accounts =
+//         List<Account>.from(l.map((model) => Account.fromJson(model)));
 
-//       var accounts =
-//           List<Account>.from(l.map((model) => Account.fromJson(model)));
+//     print(accounts);
 
-//       print(accounts);
-
-//       expect(accountService.withdraw(account: , value: ), 2324);
-//     });
-
-//     // test('Deposit', () {
-//     //   expect(accountService.withdraw(value, account), 2324);
-//     // });
+//     expect(accountService.withdraw(account: , value: ), 2324);
 //   });
+
+//   test('Deposit', () {
+//     expect(accountService.withdraw(value, account), 2324);
+//   });
+// });
 
 //   group('Blockchain Validation', () {
 //     test('isFirstBlockValid', () {
