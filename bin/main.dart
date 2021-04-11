@@ -6,8 +6,8 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
 import 'package:sketchy_coins/blockchain.dart';
 import 'package:sketchy_coins/src/Blockchain_api/blockchain_api.dart';
+import 'package:sketchy_coins/src/Models/Account/account.dart';
 import 'package:sketchy_coins/src/Models/mineResult/mineResult.dart';
-import 'package:sketchy_coins/src/Models/newTransaction/transactionPost.dart';
 import 'package:sketchy_coins/src/Models/transaction/transaction.dart';
 
 void main(List<String> arguments) async {
@@ -15,9 +15,9 @@ void main(List<String> arguments) async {
   Hive.registerAdapter(BlockAdapter());
   Hive.registerAdapter(MineResultAdapter());
   Hive.registerAdapter(TransactionAdapter());
-  Hive.registerAdapter(TransactionPostAdapter());
 
   await Hive.openBox<Block>('blockchain');
+  await Hive.openBox<Account>('accounts');
   await Hive.openBox<Transaction>('transactions');
 
   var handler = Router();

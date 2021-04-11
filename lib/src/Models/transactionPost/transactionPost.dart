@@ -1,17 +1,12 @@
-import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 part 'transactionPost.g.dart';
 
-@HiveType(typeId: 2)
 @JsonSerializable()
-class TransactionPost extends HiveObject {
-  @HiveField(12)
+class TransactionPost {
   String sender;
 
-  @HiveField(13)
   String recipient;
 
-  @HiveField(14)
   double amount;
 
   TransactionPost({

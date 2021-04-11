@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:hive/hive.dart';
 import 'package:sketchy_coins/src/Account_api/accountExeptions.dart';
 import 'package:sketchy_coins/src/Blockchain_api/kkoin.dart';
@@ -39,7 +38,6 @@ class AccountService {
     required int transactionType,
   }) {
     try {
-      findAccount(data: _accountList, address: account.address);
       var operation = transactionType;
 
       if (operation == 0) {
@@ -78,5 +76,3 @@ class AccountService {
     return _accountList;
   }
 }
-
-// AccountService accountService = AccountService();

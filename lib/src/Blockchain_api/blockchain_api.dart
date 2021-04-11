@@ -1,6 +1,5 @@
 import 'package:shelf_router/shelf_router.dart';
-import 'package:sketchy_coins/src/Models/newTransaction/transactionPost.dart';
-import 'blockchain.dart';
+import 'blockchainService.dart';
 import 'blockchainValidation.dart';
 import 'miner.dart';
 import 'dart:convert';
@@ -8,8 +7,8 @@ import 'package:shelf/shelf.dart';
 import 'package:sketchy_coins/src/Blockchain_api/kkoin.dart';
 
 class BlockChainApi {
-  static final blockchain = Blockchain();
-  var miner = Miner(blockchain);
+  static final blockchainService = BlockchainService();
+  var miner = Miner(blockchainService);
   var blockChainValidity = BlockChainValidity();
 
   Router get router {
@@ -18,17 +17,13 @@ class BlockChainApi {
     router.post(
       '/transactions/pay',
       ((
-        Request request, {
-        String? sender,
-        String? recipient,
-        String? amount,
-      }) async {
-        //if emptry payload
-        final payload = await request.readAsString();
+        Request request,
+      ) async {
         try {
-          final data = TransactionPost.fromJson(json.decode(payload));
+          final payload = await request.readAsString();
+          final data = json.decode(payload);
 
-          if (data.sender == '') {
+          if (data['sender'] == '') {
             return Response.forbidden(
               json.encode({
                 'data': {
@@ -41,7 +36,7 @@ class BlockChainApi {
             );
           }
 
-          if (data.recipient == '') {
+          if (data['recipient'] == '') {
             return Response.forbidden(
               json.encode({
                 'data': {
@@ -54,7 +49,7 @@ class BlockChainApi {
             );
           }
 
-          if (data.amount.isNegative || data.amount < kKoin.minAmount) {
+          if (data['amount'] == null || data['amount'] < kKoin.minAmount) {
             return Response.forbidden(
               json.encode({
                 'data': {
@@ -67,10 +62,10 @@ class BlockChainApi {
             );
           }
 
-          blockchain.newTransaction(
-            sender: data.sender,
-            recipient: data.recipient,
-            amount: double.parse(data.amount.toString()),
+          blockchainService.newTransaction(
+            sender: data['sender'],
+            recipient: data['recipient'],
+            amount: double.parse(data['amount'].toString()),
           );
 
           return Response.ok(
@@ -78,7 +73,6 @@ class BlockChainApi {
             json.encode({
               'data': {
                 'message': 'Transaction Complete',
-                'balance': 8.22,
                 'transaction': json.decode(payload),
               }
             }),
@@ -87,36 +81,35 @@ class BlockChainApi {
             },
           );
         } catch (e) {
-          return Response.forbidden(json.encode({
-            'data': {
-              'message': 'No Data Recieved',
-            }
-          }));
+          print(e);
         }
       }),
     );
 
     router.get(
-      '/mine/<address|.*>',
-      (Request request, String address) async {
-        var mineResult = miner.mine(address: address);
+      '/mine',
+      (Request request) async {
+        final payload = await request.readAsString();
+        final address = json.decode(payload);
+
+        var mineResult = miner.mine(address: address['address']);
 
         //Does user exist?
         //Award User with KKoin
 
-        if (address == '223') {
+        if (address['address'] == '223') {
           return Response.ok(
             json.encode({'data': mineResult}),
             headers: {
               'Content-Type': 'application/json',
             },
           );
-        } else if (address.isEmpty) {
+        } else if (address['address'].isEmpty) {
           return Response.forbidden(
             json.encode(
               {
                 'data': {
-                  'message': 'Please provide a valid token',
+                  'message': 'Please provide a valid address',
                 }
               },
             ),
@@ -129,7 +122,7 @@ class BlockChainApi {
             json.encode(
               {
                 'data': {
-                  'message': 'Invalid Token',
+                  'message': 'Invalid Address',
                 }
               },
             ),
@@ -147,9 +140,8 @@ class BlockChainApi {
         Request request,
       ) async {
         if (blockChainValidity.isBlockChainValid(
-          chain: miner.blockchain.blockchain.values.toList(),
-          blockchain: blockchain,
-        )) {
+            chain: miner.blockchain.blockchainStore,
+            blockchain: blockchainService)) {
           return Response.ok(
             miner.blockchain.getBlockchain(),
             headers: {

@@ -1,11 +1,12 @@
+import 'package:hive/hive.dart';
 import 'package:sketchy_coins/blockchain.dart';
 
 class BlockChainValidity {
   bool isFirstBlockValid({
-    required List<Block> chain,
-    required Blockchain blockchain,
+    required Box<Block> chain,
+    required BlockchainService blockchainService,
   }) {
-    var firstBlock = chain.first;
+    var firstBlock = chain.values.first;
 
     if (firstBlock.index != 0) {
       return true;
@@ -15,8 +16,9 @@ class BlockChainValidity {
       return true;
     }
 
-    if (blockchain.hash(firstBlock).isEmpty ||
-        blockchain.hash(chain.first) == blockchain.hash(chain.first)) {
+    if (blockchainService.hash(firstBlock).isEmpty ||
+        blockchainService.hash(chain.values.first) ==
+            blockchainService.hash(chain.values.first)) {
       return true;
     }
 
@@ -26,7 +28,7 @@ class BlockChainValidity {
   bool isValidNewBlock({
     Block? newBlock,
     Block? previousBlock,
-    Blockchain? blockchain,
+    BlockchainService? blockchain,
   }) {
     if (newBlock != null && previousBlock != null) {
       if (previousBlock.index + 1 != newBlock.index) {
@@ -50,19 +52,19 @@ class BlockChainValidity {
   }
 
   bool isBlockChainValid({
-    required List<Block> chain,
-    required Blockchain blockchain,
+    required Box<Block> chain,
+    required BlockchainService blockchain,
   }) {
     if (!isFirstBlockValid(
       chain: chain,
-      blockchain: blockchain,
+      blockchainService: blockchain,
     )) {
       return true;
     }
 
     for (var i = 1; i < chain.length; i++) {
-      final currentBlock = chain.elementAt(i);
-      final previousBlock = chain.elementAt(i - 1);
+      final currentBlock = chain.values.elementAt(i);
+      final previousBlock = chain.values.elementAt(i - 1);
 
       if (!isValidNewBlock(
         blockchain: blockchain,
@@ -78,3 +80,81 @@ class BlockChainValidity {
 }
 
 BlockChainValidity blockChainValidity = BlockChainValidity();
+
+// class BlockChainValidity {
+//   bool isFirstBlockValid({
+//     required Box<Block> chain,
+//     required Box<Block> blockchain,
+//   }) {
+//     var firstBlock = chain.first;
+
+//     if (firstBlock.index != 0) {
+//       return true;
+//     }
+
+//     if (firstBlock.prevHash.isNotEmpty) {
+//       return true;
+//     }
+
+//     if (blockchain.hash(firstBlock).isEmpty ||
+//         blockchain.hash(chain.first) == blockchain.hash(chain.first)) {
+//       return true;
+//     }
+
+//     return false;
+//   }
+
+//   bool isValidNewBlock({
+//     required Block? newBlock,
+//     required Block? previousBlock,
+//     required Box<Block>? blockchain,
+//   }) {
+//     if (newBlock != null && previousBlock != null) {
+//       if (previousBlock.index + 1 != newBlock.index) {
+//         return true;
+//       }
+
+//       if (newBlock.prevHash.isNotEmpty ||
+//           newBlock.prevHash == blockchain!.hash(previousBlock)) {
+//         return true;
+//       }
+
+//       if (blockchain.values.last.hash(newBlock).isEmpty ||
+//           blockchain.hash(newBlock) == blockchain.hash(newBlock)) {
+//         return true;
+//       }
+
+//       return false;
+//     }
+
+//     return true;
+//   }
+
+//   bool isBlockChainValid({
+//     required Box<Block> chain,
+//     required Box<Block> blockchain,
+//   }) {
+//     if (!isFirstBlockValid(
+//       chain: chain,
+//       blockchain: blockchain,
+//     )) {
+//       return true;
+//     }
+
+//     for (var i = 1; i < chain.length; i++) {
+//       final currentBlock = chain.values.elementAt(i);
+//       final previousBlock = chain.values.elementAt(i - 1);
+
+//       if (!isValidNewBlock(
+//         blockchain: blockchain,
+//         newBlock: currentBlock,
+//         previousBlock: previousBlock,
+//       )) {
+//         return true;
+//       }
+//     }
+
+//     return true;
+//   }
+// }
+

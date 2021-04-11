@@ -4,7 +4,7 @@ import 'package:sketchy_coins/src/Blockchain_api/kkoin.dart';
 import 'package:sketchy_coins/src/Models/mineResult/mineResult.dart';
 
 class Miner {
-  final Blockchain blockchain;
+  final BlockchainService blockchain;
   var blockChainValidity = BlockChainValidity();
 
   Miner(this.blockchain);

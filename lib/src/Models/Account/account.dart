@@ -6,18 +6,18 @@ part 'account.g.dart';
 /// An annotation for the code generator to know that this class needs the
 /// JSON serialization logic to be generated.
 @JsonSerializable(explicitToJson: true)
-@HiveType(typeId: 4)
+@HiveType(typeId: 0)
 class Account extends HiveObject {
-  @HiveField(20)
+  @HiveField(1)
   final String address;
 
-  @HiveField(21)
+  @HiveField(2)
   final String status;
 
-  @HiveField(22)
+  @HiveField(3)
   final double balance;
 
-  @HiveField(23)
+  @HiveField(4)
   final List<Transaction>? transactions;
 
   Account({

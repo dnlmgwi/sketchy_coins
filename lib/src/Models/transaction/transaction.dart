@@ -5,19 +5,19 @@ part 'transaction.g.dart';
 @HiveType(typeId: 3)
 @JsonSerializable()
 class Transaction extends HiveObject {
-  @HiveField(15)
+  @HiveField(1)
   String sender;
 
-  @HiveField(16)
+  @HiveField(2)
   String recipient;
 
-  @HiveField(17)
+  @HiveField(3)
   double amount;
 
-  @HiveField(18)
+  @HiveField(4)
   int timestamp;
 
-  @HiveField(19)
+  @HiveField(5)
   String transID;
 
   Transaction({

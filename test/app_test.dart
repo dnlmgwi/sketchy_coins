@@ -7,7 +7,6 @@ import 'package:sketchy_coins/src/Blockchain_api/miner.dart';
 import 'package:sketchy_coins/src/Blockchain_api/blockchainValidation.dart';
 import 'package:sketchy_coins/src/Models/Account/account.dart';
 import 'package:sketchy_coins/src/Models/mineResult/mineResult.dart';
-import 'package:sketchy_coins/src/Models/newTransaction/transactionPost.dart';
 import 'package:sketchy_coins/src/Models/transaction/transaction.dart';
 import 'package:test/test.dart';
 
@@ -17,23 +16,22 @@ void main() async {
   Hive.registerAdapter(BlockAdapter());
   Hive.registerAdapter(MineResultAdapter());
   Hive.registerAdapter(TransactionAdapter());
-  Hive.registerAdapter(TransactionPostAdapter());
 
   await Hive.openBox<Block>('blockchain');
   await Hive.openBox<Account>('accounts');
   await Hive.openBox<Transaction>('transactions');
-  var b = Blockchain();
+  var blockchainService = BlockchainService();
   var a = BlockChainValidity();
-  var miner = Miner(b);
+  var miner = Miner(blockchainService);
   var accountService = AccountService();
   group('Blockchain', () {
     test('Test', () {
-      expect(b, isNotNull);
-      var blockIndex =
-          b.newTransaction(sender: 'john', recipient: 'steve', amount: 0.50);
+      expect(blockchainService, isNotNull);
+      var blockIndex = blockchainService.newTransaction(
+          sender: 'john', recipient: 'steve', amount: 0.50);
 
-      expect(blockIndex, b.blockchain.length);
-      b.blockchain.values.forEach((element) {
+      expect(blockIndex, blockchainService.blockchainStore.length);
+      blockchainService.blockchainStore.values.forEach((element) {
         print(element.toJson());
       });
     });
@@ -55,16 +53,21 @@ void main() async {
       },
     );
 
+    test('List Accounts', () {
+      expect(accountService.accountList.values, isNotNull);
+      print(accountService.accountList.values.last.address);
+    });
+
     test(
       'Find Account',
       () {
         var account = accountService.findAccount(
             data: accountService.accountList,
-            address: 'cb7a14f8-0eb3-4ec7-9399-975b89ba65a8');
+            address: 'b8cadbee-2fed-44f5-abca-1f163c05abdc');
         expect(account.toJson(), {
-          'address': 'cb7a14f8-0eb3-4ec7-9399-975b89ba65a8',
+          'address': 'b8cadbee-2fed-44f5-abca-1f163c05abdc',
           'status': 'normal',
-          'balance': 297.0,
+          'balance': 566.0,
           'transactions': []
         });
       },
@@ -89,12 +92,12 @@ void main() async {
       () {
         var account;
         print(
-            'Before: ${accountService.findAccount(data: accountService.accountList, address: 'cb7a14f8-0eb3-4ec7-9399-975b89ba65a8').toJson()}');
+            'Before: ${accountService.findAccount(data: accountService.accountList, address: 'b8cadbee-2fed-44f5-abca-1f163c05abdc').toJson()}');
         expect(
             account = accountService.deposit(
                 account: accountService.findAccount(
                     data: accountService.accountList,
-                    address: 'cb7a14f8-0eb3-4ec7-9399-975b89ba65a8'),
+                    address: 'b8cadbee-2fed-44f5-abca-1f163c05abdc'),
                 value: 1000000),
             account);
 
@@ -110,12 +113,12 @@ void main() async {
               accountService.withdraw(
                   account: accountService.findAccount(
                       data: accountService.accountList,
-                      address: 'cb7a14f8-0eb3-4ec7-9399-975b89ba65a8'),
+                      address: 'b8cadbee-2fed-44f5-abca-1f163c05abdc'),
                   value: 0.3),
               accountService
                   .findAccount(
                       data: accountService.accountList,
-                      address: 'cb7a14f8-0eb3-4ec7-9399-975b89ba65a8')
+                      address: 'b8cadbee-2fed-44f5-abca-1f163c05abdc')
                   .balance);
         } on InsufficientFundsException catch (e) {
           print(e.toString());
@@ -150,7 +153,7 @@ void main() async {
               account = accountService.withdraw(
                   account: accountService.findAccount(
                       data: accountService.accountList,
-                      address: 'cb7a14f8-0eb3-4ec7-9399-975b89ba65a8'),
+                      address: 'b8cadbee-2fed-44f5-abca-1f163c05abdc'),
                   value: 0.3),
               account);
           print('After: $account');
@@ -170,7 +173,7 @@ void main() async {
             account = accountService.withdraw(
                 account: accountService.findAccount(
                     data: accountService.accountList,
-                    address: 'cb7a14f8-0eb3-4ec7-9399-975b89ba65a8'),
+                    address: 'b8cadbee-2fed-44f5-abca-1f163c05abdc'),
                 value: 100),
             account);
 
@@ -183,16 +186,18 @@ void main() async {
       var result = miner.mine(address: 'cb7a14f8-0eb3-4ec7-9399-975b89ba65a8');
       expect(result, isNotNull);
       expect(result.containsKey('prevHash'), isNotNull);
-      b.newTransaction(
+      blockchainService.newTransaction(
           sender: 'cb7a14f8-0eb3-4ec7-9399-975b89ba65a8',
           recipient: '0',
           amount: 1.50);
       var isValid = a.isFirstBlockValid(
-          chain: miner.blockchain.blockchain.values.toList(), blockchain: b);
+          chain: miner.blockchain.blockchainStore,
+          blockchainService: blockchainService);
       expect(isValid, true);
 
       var result2 = a.isBlockChainValid(
-          chain: b.blockchain.values.toList(), blockchain: b);
+          chain: blockchainService.blockchainStore,
+          blockchain: blockchainService);
 
       expect(result2, isNotNull);
       expect(result2, true);

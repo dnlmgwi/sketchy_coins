@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:hive/hive.dart';
 import 'package:sketchy_coins/blockchain.dart';
+import 'package:sketchy_coins/src/Account_api/accountService.dart';
+import 'package:sketchy_coins/src/Blockchain_api/blockchainValidation.dart';
 import 'package:sketchy_coins/src/Models/transaction/transaction.dart';
 import 'package:uuid/uuid.dart';
 import 'kkoin.dart';
@@ -8,31 +10,34 @@ import 'package:sketchy_coins/src/Blockchain_api/kkoin.dart';
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:hex/hex.dart';
 
-class Blockchain {
-  // //Adds a node to our peer table
+class BlockchainService {
+  //Adds a node to our peer table
   // Set addPeer(host) {
   //   return peers.union(host);
   // }
 
-  // //Adds a node to our peer table
+  //Adds a node to our peer table
   // Set getPeers() {
   //   return peers;
   // }
 
-  Blockchain() {
+  BlockchainService() {
     newBlock(100, '1');
   }
 
-  var blockchain = Hive.box<Block>('blockchain');
-  var transactions = Hive.box<Transaction>('transactions');
+  AccountService _accountService = AccountService();
+
+  var blockChainValidity = BlockChainValidity();
+  var blockchainStore = Hive.box<Block>('blockchain');
+  var pendingTansactions = Hive.box<Transaction>('transactions');
 
   Block newBlock(int proof, String previousHash) {
     if (previousHash.isEmpty) {
-      hash(blockchain.values.last);
+      hash(blockchainStore.values.last);
     }
 
     var block = Block(
-      index: blockchain.values.length,
+      index: blockchainStore.values.length,
       timestamp: DateTime.now().millisecondsSinceEpoch,
       proof: proof,
       prevHash: previousHash,
@@ -40,21 +45,39 @@ class Blockchain {
         pendingTransactions.toSet(),
       ),
     );
-
-    blockchain.add(block);
-
+    blockchainStore.add(block);
     processPayments();
-
-    transactions.clear(); //Successfully Mined
+    pendingTansactions.clear(); //Successfully Mined
 
     return block;
   }
 
   void processPayments() {
-    if (DateTime.fromMillisecondsSinceEpoch(lastBlock.timestamp)
+    if (DateTime.fromMillisecondsSinceEpoch(
+            blockchainStore.values.last.timestamp)
         .isBefore(DateTime.now())) {
-      transactions.values.forEach((element) {
+      pendingTansactions.values.forEach((element) {
         print('Processing ${element.toJson()}');
+
+        var transactionType;
+
+        if (element.sender == '0') {
+          transactionType = 0;
+        } else {
+          transactionType = 1;
+        }
+
+        try {
+          var foundAccount = _accountService.findAccount(
+              data: _accountService.accountList, address: element.sender);
+
+          _accountService.editAccountBalance(
+              account: foundAccount,
+              value: element.amount,
+              transactionType: transactionType);
+        } catch (e) {
+          print(e.toString());
+        }
       });
     }
   }
@@ -64,24 +87,22 @@ class Blockchain {
     required String recipient,
     required double amount,
   }) {
-    transactions.add(
-      Transaction(
-        sender: sender,
-        recipient: recipient,
-        amount: amount,
-        timestamp: DateTime.now().millisecondsSinceEpoch,
-        transID: Uuid().v4(),
-      ),
-    );
+    pendingTansactions.add(Transaction(
+      sender: sender,
+      recipient: recipient,
+      amount: amount,
+      timestamp: DateTime.now().millisecondsSinceEpoch,
+      transID: Uuid().v4(),
+    ));
     return lastBlock.index + 1;
   }
 
   Block get lastBlock {
-    return blockchain.values.last;
+    return blockchainStore.values.last;
   }
 
   List<Transaction> get pendingTransactions {
-    return transactions.values.toList();
+    return pendingTansactions.values.toList();
   }
 
   String hash(Block block) {
@@ -106,11 +127,7 @@ class Blockchain {
   }
 
   String getBlockchain() {
-    var jsonChain = json.encode(blockchain.values.last.toJson());
+    var jsonChain = json.encode(blockchainStore.values.last.toJson());
     return jsonChain;
   }
-
-  // List<Block> getFullChain() {
-  //   return _chain;
-  // }
 }

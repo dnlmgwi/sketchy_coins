@@ -3,7 +3,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:sketchy_coins/src/Models/transaction/transaction.dart';
 part 'block.g.dart';
 
-@HiveType(typeId: 0)
+@HiveType(typeId: 1)
 @JsonSerializable(explicitToJson: true)
 class Block extends HiveObject {
   
