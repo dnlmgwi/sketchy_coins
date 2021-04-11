@@ -3,23 +3,23 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:sketchy_coins/src/Models/transaction/transaction.dart';
 part 'block.g.dart';
 
-@HiveType(typeId: 1)
+@HiveType(typeId: 0)
 @JsonSerializable(explicitToJson: true)
 class Block extends HiveObject {
   
-  @HiveField(4)
+  @HiveField(1)
   int index;
 
-  @HiveField(5)
+  @HiveField(2)
   int timestamp;
 
-  @HiveField(6)
+  @HiveField(3)
   List<Transaction> transactions;
   
-  @HiveField(7)
+  @HiveField(4)
   int proof;
 
-  @HiveField(8)
+  @HiveField(5)
   final String prevHash;
 
   Block({

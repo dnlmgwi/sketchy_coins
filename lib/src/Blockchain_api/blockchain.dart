@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:hive/hive.dart';
 import 'package:sketchy_coins/blockchain.dart';
 import 'package:sketchy_coins/src/Models/transaction/transaction.dart';
-import 'package:sketchy_coins/src/Services/localStore.dart';
 import 'package:uuid/uuid.dart';
 import 'kkoin.dart';
 import 'package:sketchy_coins/src/Blockchain_api/kkoin.dart';
@@ -10,10 +9,6 @@ import 'package:crypto/crypto.dart' as crypto;
 import 'package:hex/hex.dart';
 
 class Blockchain {
-  final List<Block> _chain;
-
-  final List<Transaction> _pendingTransactions;
-
   // //Adds a node to our peer table
   // Set addPeer(host) {
   //   return peers.union(host);
@@ -24,10 +19,7 @@ class Blockchain {
   //   return peers;
   // }
 
-  Blockchain()
-      : _chain = [],
-        _pendingTransactions = [] {
-    // create genesis block
+  Blockchain() {
     newBlock(100, '1');
   }
 
@@ -35,29 +27,25 @@ class Blockchain {
   var transactions = Hive.box<Transaction>('transactions');
 
   Block newBlock(int proof, String previousHash) {
-    var pendingTransactions = _pendingTransactions;
-
     if (previousHash.isEmpty) {
-      hash(_chain.last);
+      hash(blockchain.values.last);
     }
 
     var block = Block(
-      index: _chain.length,
+      index: blockchain.values.length,
       timestamp: DateTime.now().millisecondsSinceEpoch,
       proof: proof,
       prevHash: previousHash,
       transactions: List.from(
-        pendingTransactions,
+        pendingTransactions.toSet(),
       ),
     );
 
     blockchain.add(block);
 
-    _chain.add(block);
-
     processPayments();
 
-    _pendingTransactions.clear(); //Successfully Mined
+    transactions.clear(); //Successfully Mined
 
     return block;
   }
@@ -65,7 +53,7 @@ class Blockchain {
   void processPayments() {
     if (DateTime.fromMillisecondsSinceEpoch(lastBlock.timestamp)
         .isBefore(DateTime.now())) {
-      _pendingTransactions.forEach((element) {
+      transactions.values.forEach((element) {
         print('Processing ${element.toJson()}');
       });
     }
@@ -76,7 +64,7 @@ class Blockchain {
     required String recipient,
     required double amount,
   }) {
-    _pendingTransactions.add(
+    transactions.add(
       Transaction(
         sender: sender,
         recipient: recipient,
@@ -91,11 +79,11 @@ class Blockchain {
   }
 
   Block get lastBlock {
-    return _chain.last;
+    return blockchain.values.last;
   }
 
   List<Transaction> get pendingTransactions {
-    return _pendingTransactions;
+    return transactions.values.toList();
   }
 
   String hash(Block block) {
@@ -120,11 +108,11 @@ class Blockchain {
   }
 
   String getBlockchain() {
-    var jsonChain = json.encode(_chain);
+    var jsonChain = json.encode(blockchain.values.last.toJson());
     return jsonChain;
   }
 
-  List<Block> getFullChain() {
-    return _chain;
-  }
+  // List<Block> getFullChain() {
+  //   return _chain;
+  // }
 }

@@ -8,7 +8,7 @@ part of 'mineResult.dart';
 
 class MineResultAdapter extends TypeAdapter<MineResult> {
   @override
-  final int typeId = 2;
+  final int typeId = 1;
 
   @override
   MineResult read(BinaryReader reader) {
@@ -17,12 +17,12 @@ class MineResultAdapter extends TypeAdapter<MineResult> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return MineResult(
-      message: fields[9] as String,
-      validBlock: fields[11] as bool?,
-      blockIndex: fields[10] as int,
-      transactions: (fields[12] as List).cast<Transaction>(),
-      proof: fields[13] as int,
-      prevHash: fields[14] as String,
+      message: fields[6] as String,
+      validBlock: fields[8] as bool?,
+      blockIndex: fields[7] as int,
+      transactions: (fields[9] as List).cast<Transaction>(),
+      proof: fields[10] as int,
+      prevHash: fields[11] as String,
     );
   }
 
@@ -30,17 +30,17 @@ class MineResultAdapter extends TypeAdapter<MineResult> {
   void write(BinaryWriter writer, MineResult obj) {
     writer
       ..writeByte(6)
-      ..writeByte(9)
+      ..writeByte(6)
       ..write(obj.message)
-      ..writeByte(10)
+      ..writeByte(7)
       ..write(obj.blockIndex)
-      ..writeByte(11)
+      ..writeByte(8)
       ..write(obj.validBlock)
-      ..writeByte(12)
+      ..writeByte(9)
       ..write(obj.transactions)
-      ..writeByte(13)
+      ..writeByte(10)
       ..write(obj.proof)
-      ..writeByte(14)
+      ..writeByte(11)
       ..write(obj.prevHash);
   }
 

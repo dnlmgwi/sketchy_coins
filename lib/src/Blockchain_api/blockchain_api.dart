@@ -147,7 +147,7 @@ class BlockChainApi {
         Request request,
       ) async {
         if (blockChainValidity.isBlockChainValid(
-          chain: miner.blockchain.getFullChain(),
+          chain: miner.blockchain.blockchain.values.toList(),
           blockchain: blockchain,
         )) {
           return Response.ok(

@@ -2,28 +2,28 @@ import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 part 'transaction.g.dart';
 
-@HiveType(typeId: 4)
+@HiveType(typeId: 3)
 @JsonSerializable()
 class Transaction extends HiveObject {
-  @HiveField(18)
+  @HiveField(15)
   String sender;
 
-  @HiveField(19)
+  @HiveField(16)
   String recipient;
 
-  @HiveField(20)
+  @HiveField(17)
   double amount;
 
-  @HiveField(21)
+  @HiveField(18)
   int timestamp;
 
-  @HiveField(22)
+  @HiveField(19)
   String transID;
 
-  @HiveField(23)
+  @HiveField(20)
   int proof;
 
-  @HiveField(24)
+  @HiveField(21)
   String prevHash;
 
   Transaction({

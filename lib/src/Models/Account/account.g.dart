@@ -8,7 +8,7 @@ part of 'account.dart';
 
 class AccountAdapter extends TypeAdapter<Account> {
   @override
-  final int typeId = 0;
+  final int typeId = 4;
 
   @override
   Account read(BinaryReader reader) {
@@ -17,10 +17,10 @@ class AccountAdapter extends TypeAdapter<Account> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Account(
-      address: fields[0] as String,
-      status: fields[1] as String,
-      balance: fields[2] as double,
-      transactions: (fields[3] as List?)?.cast<Transaction>(),
+      address: fields[22] as String,
+      status: fields[23] as String,
+      balance: fields[24] as double,
+      transactions: (fields[25] as List?)?.cast<Transaction>(),
     );
   }
 
@@ -28,13 +28,13 @@ class AccountAdapter extends TypeAdapter<Account> {
   void write(BinaryWriter writer, Account obj) {
     writer
       ..writeByte(4)
-      ..writeByte(0)
+      ..writeByte(22)
       ..write(obj.address)
-      ..writeByte(1)
+      ..writeByte(23)
       ..write(obj.status)
-      ..writeByte(2)
+      ..writeByte(24)
       ..write(obj.balance)
-      ..writeByte(3)
+      ..writeByte(25)
       ..write(obj.transactions);
   }
 

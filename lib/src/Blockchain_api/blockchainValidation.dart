@@ -3,7 +3,7 @@ import 'package:sketchy_coins/blockchain.dart';
 class BlockChainValidity {
   bool isFirstBlockValid({
     required List<Block> chain,
-    Blockchain? blockchain,
+    required Blockchain blockchain,
   }) {
     var firstBlock = chain.first;
 
@@ -15,7 +15,7 @@ class BlockChainValidity {
       return true;
     }
 
-    if (blockchain!.hash(firstBlock).isEmpty ||
+    if (blockchain.hash(firstBlock).isEmpty ||
         blockchain.hash(chain.first) == blockchain.hash(chain.first)) {
       return true;
     }
@@ -51,7 +51,7 @@ class BlockChainValidity {
 
   bool isBlockChainValid({
     required List<Block> chain,
-    Blockchain? blockchain,
+    required Blockchain blockchain,
   }) {
     if (!isFirstBlockValid(
       chain: chain,

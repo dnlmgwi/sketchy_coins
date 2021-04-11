@@ -8,7 +8,7 @@ part of 'transaction.dart';
 
 class TransactionAdapter extends TypeAdapter<Transaction> {
   @override
-  final int typeId = 4;
+  final int typeId = 3;
 
   @override
   Transaction read(BinaryReader reader) {
@@ -17,13 +17,13 @@ class TransactionAdapter extends TypeAdapter<Transaction> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Transaction(
-      sender: fields[18] as String,
-      recipient: fields[19] as String,
-      amount: fields[20] as double,
-      timestamp: fields[21] as int,
-      transID: fields[22] as String,
-      proof: fields[23] as int,
-      prevHash: fields[24] as String,
+      sender: fields[15] as String,
+      recipient: fields[16] as String,
+      amount: fields[17] as double,
+      timestamp: fields[18] as int,
+      transID: fields[19] as String,
+      proof: fields[20] as int,
+      prevHash: fields[21] as String,
     );
   }
 
@@ -31,19 +31,19 @@ class TransactionAdapter extends TypeAdapter<Transaction> {
   void write(BinaryWriter writer, Transaction obj) {
     writer
       ..writeByte(7)
-      ..writeByte(18)
+      ..writeByte(15)
       ..write(obj.sender)
-      ..writeByte(19)
+      ..writeByte(16)
       ..write(obj.recipient)
-      ..writeByte(20)
+      ..writeByte(17)
       ..write(obj.amount)
-      ..writeByte(21)
+      ..writeByte(18)
       ..write(obj.timestamp)
-      ..writeByte(22)
+      ..writeByte(19)
       ..write(obj.transID)
-      ..writeByte(23)
+      ..writeByte(20)
       ..write(obj.proof)
-      ..writeByte(24)
+      ..writeByte(21)
       ..write(obj.prevHash);
   }
 

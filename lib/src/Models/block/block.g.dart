@@ -8,7 +8,7 @@ part of 'block.dart';
 
 class BlockAdapter extends TypeAdapter<Block> {
   @override
-  final int typeId = 1;
+  final int typeId = 0;
 
   @override
   Block read(BinaryReader reader) {
@@ -17,11 +17,11 @@ class BlockAdapter extends TypeAdapter<Block> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Block(
-      index: fields[4] as int,
-      timestamp: fields[5] as int,
-      proof: fields[7] as int,
-      prevHash: fields[8] as String,
-      transactions: (fields[6] as List).cast<Transaction>(),
+      index: fields[1] as int,
+      timestamp: fields[2] as int,
+      proof: fields[4] as int,
+      prevHash: fields[5] as String,
+      transactions: (fields[3] as List).cast<Transaction>(),
     );
   }
 
@@ -29,15 +29,15 @@ class BlockAdapter extends TypeAdapter<Block> {
   void write(BinaryWriter writer, Block obj) {
     writer
       ..writeByte(5)
-      ..writeByte(4)
+      ..writeByte(1)
       ..write(obj.index)
-      ..writeByte(5)
+      ..writeByte(2)
       ..write(obj.timestamp)
-      ..writeByte(6)
+      ..writeByte(3)
       ..write(obj.transactions)
-      ..writeByte(7)
+      ..writeByte(4)
       ..write(obj.proof)
-      ..writeByte(8)
+      ..writeByte(5)
       ..write(obj.prevHash);
   }
 

@@ -3,20 +3,22 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:sketchy_coins/src/Models/transaction/transaction.dart';
 part 'account.g.dart';
 
-@HiveType(typeId: 0)
+/// An annotation for the code generator to know that this class needs the
+/// JSON serialization logic to be generated.
 @JsonSerializable(explicitToJson: true)
-class Account extends HiveObject {
+@HiveType(typeId: 4)
+class Account {
   
-  @HiveField(0)
+  @HiveField(22)
   final String address;
 
-  @HiveField(1)
+  @HiveField(23)
   final String status;
   
-  @HiveField(2)
+  @HiveField(24)
   final double balance;
   
-  @HiveField(3)
+  @HiveField(25)
   final List<Transaction>? transactions;
 
   

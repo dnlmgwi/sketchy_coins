@@ -8,7 +8,7 @@ part of 'transactionPost.dart';
 
 class TransactionPostAdapter extends TypeAdapter<TransactionPost> {
   @override
-  final int typeId = 3;
+  final int typeId = 2;
 
   @override
   TransactionPost read(BinaryReader reader) {
@@ -17,9 +17,9 @@ class TransactionPostAdapter extends TypeAdapter<TransactionPost> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return TransactionPost(
-      sender: fields[15] as String,
-      recipient: fields[16] as String,
-      amount: fields[17] as double,
+      sender: fields[12] as String,
+      recipient: fields[13] as String,
+      amount: fields[14] as double,
     );
   }
 
@@ -27,11 +27,11 @@ class TransactionPostAdapter extends TypeAdapter<TransactionPost> {
   void write(BinaryWriter writer, TransactionPost obj) {
     writer
       ..writeByte(3)
-      ..writeByte(15)
+      ..writeByte(12)
       ..write(obj.sender)
-      ..writeByte(16)
+      ..writeByte(13)
       ..write(obj.recipient)
-      ..writeByte(17)
+      ..writeByte(14)
       ..write(obj.amount);
   }
 

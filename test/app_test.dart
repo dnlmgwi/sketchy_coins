@@ -1,10 +1,24 @@
 import 'dart:convert';
+import 'package:hive/hive.dart';
 import 'package:sketchy_coins/blockchain.dart';
 import 'package:sketchy_coins/src/Blockchain_api/miner.dart';
 import 'package:sketchy_coins/src/Blockchain_api/blockchainValidation.dart';
+import 'package:sketchy_coins/src/Models/Account/account.dart';
+import 'package:sketchy_coins/src/Models/mineResult/mineResult.dart';
+import 'package:sketchy_coins/src/Models/newTransaction/transactionPost.dart';
+import 'package:sketchy_coins/src/Models/transaction/transaction.dart';
 import 'package:test/test.dart';
 
-void main() {
+void main() async {
+  Hive.init('kkoin');
+  Hive.registerAdapter(AccountAdapter());
+  Hive.registerAdapter(BlockAdapter());
+  Hive.registerAdapter(MineResultAdapter());
+  Hive.registerAdapter(TransactionAdapter());
+  Hive.registerAdapter(TransactionPostAdapter());
+
+  await Hive.openBox<Block>('blockchain');
+  await Hive.openBox<Transaction>('transactions');
   var b = Blockchain();
   var a = BlockChainValidity();
   var miner = Miner(b);
@@ -14,10 +28,10 @@ void main() {
       var blockIndex =
           b.newTransaction(sender: 'john', recipient: 'steve', amount: 0.50);
 
-      expect(blockIndex, 1);
-      blockIndex =
-          b.newTransaction(sender: 'steve', recipient: 'john', amount: 1.50);
-      expect(blockIndex, 1);
+      expect(blockIndex, b.blockchain.length);
+      b.blockchain.values.forEach((element) {
+        print(element.toJson());
+      });
     });
   });
   group('Block', () {
@@ -35,10 +49,11 @@ void main() {
       expect(result.containsKey('prevHash'), isNotNull);
       b.newTransaction(sender: 'steve', recipient: 'john', amount: 1.50);
       var isValid = a.isFirstBlockValid(
-          chain: miner.blockchain.getFullChain(), blockchain: b);
+          chain: miner.blockchain.blockchain.values.toList(), blockchain: b);
       expect(isValid, true);
 
-      var result2 = a.isBlockChainValid(chain: b.getFullChain(), blockchain: b);
+      var result2 = a.isBlockChainValid(
+          chain: b.blockchain.values.toList(), blockchain: b);
 
       expect(result2, isNotNull);
       expect(result2, true);
