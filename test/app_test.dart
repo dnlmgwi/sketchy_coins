@@ -56,13 +56,46 @@ void main() async {
     );
 
     test(
-      'New Deposit',
+      'Find Account',
+      () {
+        var account = accountService.findAccount(
+            data: accountService.accountList,
+            address: 'cb7a14f8-0eb3-4ec7-9399-975b89ba65a8');
+        expect(account.toJson(), {
+          'address': 'cb7a14f8-0eb3-4ec7-9399-975b89ba65a8',
+          'status': 'normal',
+          'balance': 297.0,
+          'transactions': []
+        });
+      },
+    );
+
+    test(
+      'Account Not Found',
+      () {
+        try {
+          var account = accountService.findAccount(
+              data: accountService.accountList,
+              address: 'bcb7a14f8-0eb3-4ec7-9399-975b89ba65a8');
+          expect(account, account.toString());
+        } on AccountNotFoundException catch (e) {
+          print('Error: ${e.toString()}');
+        }
+      },
+    );
+
+    test(
+      'Account Deposit',
       () {
         var account;
-        print('Before: ${accountService.accountList.first.balance}');
+        print(
+            'Before: ${accountService.findAccount(data: accountService.accountList, address: 'cb7a14f8-0eb3-4ec7-9399-975b89ba65a8').toJson()}');
         expect(
             account = accountService.deposit(
-                account: accountService.accountList.first, value: 1000),
+                account: accountService.findAccount(
+                    data: accountService.accountList,
+                    address: 'cb7a14f8-0eb3-4ec7-9399-975b89ba65a8'),
+                value: 1000000),
             account);
 
         print('After: $account');
@@ -72,16 +105,57 @@ void main() async {
     test(
       'New Withdraw Fail',
       () {
+        try {
+          expect(
+              accountService.withdraw(
+                  account: accountService.findAccount(
+                      data: accountService.accountList,
+                      address: 'cb7a14f8-0eb3-4ec7-9399-975b89ba65a8'),
+                  value: 0.3),
+              accountService
+                  .findAccount(
+                      data: accountService.accountList,
+                      address: 'cb7a14f8-0eb3-4ec7-9399-975b89ba65a8')
+                  .balance);
+        } on InsufficientFundsException catch (e) {
+          print(e.toString());
+        } on InvalidInputException catch (e) {
+          print(e.toString());
+        }
+      },
+    );
+
+    test(
+      'Account Not Found',
+      () {
+        try {
+          expect(
+              accountService.findAccount(
+                  data: accountService.accountList,
+                  address: 'ncb7a14f8-0eb3-4ec7-9399-975b89ba65a8'),
+              AccountNotFoundException().toString());
+        } on AccountNotFoundException catch (e) {
+          print(e.toString());
+        }
+      },
+    );
+
+    test(
+      'New Withdraw Fail',
+      () {
         var account;
-        print('Before: ${accountService.accountList.first.balance}');
+        print('Before: ${accountService.accountList.values.first.balance}');
         try {
           expect(
               account = accountService.withdraw(
-                  account: accountService.accountList.first, value: 100000),
+                  account: accountService.findAccount(
+                      data: accountService.accountList,
+                      address: 'cb7a14f8-0eb3-4ec7-9399-975b89ba65a8'),
+                  value: 0.3),
               account);
+          print('After: $account');
         } on InsufficientFundsException catch (e) {
           print(e.toString());
-          print('After: $account');
         }
       },
     );
@@ -90,10 +164,14 @@ void main() async {
       'New Withdraw Pass',
       () {
         var account;
-        print('Before: ${accountService.accountList.first.balance}');
+        print(accountService.accountList.values.first.address);
+        print('Before: ${accountService.accountList.values.first.balance}');
         expect(
             account = accountService.withdraw(
-                account: accountService.accountList.last, value: 10),
+                account: accountService.findAccount(
+                    data: accountService.accountList,
+                    address: 'cb7a14f8-0eb3-4ec7-9399-975b89ba65a8'),
+                value: 100),
             account);
 
         print('After: $account');
@@ -102,10 +180,13 @@ void main() async {
   });
   group('Miner', () {
     test('Test', () {
-      var result = miner.mine(address: 'csdcsdcd');
+      var result = miner.mine(address: 'cb7a14f8-0eb3-4ec7-9399-975b89ba65a8');
       expect(result, isNotNull);
       expect(result.containsKey('prevHash'), isNotNull);
-      b.newTransaction(sender: 'steve', recipient: 'john', amount: 1.50);
+      b.newTransaction(
+          sender: 'cb7a14f8-0eb3-4ec7-9399-975b89ba65a8',
+          recipient: '0',
+          amount: 1.50);
       var isValid = a.isFirstBlockValid(
           chain: miner.blockchain.blockchain.values.toList(), blockchain: b);
       expect(isValid, true);

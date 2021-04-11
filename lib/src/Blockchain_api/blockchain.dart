@@ -71,8 +71,6 @@ class Blockchain {
         amount: amount,
         timestamp: DateTime.now().millisecondsSinceEpoch,
         transID: Uuid().v4(),
-        prevHash: lastBlock.prevHash,
-        proof: lastBlock.proof,
       ),
     );
     return lastBlock.index + 1;

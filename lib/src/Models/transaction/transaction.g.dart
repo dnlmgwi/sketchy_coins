@@ -22,15 +22,13 @@ class TransactionAdapter extends TypeAdapter<Transaction> {
       amount: fields[17] as double,
       timestamp: fields[18] as int,
       transID: fields[19] as String,
-      proof: fields[20] as int,
-      prevHash: fields[21] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, Transaction obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(5)
       ..writeByte(15)
       ..write(obj.sender)
       ..writeByte(16)
@@ -40,11 +38,7 @@ class TransactionAdapter extends TypeAdapter<Transaction> {
       ..writeByte(18)
       ..write(obj.timestamp)
       ..writeByte(19)
-      ..write(obj.transID)
-      ..writeByte(20)
-      ..write(obj.proof)
-      ..writeByte(21)
-      ..write(obj.prevHash);
+      ..write(obj.transID);
   }
 
   @override
@@ -69,8 +63,6 @@ Transaction _$TransactionFromJson(Map<String, dynamic> json) {
     amount: (json['amount'] as num).toDouble(),
     timestamp: json['timestamp'] as int,
     transID: json['transID'] as String,
-    proof: json['proof'] as int,
-    prevHash: json['prevHash'] as String,
   );
 }
 
@@ -81,6 +73,4 @@ Map<String, dynamic> _$TransactionToJson(Transaction instance) =>
       'amount': instance.amount,
       'timestamp': instance.timestamp,
       'transID': instance.transID,
-      'proof': instance.proof,
-      'prevHash': instance.prevHash,
     };

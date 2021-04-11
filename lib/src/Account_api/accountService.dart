@@ -2,14 +2,16 @@ import 'dart:math';
 
 import 'package:hive/hive.dart';
 import 'package:sketchy_coins/src/Account_api/accountExeptions.dart';
+import 'package:sketchy_coins/src/Blockchain_api/kkoin.dart';
 import 'package:sketchy_coins/src/Models/Account/account.dart';
 import 'package:uuid/uuid.dart';
 
 class AccountService {
   final _accountList = Hive.box<Account>('accounts');
 
-  Account _findAccount({required Box<Account> data, required String address}) {
-    return data.values.firstWhere((element) => element.address == address);
+  Account findAccount({required Box<Account> data, required String address}) {
+    return data.values.firstWhere((element) => element.address == address,
+        orElse: () => throw AccountNotFoundException());
   }
 
   Box<Account> createAccount() {
@@ -31,27 +33,28 @@ class AccountService {
   /// String address - User Koin Address
   /// String value - Transaction Value
   /// String transactionType - 0: Withdraw, 1: Deposit
-  dynamic editAccountBalance({
-    required String address,
+  double editAccountBalance({
+    required Account account,
     required double value,
     required int transactionType,
   }) {
     try {
-      var account = _findAccount(data: _accountList, address: address);
+      findAccount(data: _accountList, address: account.address);
       var operation = transactionType;
 
       if (operation == 0) {
         try {
           return withdraw(account: account, value: value);
         } on InsufficientFundsException catch (e) {
-          return e.toString();
+          print(e.toString());
         }
       } else if (operation == 1) {
         return deposit(account: account, value: value);
       }
-    } catch (e) {
+    } on AccountNotFoundException catch (e) {
       print(e);
     }
+    return account.balance;
   }
 
   double deposit({required Account account, required double value}) =>
@@ -61,6 +64,8 @@ class AccountService {
     try {
       if (value > account.balance) {
         throw InsufficientFundsException();
+      } else if (value < kKoin.minAmount) {
+        throw InvalidInputException();
       }
     } catch (e) {
       return account.balance;
@@ -69,8 +74,8 @@ class AccountService {
     return account.balance - value;
   }
 
-  List<Account> get accountList {
-    return _accountList.values.toList();
+  Box<Account> get accountList {
+    return _accountList;
   }
 }
 

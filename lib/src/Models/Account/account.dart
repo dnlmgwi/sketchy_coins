@@ -7,21 +7,19 @@ part 'account.g.dart';
 /// JSON serialization logic to be generated.
 @JsonSerializable(explicitToJson: true)
 @HiveType(typeId: 4)
-class Account extends HiveObject{
-  
-  @HiveField(22)
+class Account extends HiveObject {
+  @HiveField(20)
   final String address;
 
-  @HiveField(23)
+  @HiveField(21)
   final String status;
-  
-  @HiveField(24)
+
+  @HiveField(22)
   final double balance;
-  
-  @HiveField(25)
+
+  @HiveField(23)
   final List<Transaction>? transactions;
 
-  
   Account({
     required this.address,
     required this.status,

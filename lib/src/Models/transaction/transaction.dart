@@ -20,20 +20,12 @@ class Transaction extends HiveObject {
   @HiveField(19)
   String transID;
 
-  @HiveField(20)
-  int proof;
-
-  @HiveField(21)
-  String prevHash;
-
   Transaction({
     required this.sender,
     required this.recipient,
     required this.amount,
     required this.timestamp,
     required this.transID,
-    required this.proof,
-    required this.prevHash,
   });
 
   factory Transaction.fromJson(Map<String, dynamic> json) =>

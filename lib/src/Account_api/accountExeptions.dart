@@ -14,7 +14,7 @@ class AccountNotFoundException implements Exception {
 class InvalidInputException implements Exception {
   late String _message;
 
-  InvalidInputException([String message = 'Please provide a valid Address']) {
+  InvalidInputException([String message = 'Please provide a valid Input']) {
     _message = message;
   }
 
