@@ -120,13 +120,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "8.0.4"
-  characters:
-    dependency: transitive
-    description:
-      name: characters
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.1.0"
   charcode:
     dependency: transitive
     description:
@@ -190,20 +183,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.0"
-  dartx:
-    dependency: transitive
-    description:
-      name: dartx
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.7.1"
-  ffi:
-    dependency: transitive
-    description:
-      name: ffi
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.0"
   file:
     dependency: transitive
     description:
@@ -218,13 +197,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0"
-  freezed_annotation:
-    dependency: transitive
-    description:
-      name: freezed_annotation
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.14.1"
   glob:
     dependency: transitive
     description:
@@ -273,7 +245,7 @@ packages:
       name: http_multi_server
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.0"
+    version: "3.0.1"
   http_parser:
     dependency: transitive
     description:
@@ -288,27 +260,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0"
-  isar:
-    dependency: transitive
-    description:
-      name: isar
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.2.0"
-  isar_annotation:
-    dependency: transitive
-    description:
-      name: isar_annotation
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.2.0"
-  isar_generator:
-    dependency: "direct dev"
-    description:
-      name: isar_generator
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.2.0"
   js:
     dependency: transitive
     description:
@@ -540,13 +491,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.19"
-  time:
-    dependency: transitive
-    description:
-      name: time
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.0.0"
   timeago:
     dependency: "direct main"
     description:

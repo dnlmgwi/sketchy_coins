@@ -1,4 +1,5 @@
 import 'package:shelf_router/shelf_router.dart';
+import 'package:sketchy_coins/src/Account_api/accountExeptions.dart';
 import 'blockchainService.dart';
 import 'blockchainValidation.dart';
 import 'miner.dart';
@@ -62,29 +63,38 @@ class BlockChainApi {
             );
           }
 
-          blockchainService.newTransaction(
-            sender: data['sender'],
-            recipient: data['recipient'],
-            amount: double.parse(data['amount'].toString()),
-          );
+          try {
+            blockchainService.newTransaction(
+              sender: data['sender'],
+              recipient: data['recipient'],
+              amount: double.parse(data['amount'].toString()),
+            );
 
-          return Response.ok(
-            //TODO: Process Payments and Responed
-            json.encode({
-              'data': {
-                'message': 'Transaction Complete',
-                'transaction': json.decode(payload),
-              }
-            }),
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          );
+            return Response.ok(
+              json.encode({
+                'data': {
+                  'message': 'Transaction Complete',
+                  'transaction': json.decode(payload),
+                }
+              }),
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            );
+          } on PendingTransactionException catch (e) {
+            return Response.forbidden(
+              (json.encode({
+                'data': {'message': '${e.toString()}'}
+              })),
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            );
+          }
         } catch (e) {
           print(e);
 
           return Response.forbidden(
-            //TODO: Process Payments and Responed
             json.encode({
               'data': {'message': '${e.toString()}'}
             }),

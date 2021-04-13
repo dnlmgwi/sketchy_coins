@@ -23,7 +23,7 @@ class Miner {
     var proof = blockchain.proofOfWork(lastProof);
     // Proof found - receive award for finding the proof
     try {
-      blockchain.newTransaction(
+      blockchain.newMineTransaction(
         sender:
             '8e3153aa41771bf79089df1d858a274c9af598656688b188e803249ecb44de7f',
         recipient: address,

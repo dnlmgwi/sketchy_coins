@@ -36,7 +36,7 @@ void main(List<String> arguments) async {
     final data = {
       'message': 'Welcome to the KKoin.',
       'status': 'Testing',
-      'version': '0.0.0-alpha',
+      'version': '0.0.2-alpha',
       'activeEndpoints': [
         '/v1/blockchain/chain',
         '/v1/blockchain/transactions/create',

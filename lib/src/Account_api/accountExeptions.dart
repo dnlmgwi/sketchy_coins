@@ -49,3 +49,17 @@ class InsufficientFundsException implements Exception {
     return _message;
   }
 }
+
+class PendingTransactionException implements Exception {
+  late String _message;
+
+  PendingTransactionException(
+      [String message = 'Please await your pending transaction']) {
+    _message = message;
+  }
+
+  @override
+  String toString() {
+    return _message;
+  }
+}

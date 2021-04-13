@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:hive/hive.dart';
 import 'package:sketchy_coins/blockchain.dart';
+import 'package:sketchy_coins/src/Account_api/accountExeptions.dart';
 import 'package:sketchy_coins/src/Account_api/accountService.dart';
 import 'package:sketchy_coins/src/Blockchain_api/blockchainValidation.dart';
 import 'package:sketchy_coins/src/Models/Account/account.dart';
@@ -68,21 +69,33 @@ class BlockchainService {
         if (element.sender ==
             '8e3153aa41771bf79089df1d858a274c9af598656688b188e803249ecb44de7f') {
           transactionType = 1;
+          try {
+            foundAccount = _accountService.findAccount(
+                accounts: _accountService.accountList,
+                address: element.recipient);
+
+            _accountService.editAccountBalance(
+                account: foundAccount,
+                value: element.amount,
+                transactionType: transactionType);
+          } catch (e) {
+            print(e.toString());
+            print('Failed Processing');
+          }
         } else {
           transactionType = 0;
-        }
+          try {
+            foundAccount = _accountService.findAccount(
+                accounts: _accountService.accountList, address: element.sender);
 
-        try {
-          foundAccount = _accountService.findAccount(
-              accounts: _accountService.accountList, address: element.sender);
-
-          _accountService.editAccountBalance(
-              account: foundAccount,
-              value: element.amount,
-              transactionType: transactionType);
-        } catch (e) {
-          print(e.toString());
-          print('Failed Processing');
+            _accountService.editAccountBalance(
+                account: foundAccount,
+                value: element.amount,
+                transactionType: transactionType);
+          } catch (e) {
+            print(e.toString());
+            print('Failed Processing');
+          }
         }
 
         changeAccountStatusNormal(foundAccount!.address);
@@ -95,7 +108,51 @@ class BlockchainService {
     required String recipient,
     required double amount,
   }) {
-    if (_accountService.accountList.values.contains(
+    //Check if the sender & recipient are in the database
+    if (accountValidation(sender, recipient)) {
+      _accountService.checkAccountBalance(
+          value: amount,
+          account: _accountService.findAccount(
+            accounts: _accountService.accountList,
+            address: sender,
+          ));
+
+      if (accountStatusCheck(sender)) {
+        addToPendingTransactions(sender, recipient, amount);
+        changeAccountStatusToProcessing(sender);
+      } else {
+        throw PendingTransactionException();
+      }
+    }
+    return lastBlock.index + 1;
+  }
+
+  void addToPendingTransactions(
+    String sender,
+    String recipient,
+    double amount,
+  ) {
+    pendingTansactions.add(Transaction(
+      sender: sender,
+      recipient: recipient,
+      amount: amount,
+      timestamp: DateTime.now().millisecondsSinceEpoch,
+      transID: Uuid().v4(),
+    ));
+  }
+
+  bool accountStatusCheck(String sender) {
+    return _accountService
+            .findAccount(
+              accounts: _accountService.accountList,
+              address: sender,
+            )
+            .status ==
+        'normal';
+  }
+
+  bool accountValidation(String sender, String recipient) {
+    return _accountService.accountList.values.contains(
               _accountService.findAccount(
                 accounts: _accountService.accountList,
                 address: sender,
@@ -106,21 +163,36 @@ class BlockchainService {
               accounts: _accountService.accountList,
               address: recipient,
             )) ==
-            true) {
-      changeAccountStatusProcessing(sender);
+            true;
+  }
 
-      pendingTansactions.add(Transaction(
-        sender: sender,
-        recipient: recipient,
-        amount: amount,
-        timestamp: DateTime.now().millisecondsSinceEpoch,
-        transID: Uuid().v4(),
-      ));
+  int newMineTransaction({
+    required String sender,
+    required String recipient,
+    required double amount,
+  }) {
+    //Check if the recipient are in the database
+    if (recipientValidation(recipient)) {
+      changeAccountStatusToProcessing(recipient);
+      addToPendingTransactions(sender, recipient, amount);
     }
     return lastBlock.index + 1;
   }
 
-  void changeAccountStatusProcessing(String sender) {
+  bool recipientValidation(String recipient) {
+    return recipientCheck(recipient);
+  }
+
+  bool recipientCheck(String recipient) {
+    return _accountService.accountList.values
+            .contains(_accountService.findAccount(
+          accounts: _accountService.accountList,
+          address: recipient,
+        )) ==
+        true;
+  }
+
+  void changeAccountStatusToProcessing(String sender) {
     _accountService
         .findAccount(accounts: _accountService.accountList, address: sender)
         .status = 'processing';
@@ -132,7 +204,7 @@ class BlockchainService {
   void changeAccountStatusNormal(String sender) {
     _accountService
         .findAccount(accounts: _accountService.accountList, address: sender)
-        .status = 'processing';
+        .status = 'normal';
     _accountService
         .findAccount(accounts: _accountService.accountList, address: sender)
         .save();

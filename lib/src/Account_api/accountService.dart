@@ -46,7 +46,6 @@ class AccountService {
           status: 'normal',
           address: identityHash('$pin$number'),
           balance: 10000.0,
-          transactions: [],
         ),
       );
     } else {
@@ -60,7 +59,8 @@ class AccountService {
 
     var hmacSha256 = Hmac(sha256, key); // HMAC-SHA256
     var digest = hmacSha256.convert(bytes);
-    return digest.toString();
+
+    return digest.toString().split('-').first;
   }
 
   /// Edit User Account Balance
@@ -80,13 +80,15 @@ class AccountService {
           return withdraw(account: account, value: value);
         } on InsufficientFundsException catch (e) {
           print(e.toString());
-          return withdraw(value: value, account: account);
+          rethrow;
+          // return withdraw(value: value, account: account);
         }
       } else if (operation == 1) {
         return deposit(account: account, value: value);
       }
     } on AccountNotFoundException catch (e) {
       print(e.toString());
+      rethrow;
     }
     return account.balance;
   }
@@ -105,11 +107,26 @@ class AccountService {
         throw InvalidInputException();
       }
     } catch (e) {
-      return account.balance;
+      rethrow;
     }
 
     account.balance = account.balance - value;
     account.save();
+
+    return account.balance;
+  }
+
+  double checkAccountBalance(
+      {required double value, required Account account}) {
+    try {
+      if (value > account.balance) {
+        throw InsufficientFundsException();
+      } else if (value < kKoin.minAmount) {
+        throw InvalidInputException();
+      }
+    } catch (e) {
+      rethrow;
+    }
 
     return account.balance;
   }

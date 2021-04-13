@@ -20,22 +20,19 @@ class AccountAdapter extends TypeAdapter<Account> {
       address: fields[1] as String,
       status: fields[2] as String,
       balance: fields[3] as double,
-      transactions: (fields[4] as List?)?.cast<Transaction>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, Account obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(3)
       ..writeByte(1)
       ..write(obj.address)
       ..writeByte(2)
       ..write(obj.status)
       ..writeByte(3)
-      ..write(obj.balance)
-      ..writeByte(4)
-      ..write(obj.transactions);
+      ..write(obj.balance);
   }
 
   @override
@@ -58,9 +55,6 @@ Account _$AccountFromJson(Map<String, dynamic> json) {
     address: json['address'] as String,
     status: json['status'] as String,
     balance: (json['balance'] as num).toDouble(),
-    transactions: (json['transactions'] as List<dynamic>?)
-        ?.map((e) => Transaction.fromJson(e as Map<String, dynamic>))
-        .toList(),
   );
 }
 
@@ -68,5 +62,4 @@ Map<String, dynamic> _$AccountToJson(Account instance) => <String, dynamic>{
       'address': instance.address,
       'status': instance.status,
       'balance': instance.balance,
-      'transactions': instance.transactions?.map((e) => e.toJson()).toList(),
     };
