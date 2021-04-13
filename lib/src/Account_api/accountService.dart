@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:hive/hive.dart';
 import 'package:sketchy_coins/src/Account_api/accountExeptions.dart';
-import 'package:sketchy_coins/src/Blockchain_api/kkoin.dart';
+import 'package:sketchy_coins/src/Auth_api/EnvValues.dart';
 import 'package:sketchy_coins/src/Models/Account/account.dart';
 
 class AccountService {
@@ -80,8 +80,8 @@ class AccountService {
           return withdraw(account: account, value: value);
         } on InsufficientFundsException catch (e) {
           print(e.toString());
+          //Rethrow the Exception as it will be caught in API Call.
           rethrow;
-          // return withdraw(value: value, account: account);
         }
       } else if (operation == 1) {
         return deposit(account: account, value: value);
@@ -103,7 +103,7 @@ class AccountService {
     try {
       if (value > account.balance) {
         throw InsufficientFundsException();
-      } else if (value < kKoin.minAmount) {
+      } else if (value < enviromentVariables.minTransactionAmount) {
         throw InvalidInputException();
       }
     } catch (e) {
@@ -121,7 +121,7 @@ class AccountService {
     try {
       if (value > account.balance) {
         throw InsufficientFundsException();
-      } else if (value < kKoin.minAmount) {
+      } else if (value < enviromentVariables.minTransactionAmount) {
         throw InvalidInputException();
       }
     } catch (e) {

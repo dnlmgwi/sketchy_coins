@@ -4,11 +4,10 @@ import 'package:sketchy_coins/blockchain.dart';
 import 'package:sketchy_coins/src/Account_api/accountExeptions.dart';
 import 'package:sketchy_coins/src/Account_api/accountService.dart';
 import 'package:sketchy_coins/src/Blockchain_api/blockchainValidation.dart';
+import 'package:sketchy_coins/src/Auth_api/EnvValues.dart';
 import 'package:sketchy_coins/src/Models/Account/account.dart';
 import 'package:sketchy_coins/src/Models/transaction/transaction.dart';
 import 'package:uuid/uuid.dart';
-import 'kkoin.dart';
-import 'package:sketchy_coins/src/Blockchain_api/kkoin.dart';
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:hex/hex.dart';
 
@@ -103,11 +102,10 @@ class BlockchainService {
     }
   }
 
-  int newTransaction({
-    required String sender,
-    required String recipient,
-    required double amount,
-  }) {
+  int newTransaction(
+      {required String sender,
+      required String recipient,
+      required double amount}) {
     //Check if the sender & recipient are in the database
     if (accountValidation(sender, recipient)) {
       _accountService.checkAccountBalance(
@@ -128,10 +126,7 @@ class BlockchainService {
   }
 
   void addToPendingTransactions(
-    String sender,
-    String recipient,
-    double amount,
-  ) {
+      String sender, String recipient, double amount) {
     pendingTansactions.add(Transaction(
       sender: sender,
       recipient: recipient,
@@ -166,11 +161,10 @@ class BlockchainService {
             true;
   }
 
-  int newMineTransaction({
-    required String sender,
-    required String recipient,
-    required double amount,
-  }) {
+  int newMineTransaction(
+      {required String sender,
+      required String recipient,
+      required double amount}) {
     //Check if the recipient are in the database
     if (recipientValidation(recipient)) {
       changeAccountStatusToProcessing(recipient);
@@ -236,7 +230,8 @@ class BlockchainService {
   bool validProof(int? lastProof, int proof) {
     var guess = utf8.encode('$lastProof$proof');
     var guessHash = crypto.sha256.convert(guess).bytes;
-    return HEX.encode(guessHash).substring(0, 4) == kKoin.difficulty;
+    return HEX.encode(guessHash).substring(0, 4) ==
+        enviromentVariables.difficulty;
   }
 
   String getBlockchain() {

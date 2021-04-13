@@ -7,17 +7,6 @@ build/
 
 # Directory created by dartdoc
 doc/api/
-kkoin/blockchain.hive
-kkoin/blockchain.lock
-kkoin/transactions.hive
-kkoin/transactions.lock
-kkoin_test/transactions.hive
-kkoin_test/blockchain.hive
-kkoin_test/accounts.hive
 *.hive
-kkoin_test/accounts.lock
-kkoin_test/blockchain.lock
-kkoin_test/transactions.lock
-kkoin/accounts.lock
-*.hive
-kkoin_test/accounts.hive
+*.g.dart
+*.lock

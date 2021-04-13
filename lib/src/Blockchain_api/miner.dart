@@ -1,6 +1,6 @@
 import 'package:sketchy_coins/blockchain.dart';
 import 'package:sketchy_coins/src/Blockchain_api/blockchainValidation.dart';
-import 'package:sketchy_coins/src/Blockchain_api/kkoin.dart';
+import 'package:sketchy_coins/src/Auth_api/EnvValues.dart';
 import 'package:sketchy_coins/src/Models/mineResult/mineResult.dart';
 
 class Miner {
@@ -9,9 +9,7 @@ class Miner {
 
   Miner(this.blockchain);
 
-  Map<String, dynamic> mine({
-    required String address,
-  }) {
+  Map<String, dynamic> mine({required String address}) {
     if (blockchain.pendingTransactions.isEmpty) {
       return {
         'message': 'Nothing to Mine',
@@ -27,7 +25,7 @@ class Miner {
         sender:
             '8e3153aa41771bf79089df1d858a274c9af598656688b188e803249ecb44de7f',
         recipient: address,
-        amount: kKoin.reward,
+        amount: enviromentVariables.rewardValue,
       );
     } catch (e) {
       print(e.toString());
