@@ -240,7 +240,11 @@ class BlockchainService {
   }
 
   String getBlockchain() {
-    var jsonChain = json.encode(blockchainStore.values.last.toJson());
-    return jsonChain;
+    var jsonChain = [];
+    blockchainStore.values.forEach((element) {
+      jsonChain.add(element.toJson());
+    });
+    json.encode(jsonChain);
+    return jsonChain.toString();
   }
 }

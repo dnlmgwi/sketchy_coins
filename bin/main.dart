@@ -27,7 +27,7 @@ void main(List<String> arguments) async {
   var portEnv = Platform.environment['PORT'];
 
   final _hostName = 'localhost';
-  final _port = portEnv == null ? 8080 : int.parse(portEnv);
+  final _port = portEnv == null ? 9999 : int.parse(portEnv);
   ;
   var server = await io.serve(handler, _hostName, _port);
   print('Serving at http://${server.address.host}:${server.port}');
@@ -36,7 +36,7 @@ void main(List<String> arguments) async {
     final data = {
       'message': 'Welcome to the KKoin.',
       'status': 'Testing',
-      'version': '0.0.2-alpha',
+      'version': '0.0.3-alpha',
       'activeEndpoints': [
         '/v1/blockchain/chain',
         '/v1/blockchain/transactions/create',

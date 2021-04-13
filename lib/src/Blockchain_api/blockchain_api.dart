@@ -24,39 +24,27 @@ class BlockChainApi {
           final payload = await request.readAsString();
           final data = json.decode(payload);
 
-          if (data['sender'] == '') {
+          if (noSenderCheck(data)) {
             return Response.forbidden(
-              json.encode({
-                'data': {
-                  'message': 'Please Provide Sender Address',
-                }
-              }),
+              noSenderError(),
               headers: {
                 'Content-Type': 'application/json',
               },
             );
           }
 
-          if (data['recipient'] == '') {
+          if (noRecipientCheck(data)) {
             return Response.forbidden(
-              json.encode({
-                'data': {
-                  'message': 'Please Provide Recipient Address',
-                }
-              }),
+              noRecipientError(),
               headers: {
                 'Content-Type': 'application/json',
               },
             );
           }
 
-          if (data['amount'] == null || data['amount'] < kKoin.minAmount) {
+          if (noAmountCheck(data)) {
             return Response.forbidden(
-              json.encode({
-                'data': {
-                  'message': 'Please include valid amount Greater Than KK10.00',
-                }
-              }),
+              noAmountError(),
               headers: {
                 'Content-Type': 'application/json',
               },
@@ -178,4 +166,34 @@ class BlockChainApi {
 
     return router;
   }
+
+  String noSenderError() {
+    return json.encode({
+              'data': {
+                'message': 'Please Provide Sender Address',
+              }
+            });
+  }
+
+  String noRecipientError() {
+    return json.encode({
+              'data': {
+                'message': 'Please Provide Recipient Address',
+              }
+            });
+  }
+
+  String noAmountError() {
+    return json.encode({
+              'data': {
+                'message': 'Please include valid amount Greater Than KK10.00',
+              }
+            });
+  }
+
+  bool noAmountCheck(data) => data['amount'] == null || data['amount'] < kKoin.minAmount;
+
+  bool noRecipientCheck(data) => data['recipient'] == '';
+
+  bool noSenderCheck(data) => data['sender'] == '';
 }
