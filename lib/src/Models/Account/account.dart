@@ -12,13 +12,13 @@ class Account extends HiveObject {
   final String address;
 
   @HiveField(2)
-  final String status;
+  String status;
 
   @HiveField(3)
-  final double balance;
+  double balance;
 
   @HiveField(4)
-  final List<Transaction>? transactions;
+  List<Transaction>? transactions;
 
   Account({
     required this.address,

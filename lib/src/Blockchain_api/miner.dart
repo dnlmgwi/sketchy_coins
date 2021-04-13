@@ -22,11 +22,16 @@ class Miner {
     var lastProof = lastBlock.proof;
     var proof = blockchain.proofOfWork(lastProof);
     // Proof found - receive award for finding the proof
-    blockchain.newTransaction(
-      sender: '0',
-      recipient: address,
-      amount: kKoin.reward,
-    );
+    try {
+      blockchain.newTransaction(
+        sender:
+            '8e3153aa41771bf79089df1d858a274c9af598656688b188e803249ecb44de7f',
+        recipient: address,
+        amount: kKoin.reward,
+      );
+    } catch (e) {
+      print(e.toString());
+    }
 
     // Forge the new Block by adding it to the chain
     var prevHash = blockchain.hash(lastBlock);

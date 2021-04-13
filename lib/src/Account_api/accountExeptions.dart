@@ -11,6 +11,19 @@ class AccountNotFoundException implements Exception {
   }
 }
 
+class AccountDuplicationException implements Exception {
+  late String _message;
+
+  AccountDuplicationException([String message = 'Duplicate Account Found']) {
+    _message = message;
+  }
+
+  @override
+  String toString() {
+    return _message;
+  }
+}
+
 class InvalidInputException implements Exception {
   late String _message;
 

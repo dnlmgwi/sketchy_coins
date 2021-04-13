@@ -82,11 +82,21 @@ class BlockChainApi {
           );
         } catch (e) {
           print(e);
+
+          return Response.forbidden(
+            //TODO: Process Payments and Responed
+            json.encode({
+              'data': {'message': '${e.toString()}'}
+            }),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          );
         }
       }),
     );
 
-    router.get(
+    router.post(
       '/mine',
       (Request request) async {
         final payload = await request.readAsString();
@@ -94,17 +104,7 @@ class BlockChainApi {
 
         var mineResult = miner.mine(address: address['address']);
 
-        //Does user exist?
-        //Award User with KKoin
-
-        if (address['address'] == '223') {
-          return Response.ok(
-            json.encode({'data': mineResult}),
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          );
-        } else if (address['address'].isEmpty) {
+        if (address['address'].isEmpty) {
           return Response.forbidden(
             json.encode(
               {
@@ -113,6 +113,13 @@ class BlockChainApi {
                 }
               },
             ),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          );
+        } else if (mineResult.isNotEmpty) {
+          return Response.ok(
+            json.encode({'data': mineResult}),
             headers: {
               'Content-Type': 'application/json',
             },

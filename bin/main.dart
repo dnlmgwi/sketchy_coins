@@ -5,6 +5,7 @@ import 'package:shelf_router/shelf_router.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
 import 'package:sketchy_coins/blockchain.dart';
+import 'package:sketchy_coins/src/Account_api/account_api.dart';
 import 'package:sketchy_coins/src/Blockchain_api/blockchain_api.dart';
 import 'package:sketchy_coins/src/Models/Account/account.dart';
 import 'package:sketchy_coins/src/Models/mineResult/mineResult.dart';
@@ -14,6 +15,7 @@ void main(List<String> arguments) async {
   Hive.init('kkoin');
   Hive.registerAdapter(BlockAdapter());
   Hive.registerAdapter(MineResultAdapter());
+  Hive.registerAdapter(AccountAdapter());
   Hive.registerAdapter(TransactionAdapter());
 
   await Hive.openBox<Block>('blockchain');
@@ -36,9 +38,11 @@ void main(List<String> arguments) async {
       'status': 'Testing',
       'version': '0.0.0-alpha',
       'activeEndpoints': [
-        'http://$_hostName:$_port/v1/blockchain/chain',
-        'http://$_hostName:$_port/v1/blockchain/transactions/create',
-        'http://$_hostName:$_port/v1/blockchain/mine'
+        '/v1/blockchain/chain',
+        '/v1/blockchain/transactions/create',
+        '/v1/blockchain/mine',
+        '/v1/account/create',
+        '/v1/account/accounts'
       ]
     };
     return Response.ok(
@@ -51,5 +55,5 @@ void main(List<String> arguments) async {
 
   //v1 of KKoin Api
   handler.mount('/v1/blockchain/', BlockChainApi().router);
-  // app.mount('/v1/account/', AccountApi().router);
+  handler.mount('/v1/account/', AccountApi().router);
 }

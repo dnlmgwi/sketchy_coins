@@ -3,6 +3,7 @@ import 'package:hive/hive.dart';
 import 'package:sketchy_coins/blockchain.dart';
 import 'package:sketchy_coins/src/Account_api/accountService.dart';
 import 'package:sketchy_coins/src/Blockchain_api/blockchainValidation.dart';
+import 'package:sketchy_coins/src/Models/Account/account.dart';
 import 'package:sketchy_coins/src/Models/transaction/transaction.dart';
 import 'package:uuid/uuid.dart';
 import 'kkoin.dart';
@@ -22,10 +23,12 @@ class BlockchainService {
   // }
 
   BlockchainService() {
-    newBlock(100, '1');
+    if (blockchainStore.isEmpty) {
+      newBlock(100, '1');
+    }
   }
 
-  AccountService _accountService = AccountService();
+  final _accountService = AccountService();
 
   var blockChainValidity = BlockChainValidity();
   var blockchainStore = Hive.box<Block>('blockchain');
@@ -60,16 +63,18 @@ class BlockchainService {
         print('Processing ${element.toJson()}');
 
         var transactionType;
+        Account? foundAccount;
 
-        if (element.sender == '0') {
-          transactionType = 0;
-        } else {
+        if (element.sender ==
+            '8e3153aa41771bf79089df1d858a274c9af598656688b188e803249ecb44de7f') {
           transactionType = 1;
+        } else {
+          transactionType = 0;
         }
 
         try {
-          var foundAccount = _accountService.findAccount(
-              data: _accountService.accountList, address: element.sender);
+          foundAccount = _accountService.findAccount(
+              accounts: _accountService.accountList, address: element.sender);
 
           _accountService.editAccountBalance(
               account: foundAccount,
@@ -77,7 +82,10 @@ class BlockchainService {
               transactionType: transactionType);
         } catch (e) {
           print(e.toString());
+          print('Failed Processing');
         }
+
+        changeAccountStatusNormal(foundAccount!.address);
       });
     }
   }
@@ -87,14 +95,47 @@ class BlockchainService {
     required String recipient,
     required double amount,
   }) {
-    pendingTansactions.add(Transaction(
-      sender: sender,
-      recipient: recipient,
-      amount: amount,
-      timestamp: DateTime.now().millisecondsSinceEpoch,
-      transID: Uuid().v4(),
-    ));
+    if (_accountService.accountList.values.contains(
+              _accountService.findAccount(
+                accounts: _accountService.accountList,
+                address: sender,
+              ),
+            ) ==
+            true &&
+        _accountService.accountList.values.contains(_accountService.findAccount(
+              accounts: _accountService.accountList,
+              address: recipient,
+            )) ==
+            true) {
+      changeAccountStatusProcessing(sender);
+
+      pendingTansactions.add(Transaction(
+        sender: sender,
+        recipient: recipient,
+        amount: amount,
+        timestamp: DateTime.now().millisecondsSinceEpoch,
+        transID: Uuid().v4(),
+      ));
+    }
     return lastBlock.index + 1;
+  }
+
+  void changeAccountStatusProcessing(String sender) {
+    _accountService
+        .findAccount(accounts: _accountService.accountList, address: sender)
+        .status = 'processing';
+    _accountService
+        .findAccount(accounts: _accountService.accountList, address: sender)
+        .save();
+  }
+
+  void changeAccountStatusNormal(String sender) {
+    _accountService
+        .findAccount(accounts: _accountService.accountList, address: sender)
+        .status = 'processing';
+    _accountService
+        .findAccount(accounts: _accountService.accountList, address: sender)
+        .save();
   }
 
   Block get lastBlock {

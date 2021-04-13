@@ -28,7 +28,11 @@ void main() async {
     test('Test', () {
       expect(blockchainService, isNotNull);
       var blockIndex = blockchainService.newTransaction(
-          sender: 'john', recipient: 'steve', amount: 0.50);
+          sender:
+              'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d',
+          recipient:
+              'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d',
+          amount: 0.50);
 
       expect(blockIndex, blockchainService.blockchainStore.length);
       blockchainService.blockchainStore.values.forEach((element) {
@@ -49,7 +53,8 @@ void main() async {
     test(
       'New Account',
       () {
-        expect(accountService.createAccount().values.last.address, isNotNull);
+        accountService.createAccount(pin: 'pin', number: '0');
+        expect(accountService.accountList.values, isNotNull);
       },
     );
 
@@ -62,12 +67,14 @@ void main() async {
       'Find Account',
       () {
         var account = accountService.findAccount(
-            data: accountService.accountList,
-            address: 'b8cadbee-2fed-44f5-abca-1f163c05abdc');
+            accounts: accountService.accountList,
+            address:
+                'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d');
         expect(account.toJson(), {
-          'address': 'b8cadbee-2fed-44f5-abca-1f163c05abdc',
+          'address':
+              'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d',
           'status': 'normal',
-          'balance': 566.0,
+          'balance': 10000.0,
           'transactions': []
         });
       },
@@ -78,7 +85,7 @@ void main() async {
       () {
         try {
           var account = accountService.findAccount(
-              data: accountService.accountList,
+              accounts: accountService.accountList,
               address: 'bcb7a14f8-0eb3-4ec7-9399-975b89ba65a8');
           expect(account, account.toString());
         } on AccountNotFoundException catch (e) {
@@ -92,12 +99,13 @@ void main() async {
       () {
         var account;
         print(
-            'Before: ${accountService.findAccount(data: accountService.accountList, address: 'b8cadbee-2fed-44f5-abca-1f163c05abdc').toJson()}');
+            'Before: ${accountService.findAccount(accounts: accountService.accountList, address: 'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d').toJson()}');
         expect(
             account = accountService.deposit(
                 account: accountService.findAccount(
-                    data: accountService.accountList,
-                    address: 'b8cadbee-2fed-44f5-abca-1f163c05abdc'),
+                    accounts: accountService.accountList,
+                    address:
+                        'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d'),
                 value: 1000000),
             account);
 
@@ -112,13 +120,15 @@ void main() async {
           expect(
               accountService.withdraw(
                   account: accountService.findAccount(
-                      data: accountService.accountList,
-                      address: 'b8cadbee-2fed-44f5-abca-1f163c05abdc'),
+                      accounts: accountService.accountList,
+                      address:
+                          'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d'),
                   value: 0.3),
               accountService
                   .findAccount(
-                      data: accountService.accountList,
-                      address: 'b8cadbee-2fed-44f5-abca-1f163c05abdc')
+                      accounts: accountService.accountList,
+                      address:
+                          'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d')
                   .balance);
         } on InsufficientFundsException catch (e) {
           print(e.toString());
@@ -134,7 +144,7 @@ void main() async {
         try {
           expect(
               accountService.findAccount(
-                  data: accountService.accountList,
+                  accounts: accountService.accountList,
                   address: 'ncb7a14f8-0eb3-4ec7-9399-975b89ba65a8'),
               AccountNotFoundException().toString());
         } on AccountNotFoundException catch (e) {
@@ -152,8 +162,9 @@ void main() async {
           expect(
               account = accountService.withdraw(
                   account: accountService.findAccount(
-                      data: accountService.accountList,
-                      address: 'b8cadbee-2fed-44f5-abca-1f163c05abdc'),
+                      accounts: accountService.accountList,
+                      address:
+                          'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d'),
                   value: 0.3),
               account);
           print('After: $account');
@@ -172,8 +183,9 @@ void main() async {
         expect(
             account = accountService.withdraw(
                 account: accountService.findAccount(
-                    data: accountService.accountList,
-                    address: 'b8cadbee-2fed-44f5-abca-1f163c05abdc'),
+                    accounts: accountService.accountList,
+                    address:
+                        'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d'),
                 value: 100),
             account);
 
@@ -183,12 +195,16 @@ void main() async {
   });
   group('Miner', () {
     test('Test', () {
-      var result = miner.mine(address: 'cb7a14f8-0eb3-4ec7-9399-975b89ba65a8');
+      var result = miner.mine(
+          address:
+              'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d');
       expect(result, isNotNull);
       expect(result.containsKey('prevHash'), isNotNull);
       blockchainService.newTransaction(
-          sender: 'cb7a14f8-0eb3-4ec7-9399-975b89ba65a8',
-          recipient: '0',
+          sender:
+              'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d',
+          recipient:
+              'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d',
           amount: 1.50);
       var isValid = a.isFirstBlockValid(
           chain: miner.blockchain.blockchainStore,
@@ -204,78 +220,3 @@ void main() async {
     });
   });
 }
-// group('Account', () {
-// var accountService = AccountService();
-// test('Found', () {
-//   final account = accountService.findAccount(
-//     data: accountService.accountList,
-//     address: '89sdc89',
-//   );
-//   expect(account, isNotNull);
-// });
-
-// test('Find Error ', () {
-//   expect(
-//     accountService.findAccount(
-//       data: accountService.accountList,
-//       address: '89sdcjj89',
-//     ),
-//     null,
-//   );
-// });
-
-// test('Insufficient funds', () {
-//   expect(
-//       accountService.editAccountBalance(
-//           address: '8nj9ssdcs89', value: 10434.5, transactionType: 0),
-//       isNull);
-// });
-
-// test('Not Found', () {
-//   expect(
-//       accountService.editAccountBalance(
-//           address: '8scdcs989ff', value: 434.5, transactionType: 1),
-//       isNull);
-// });
-
-//   test('Withdraw', () {
-//     Iterable l = json.decode(
-//       File('accounts.json').readAsStringSync(),
-//     );
-
-//     var accounts =
-//         List<Account>.from(l.map((model) => Account.fromJson(model)));
-
-//     print(accounts);
-
-//     expect(accountService.withdraw(account: , value: ), 2324);
-//   });
-
-//   test('Deposit', () {
-//     expect(accountService.withdraw(value, account), 2324);
-//   });
-// });
-
-//   group('Blockchain Validation', () {
-//     test('isFirstBlockValid', () {
-//       var result = a.isFirstBlockValid(chain: b.getFullChain(), blockchain: b);
-//       expect(result, isNotNull);
-//       expect(result, true);
-//     });
-
-//     test('isBlockChainValid', () {
-//       var result = a.isBlockChainValid(chain: b.getFullChain(), blockchain: b);
-//       expect(result, isNotNull);
-//       expect(result, true);
-//     });
-
-//     test('isValidNewBlock', () {
-//       expect(
-//           a.isValidNewBlock(
-//               previousBlock: miner.blockchain.getFullChain().last,
-//               newBlock: miner.blockchain.getFullChain().first,
-//               blockchain: b),
-//           true);
-//     });
-//   });
-// }
