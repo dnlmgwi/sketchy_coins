@@ -26,7 +26,7 @@ void main(List<String> arguments) async {
 
   var portEnv = Platform.environment['PORT'];
 
-  final _hostName = 'localhost';
+  final _hostName = '0.0.0.0';
   final _port = portEnv == null ? 9999 : int.parse(portEnv);
   ;
   var server = await io.serve(handler, _hostName, _port);
