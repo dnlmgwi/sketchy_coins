@@ -6,7 +6,7 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
 import 'package:sketchy_coins/blockchain.dart';
 import 'package:sketchy_coins/src/Account_api/account_api.dart';
-import 'package:sketchy_coins/src/Blockchain_api/blockchain_api.dart';
+import 'package:sketchy_coins/src/Auth_api/EnvValues.dart';
 import 'package:sketchy_coins/src/Models/Account/account.dart';
 import 'package:sketchy_coins/src/Models/mineResult/mineResult.dart';
 import 'package:sketchy_coins/src/Models/transaction/transaction.dart';
@@ -26,15 +26,18 @@ void main(List<String> arguments) async {
 
   var portEnv = Platform.environment['PORT'];
 
-  final _hostName = '0.0.0.0';
-  final _port = portEnv == null ? 9999 : int.parse(portEnv);
+  final _port = portEnv == null ? enviromentVariables.port : int.parse(portEnv);
   ;
-  var server = await io.serve(handler, _hostName, _port);
+  var server = await io.serve(
+    handler,
+    enviromentVariables.hostName,
+    enviromentVariables.port,
+  );
   print('Serving at http://${server.address.host}:${server.port}');
 
   handler.get('/', (Request request) {
     final data = {
-      'message': 'Welcome to the KKoin.',
+      'message': 'Welcome to KKoin.',
       'status': 'Testing',
       'version': '0.0.3-alpha',
       'activeEndpoints': [

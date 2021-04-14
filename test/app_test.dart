@@ -29,10 +29,10 @@ void main() async {
       expect(blockchainService, isNotNull);
       var blockIndex = blockchainService.newTransaction(
           sender:
-              'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d',
+              'a23f0faec57e4219d83c4b67b5cea0f185718dbd4a1eb6d744e1e1bc69fd8a4e',
           recipient:
               'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d',
-          amount: 0.50);
+          amount: 1000);
 
       expect(blockIndex, blockchainService.blockchainStore.length);
       blockchainService.blockchainStore.values.forEach((element) {
@@ -53,14 +53,15 @@ void main() async {
     test(
       'New Account',
       () {
-        accountService.createAccount(pin: 'pin', number: '0');
+        accountService.createAccount(pin: '9', number: '0');
         expect(accountService.accountList.values, isNotNull);
       },
     );
 
     test('List Accounts', () {
       expect(accountService.accountList.values, isNotNull);
-      print(accountService.accountList.values.last.address);
+      accountService.accountList.values
+          .forEach((element) => print(element.toJson()));
     });
 
     test(
@@ -69,13 +70,12 @@ void main() async {
         var account = accountService.findAccount(
             accounts: accountService.accountList,
             address:
-                'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d');
+                'a23f0faec57e4219d83c4b67b5cea0f185718dbd4a1eb6d744e1e1bc69fd8a4e');
         expect(account.toJson(), {
           'address':
-              'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d',
+              'a23f0faec57e4219d83c4b67b5cea0f185718dbd4a1eb6d744e1e1bc69fd8a4e',
           'status': 'normal',
-          'balance': 10000.0,
-          'transactions': []
+          'balance': 10000.0
         });
       },
     );
@@ -105,7 +105,7 @@ void main() async {
                 account: accountService.findAccount(
                     accounts: accountService.accountList,
                     address:
-                        'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d'),
+                        'a23f0faec57e4219d83c4b67b5cea0f185718dbd4a1eb6d744e1e1bc69fd8a4e'),
                 value: 1000000),
             account);
 
@@ -122,13 +122,13 @@ void main() async {
                   account: accountService.findAccount(
                       accounts: accountService.accountList,
                       address:
-                          'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d'),
+                          'a23f0faec57e4219d83c4b67b5cea0f185718dbd4a1eb6d744e1e1bc69fd8a4e'),
                   value: 0.3),
               accountService
                   .findAccount(
                       accounts: accountService.accountList,
                       address:
-                          'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d')
+                          'a23f0faec57e4219d83c4b67b5cea0f185718dbd4a1eb6d744e1e1bc69fd8a4e')
                   .balance);
         } on InsufficientFundsException catch (e) {
           print(e.toString());
@@ -165,7 +165,7 @@ void main() async {
                       accounts: accountService.accountList,
                       address:
                           'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d'),
-                  value: 0.3),
+                  value: 19),
               account);
           print('After: $account');
         } on InsufficientFundsException catch (e) {
@@ -205,7 +205,7 @@ void main() async {
               'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d',
           recipient:
               'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d',
-          amount: 1.50);
+          amount: 19);
       var isValid = a.isFirstBlockValid(
           chain: miner.blockchain.blockchainStore,
           blockchainService: blockchainService);

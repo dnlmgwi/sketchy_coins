@@ -1,4 +1,5 @@
 class AccountNotFoundException implements Exception {
+  ///This Exception is thrown when the account cannot be Found in the DB
   late String _message;
 
   AccountNotFoundException([String message = 'Account Not Found']) {
@@ -12,6 +13,7 @@ class AccountNotFoundException implements Exception {
 }
 
 class AccountDuplicationException implements Exception {
+  ///This Exception is thrown when there is an excisting account in the DB
   late String _message;
 
   AccountDuplicationException([String message = 'Duplicate Account Found']) {
@@ -25,6 +27,7 @@ class AccountDuplicationException implements Exception {
 }
 
 class InvalidInputException implements Exception {
+  ///This Exception is thrown when there is an invalid Input Entered in the DB
   late String _message;
 
   InvalidInputException([String message = 'Please provide a valid Input']) {
@@ -38,6 +41,7 @@ class InvalidInputException implements Exception {
 }
 
 class InsufficientFundsException implements Exception {
+  ///This Exception is thrown when there is Insufficient Funds in the account
   late String _message;
 
   InsufficientFundsException([String message = 'Insufficient funds']) {
@@ -51,6 +55,7 @@ class InsufficientFundsException implements Exception {
 }
 
 class PendingTransactionException implements Exception {
+  ///This Exception is thrown when the account has a pending transaction
   late String _message;
 
   PendingTransactionException(

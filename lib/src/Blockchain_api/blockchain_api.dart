@@ -1,11 +1,11 @@
 import 'package:shelf_router/shelf_router.dart';
 import 'package:sketchy_coins/src/Account_api/accountExeptions.dart';
+import 'package:sketchy_coins/src/Auth_api/EnvValues.dart';
 import 'blockchainService.dart';
 import 'blockchainValidation.dart';
 import 'miner.dart';
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
-import 'package:sketchy_coins/src/Blockchain_api/kkoin.dart';
 
 class BlockChainApi {
   static final blockchainService = BlockchainService();
@@ -169,29 +169,30 @@ class BlockChainApi {
 
   String noSenderError() {
     return json.encode({
-              'data': {
-                'message': 'Please Provide Sender Address',
-              }
-            });
+      'data': {
+        'message': 'Please Provide Sender Address',
+      }
+    });
   }
 
   String noRecipientError() {
     return json.encode({
-              'data': {
-                'message': 'Please Provide Recipient Address',
-              }
-            });
+      'data': {
+        'message': 'Please Provide Recipient Address',
+      }
+    });
   }
 
   String noAmountError() {
     return json.encode({
-              'data': {
-                'message': 'Please include valid amount Greater Than KK10.00',
-              }
-            });
+      'data': {
+        'message': 'Please include valid amount Greater Than KK10.00',
+      }
+    });
   }
 
-  bool noAmountCheck(data) => data['amount'] == null || data['amount'] < kKoin.minAmount;
+  bool noAmountCheck(data) =>
+      data['amount'] == null || data['amount'] < enviromentVariables.minTransactionAmount;
 
   bool noRecipientCheck(data) => data['recipient'] == '';
 
