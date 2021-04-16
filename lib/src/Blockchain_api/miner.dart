@@ -22,8 +22,7 @@ class Miner {
     // Proof found - receive award for finding the proof
     try {
       blockchain.newMineTransaction(
-        sender:
-            '8e3153aa41771bf79089df1d858a274c9af598656688b188e803249ecb44de7f',
+        sender:enviromentVariables.systemAddress,
         recipient: address,
         amount: enviromentVariables.rewardValue,
       );

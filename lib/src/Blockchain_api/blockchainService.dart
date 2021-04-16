@@ -65,8 +65,7 @@ class BlockchainService {
         var transactionType;
         Account? foundAccount;
 
-        if (element.sender ==
-            '8e3153aa41771bf79089df1d858a274c9af598656688b188e803249ecb44de7f') {
+        if (element.sender == enviromentVariables.systemAddress) {
           transactionType = 1;
           try {
             foundAccount = _accountService.findAccount(

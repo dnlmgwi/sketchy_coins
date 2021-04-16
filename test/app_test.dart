@@ -11,7 +11,7 @@ import 'package:sketchy_coins/src/Models/transaction/transaction.dart';
 import 'package:test/test.dart';
 
 void main() async {
-  Hive.init('kkoin_test');
+  Hive.init('P23_test');
   Hive.registerAdapter(AccountAdapter());
   Hive.registerAdapter(BlockAdapter());
   Hive.registerAdapter(MineResultAdapter());

@@ -186,13 +186,15 @@ class BlockChainApi {
   String noAmountError() {
     return json.encode({
       'data': {
-        'message': 'Please include valid amount Greater Than KK10.00',
+        'message':
+            'Please include valid amount Greater Than P${enviromentVariables.minTransactionAmount}',
       }
     });
   }
 
   bool noAmountCheck(data) =>
-      data['amount'] == null || data['amount'] < enviromentVariables.minTransactionAmount;
+      data['amount'] == null ||
+      data['amount'] < enviromentVariables.minTransactionAmount;
 
   bool noRecipientCheck(data) => data['recipient'] == '';
 

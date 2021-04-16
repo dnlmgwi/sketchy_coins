@@ -10,8 +10,5 @@ doc/api/
 kkoin/blockchain.lock
 kkoin/transactions.lock
 *.hive
-kkoin_test/accounts.lock
-kkoin_test/blockchain.lock
-kkoin_test/transactions.lock
-kkoin/accounts.lock
 *.g.dart
+P23/*.lock
