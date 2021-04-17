@@ -3,6 +3,7 @@ class EnvValues {
   final port = 8080;
   final hostName = '0.0.0.0';
   final systemAddress = 'P23 Admin';
+  final jwt_auth_sercret = 'ASDF_QWERTY_REPLACE_ME_PLZ_THX';
 
   //AuthValues
   final issuer = 'Daniel Mgawi';

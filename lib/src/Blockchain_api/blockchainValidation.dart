@@ -1,5 +1,5 @@
 import 'package:hive/hive.dart';
-import 'package:sketchy_coins/blockchain.dart';
+import 'package:sketchy_coins/p23_blockchain.dart';
 
 class BlockChainValidity {
   bool isFirstBlockValid({
