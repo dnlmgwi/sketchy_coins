@@ -1,2 +1,2 @@
-## A Blockchain transaction server for King of The Grid eSports
+## A Blockchain transaction server by Daniel Mgawi
 
