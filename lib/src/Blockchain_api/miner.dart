@@ -9,7 +9,7 @@ class Miner {
 
   Miner(this.blockchain);
 
-  Map<String, dynamic> mine({required String address}) {
+  Map<String, dynamic> mine({required String recipient,}) {
     if (blockchain.pendingTransactions.isEmpty) {
       return {
         'message': 'Nothing to Mine',
@@ -22,13 +22,12 @@ class Miner {
     // Proof found - receive award for finding the proof
     try {
       blockchain.newMineTransaction(
-        sender:
-            '8e3153aa41771bf79089df1d858a274c9af598656688b188e803249ecb44de7f',
-        recipient: address,
+        recipient: recipient,
         amount: enviromentVariables.rewardValue,
       );
     } catch (e) {
       print(e.toString());
+      rethrow;
     }
 
     // Forge the new Block by adding it to the chain

@@ -11,7 +11,7 @@ import 'package:sketchy_coins/src/Models/transaction/transaction.dart';
 import 'package:test/test.dart';
 
 void main() async {
-  Hive.init('kkoin_test');
+  Hive.init('P23_test');
   Hive.registerAdapter(AccountAdapter());
   Hive.registerAdapter(BlockAdapter());
   Hive.registerAdapter(MineResultAdapter());
@@ -27,7 +27,7 @@ void main() async {
   group('Blockchain', () {
     test('Test', () {
       expect(blockchainService, isNotNull);
-      var blockIndex = blockchainService.newTransaction(
+      var blockIndex = blockchainService.newTransfer(
           sender:
               'a23f0faec57e4219d83c4b67b5cea0f185718dbd4a1eb6d744e1e1bc69fd8a4e',
           recipient:
@@ -196,11 +196,11 @@ void main() async {
   group('Miner', () {
     test('Test', () {
       var result = miner.mine(
-          address:
+          recipient:
               'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d');
       expect(result, isNotNull);
       expect(result.containsKey('prevHash'), isNotNull);
-      blockchainService.newTransaction(
+      blockchainService.newTransfer(
           sender:
               'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d',
           recipient:

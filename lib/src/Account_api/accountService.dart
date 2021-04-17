@@ -45,7 +45,7 @@ class AccountService {
         Account(
           status: 'normal',
           address: identityHash('$pin$number'),
-          balance: 10000.0,
+          balance: enviromentVariables.newAccountBalance,
         ),
       );
     } else {
@@ -54,7 +54,7 @@ class AccountService {
   }
 
   String identityHash(String data) {
-    var key = utf8.encode('kingofthegrid');
+    var key = utf8.encode('psalms23');
     var bytes = utf8.encode(data);
 
     var hmacSha256 = Hmac(sha256, key); // HMAC-SHA256
@@ -64,9 +64,10 @@ class AccountService {
   }
 
   /// Edit User Account Balance
-  /// String address - User Koin Address
+  /// String address - User P23 Address
   /// String value - Transaction Value
   /// String transactionType - 0: Withdraw, 1: Deposit
+  
   double editAccountBalance({
     required Account account,
     required double value,
