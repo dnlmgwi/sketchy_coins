@@ -34,6 +34,29 @@ class BlockchainService {
   var blockchainStore = Hive.box<Block>('blockchain');
   var pendingTansactions = Hive.box<Transaction>('transactions');
 
+  // int newTransaction(
+  //     {required String sender,
+  //     required String recipient,
+  //     required double amount}) {
+  //   //Check if the sender & recipient are in the database
+  //   if (accountValidation(sender, recipient)) {
+  //     _accountService.checkAccountBalance(
+  //         value: amount,
+  //         account: _accountService.findAccount(
+  //           accounts: _accountService.accountList,
+  //           address: sender,
+  //         ));
+
+  //     if (accountStatusCheck(sender)) {
+  //       addToPendingWithdraw(sender, recipient, amount);
+  //       changeAccountStatusToProcessing(sender);
+  //     } else {
+  //       throw PendingTransactionException();
+  //     }
+  //   }
+  //   return lastBlock.index + 1;
+  // }
+
   Block newBlock(int proof, String previousHash) {
     if (previousHash.isEmpty) {
       hash(blockchainStore.values.last);
@@ -48,6 +71,7 @@ class BlockchainService {
         pendingTransactions.toSet(),
       ),
     );
+
     blockchainStore.add(block);
     processPayments();
     pendingTansactions.clear(); //Successfully Mined
@@ -62,51 +86,98 @@ class BlockchainService {
       pendingTansactions.values.forEach((element) {
         print('Processing ${element.toJson()}');
 
-        var transactionType;
         Account? foundAccount;
 
-        if (element.sender == enviromentVariables.systemAddress) {
-          transactionType = 1;
-          try {
-            foundAccount = _accountService.findAccount(
-                accounts: _accountService.accountList,
-                address: element.recipient);
-
-            _accountService.editAccountBalance(
-                account: foundAccount,
-                value: element.amount,
-                transactionType: transactionType);
-          } catch (e) {
-            print(e.toString());
-            print('Failed Processing');
-          }
+        /// Edit User Account Balance
+        /// String address - User P23 Address
+        /// String value - Transaction Value
+        /// String transactionType - 0: Withdraw, 1: Deposit
+        if (element.transType == 1) {
+          foundAccount = depositProcess(foundAccount, element);
         } else {
-          transactionType = 0;
-          try {
-            foundAccount = _accountService.findAccount(
-                accounts: _accountService.accountList, address: element.sender);
-
-            _accountService.editAccountBalance(
-                account: foundAccount,
-                value: element.amount,
-                transactionType: transactionType);
-          } catch (e) {
-            print(e.toString());
-            print('Failed Processing');
-          }
+          foundAccount = withdrawProcess(foundAccount, element);
         }
-
-        changeAccountStatusNormal(foundAccount!.address);
       });
     }
   }
 
-  int newTransaction(
+  Account depositProcess(Account? foundAccount, Transaction element) {
+    try {
+      foundAccount = _accountService.findAccount(
+        accounts: _accountService.accountList,
+        address: element.recipient,
+      );
+
+      _accountService.editAccountBalance(
+          account: foundAccount,
+          value: element.amount,
+          transactionType: element.transType);
+      changeAccountStatusNormal(foundAccount.address);
+    } catch (e) {
+      print(e.toString());
+      print('Failed Processing');
+      rethrow;
+    }
+    return foundAccount;
+  }
+
+  Account withdrawProcess(Account? foundAccount, Transaction element) {
+    try {
+      foundAccount = _accountService.findAccount(
+          accounts: _accountService.accountList, address: element.sender);
+
+      _accountService.editAccountBalance(
+          account: foundAccount,
+          value: element.amount,
+          transactionType: element.transType);
+      changeAccountStatusNormal(foundAccount.address);
+    } catch (e) {
+      print(e.toString());
+      print('Failed Processing');
+      rethrow;
+    }
+    return foundAccount;
+  }
+
+  // int newDeposit({required String sender, required double amount}) {
+  //   //Check if the sender & recipient are in the database
+  //   if (accountPaymentValidation(sender) && accountStatusCheck(sender)) {
+  //     _accountService.checkAccountBalance(
+  //         value: amount,
+  //         account: _accountService.findAccount(
+  //           accounts: _accountService.accountList,
+  //           address: sender,
+  //         ));
+
+  //     addToPendingDeposit(sender, sender, amount);
+  //     changeAccountStatusToProcessing(sender);
+  //   } else {
+  //     throw PendingTransactionException();
+  //   }
+  //   return lastBlock.index + 1;
+  // }
+  //
+  //   // void addToPendingMineDeposit(String recipient, double amount) {
+  //   /// Edit User Account Balance
+  //   /// String address - User P23 Address
+  //   /// String value - Transaction Value
+  //   /// String transactionType - 0: Withdraw, 1: Deposit
+  //   pendingTansactions.add(Transaction(
+  //     sender: recipient,
+  //     recipient: recipient,
+  //     amount: amount,
+  //     timestamp: DateTime.now().millisecondsSinceEpoch,
+  //     transID: Uuid().v4(),
+  //     transType: 1,
+  //   ));
+  // }
+
+  int newTransfer(
       {required String sender,
       required String recipient,
       required double amount}) {
-    //Check if the sender & recipient are in the database
     if (accountValidation(sender, recipient)) {
+      //Check if the sender & recipient are in the database
       _accountService.checkAccountBalance(
           value: amount,
           account: _accountService.findAccount(
@@ -115,7 +186,7 @@ class BlockchainService {
           ));
 
       if (accountStatusCheck(sender)) {
-        addToPendingTransactions(sender, recipient, amount);
+        addToPendingTransfer(sender, recipient, amount);
         changeAccountStatusToProcessing(sender);
       } else {
         throw PendingTransactionException();
@@ -124,14 +195,43 @@ class BlockchainService {
     return lastBlock.index + 1;
   }
 
-  void addToPendingTransactions(
-      String sender, String recipient, double amount) {
+  void addToPendingDeposit(String sender, String recipient, double amount) {
+    /// Edit User Account Balance
+    /// String address - User P23 Address
+    /// String value - Transaction Value
+    /// String transactionType - 0: Withdraw, 1: Deposit
     pendingTansactions.add(Transaction(
       sender: sender,
       recipient: recipient,
       amount: amount,
       timestamp: DateTime.now().millisecondsSinceEpoch,
       transID: Uuid().v4(),
+      transType: 1,
+    ));
+  }
+
+  void addToPendingTransfer(String sender, String recipient, double amount) {
+    //Allows users to transfer points between each other
+    /// String transactionType - 0: Withdraw, 1: Deposit, 2: Transfer
+    var transId = Uuid().v4();
+    var timestamp = DateTime.now().millisecondsSinceEpoch;
+
+    pendingTansactions.add(Transaction(
+      sender: sender,
+      recipient: recipient,
+      amount: amount,
+      timestamp: timestamp,
+      transID: transId,
+      transType: 0,
+    ));
+
+    pendingTansactions.add(Transaction(
+      sender: sender,
+      recipient: recipient,
+      amount: amount,
+      timestamp: timestamp,
+      transID: transId,
+      transType: 1,
     ));
   }
 
@@ -143,6 +243,16 @@ class BlockchainService {
             )
             .status ==
         'normal';
+  }
+
+  bool accountPaymentValidation(String sender) {
+    return _accountService.accountList.values.contains(
+          _accountService.findAccount(
+            accounts: _accountService.accountList,
+            address: sender,
+          ),
+        ) ==
+        true;
   }
 
   bool accountValidation(String sender, String recipient) {
@@ -160,29 +270,24 @@ class BlockchainService {
             true;
   }
 
-  int newMineTransaction(
-      {required String sender,
-      required String recipient,
-      required double amount}) {
-    //Check if the recipient are in the database
+  int newMineTransaction({
+    required String recipient,
+    required double amount,
+  }) {
+    //Check if the recipient is in the database
     if (recipientValidation(recipient)) {
       changeAccountStatusToProcessing(recipient);
-      addToPendingTransactions(sender, recipient, amount);
+      addToPendingDeposit(enviromentVariables.systemAddress, recipient, amount);
     }
     return lastBlock.index + 1;
   }
 
   bool recipientValidation(String recipient) {
-    return recipientCheck(recipient);
-  }
-
-  bool recipientCheck(String recipient) {
     return _accountService.accountList.values
-            .contains(_accountService.findAccount(
-          accounts: _accountService.accountList,
-          address: recipient,
-        )) ==
-        true;
+        .contains(_accountService.findAccount(
+      accounts: _accountService.accountList,
+      address: recipient,
+    ));
   }
 
   void changeAccountStatusToProcessing(String sender) {

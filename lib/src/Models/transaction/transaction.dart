@@ -20,12 +20,16 @@ class Transaction extends HiveObject {
   @HiveField(5)
   String transID;
 
+  @HiveField(6)
+  int transType;
+
   Transaction({
     required this.sender,
     required this.recipient,
     required this.amount,
     required this.timestamp,
     required this.transID,
+    required this.transType,
   });
 
   factory Transaction.fromJson(Map<String, dynamic> json) =>

@@ -11,4 +11,4 @@ kkoin/blockchain.lock
 kkoin/transactions.lock
 *.hive
 *.g.dart
-P23/*.lock
+*.lock
