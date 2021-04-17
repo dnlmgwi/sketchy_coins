@@ -10,3 +10,4 @@ doc/api/
 *.hive
 *.g.dart
 *.lock
+.env

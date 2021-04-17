@@ -1,9 +1,5 @@
-import 'dart:convert';
-import 'package:crypto/crypto.dart';
-import 'package:hive/hive.dart';
-import 'package:sketchy_coins/src/Account_api/accountExeptions.dart';
-import 'package:sketchy_coins/src/Auth_api/EnvValues.dart';
-import 'package:sketchy_coins/src/Models/Account/account.dart';
+import 'package:sketchy_coins/packages.dart';
+
 
 class AccountService {
   final _accountList = Hive.box<Account>('accounts');
@@ -45,7 +41,7 @@ class AccountService {
         Account(
           status: 'normal',
           address: identityHash('$pin$number'),
-          balance: enviromentVariables.newAccountBalance,
+          balance: double.parse(Env.newAccountBalance),
         ),
       );
     } else {
@@ -67,7 +63,7 @@ class AccountService {
   /// String address - User P23 Address
   /// String value - Transaction Value
   /// String transactionType - 0: Withdraw, 1: Deposit
-  
+
   double editAccountBalance({
     required Account account,
     required double value,
@@ -104,7 +100,7 @@ class AccountService {
     try {
       if (value > account.balance) {
         throw InsufficientFundsException();
-      } else if (value < enviromentVariables.minTransactionAmount) {
+      } else if (value < double.parse(Env.minTransactionAmount)) {
         throw InvalidInputException();
       }
     } catch (e) {
@@ -122,7 +118,7 @@ class AccountService {
     try {
       if (value > account.balance) {
         throw InsufficientFundsException();
-      } else if (value < enviromentVariables.minTransactionAmount) {
+      } else if (value < double.parse(Env.minTransactionAmount)) {
         throw InvalidInputException();
       }
     } catch (e) {

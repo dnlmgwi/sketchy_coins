@@ -1,15 +1,5 @@
-import 'dart:convert';
-import 'package:hive/hive.dart';
-import 'package:sketchy_coins/p23_blockchain.dart';
-import 'package:sketchy_coins/src/Account_api/accountExeptions.dart';
-import 'package:sketchy_coins/src/Account_api/accountService.dart';
-import 'package:sketchy_coins/src/Blockchain_api/blockchainValidation.dart';
-import 'package:sketchy_coins/src/Auth_api/EnvValues.dart';
-import 'package:sketchy_coins/src/Models/Account/account.dart';
-import 'package:sketchy_coins/src/Models/transaction/transaction.dart';
-import 'package:uuid/uuid.dart';
 import 'package:crypto/crypto.dart' as crypto;
-import 'package:hex/hex.dart';
+import 'package:sketchy_coins/packages.dart';
 
 class BlockchainService {
   //Adds a node to our peer table
@@ -277,7 +267,7 @@ class BlockchainService {
     //Check if the recipient is in the database
     if (recipientValidation(recipient)) {
       changeAccountStatusToProcessing(recipient);
-      addToPendingDeposit(enviromentVariables.systemAddress, recipient, amount);
+      addToPendingDeposit(Env.systemAddress, recipient, amount);
     }
     return lastBlock.index + 1;
   }
@@ -335,7 +325,7 @@ class BlockchainService {
     var guess = utf8.encode('$lastProof$proof');
     var guessHash = crypto.sha256.convert(guess).bytes;
     return HEX.encode(guessHash).substring(0, 4) ==
-        enviromentVariables.difficulty;
+        Env.difficulty;
   }
 
   String getBlockchain() {

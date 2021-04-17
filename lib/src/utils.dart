@@ -1,4 +1,4 @@
-import 'package:shelf/shelf.dart';
+import 'package:sketchy_coins/packages.dart';
 
 Middleware handleCors() {
   const corsHeaders = {'Access-Control-Allow-Origin': '*'};

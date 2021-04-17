@@ -1,11 +1,4 @@
-import 'package:shelf_router/shelf_router.dart';
-import 'package:sketchy_coins/src/Account_api/accountExeptions.dart';
-import 'package:sketchy_coins/src/Auth_api/EnvValues.dart';
-import 'blockchainService.dart';
-import 'blockchainValidation.dart';
-import 'miner.dart';
-import 'dart:convert';
-import 'package:shelf/shelf.dart';
+import 'package:sketchy_coins/packages.dart';
 
 class BlockChainApi {
   static final blockchainService = BlockchainService();
@@ -264,14 +257,14 @@ class BlockChainApi {
     return json.encode({
       'data': {
         'message':
-            'Please include valid amount Greater Than P${enviromentVariables.minTransactionAmount}',
+            'Please include valid amount Greater Than P${Env.minTransactionAmount}',
       }
     });
   }
 
   bool noAmountCheck(data) =>
       data['amount'] == null ||
-      data['amount'] < enviromentVariables.minTransactionAmount;
+      data['amount'] < double.parse(Env.minTransactionAmount);
 
   bool noRecipientCheck(data) => data['recipient'] == '';
 
