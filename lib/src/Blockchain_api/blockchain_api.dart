@@ -130,7 +130,7 @@ class BlockChainApi {
           }
 
           try {
-            blockchainService.newTransfer(
+            blockchainService.initiateTransfer(
               sender: data['sender'],
               recipient: data['recipient'],
               amount: double.parse(data['amount'].toString()),

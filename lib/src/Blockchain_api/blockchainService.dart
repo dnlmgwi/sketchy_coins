@@ -91,7 +91,7 @@ class BlockchainService {
         /// Edit User Account Balance
         /// String address - User P23 Address
         /// String value - Transaction Value
-        /// String transactionType - 0: Withdraw, 1: Deposit
+        /// String transactionType - 0: Withdraw, 1: Deposit, 2: Transfer 3: Reversal
         if (element.transType == 1) {
           foundAccount = depositProcess(foundAccount, element);
         } else {
@@ -172,7 +172,7 @@ class BlockchainService {
   //   ));
   // }
 
-  int newTransfer(
+  int initiateTransfer(
       {required String sender,
       required String recipient,
       required double amount}) {
