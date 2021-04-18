@@ -5,6 +5,7 @@ export 'src/utils.dart';
 //Core Packages
 export 'dart:io';
 export 'dart:convert';
+export 'dart:math';
 
 //imported Packages
 export 'package:hive/hive.dart';
@@ -13,6 +14,7 @@ export 'package:shelf/shelf.dart';
 export 'package:uuid/uuid.dart';
 export 'package:hex/hex.dart';
 export 'package:crypto/crypto.dart';
+export 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 
 //Config File
 export 'src/config.dart';

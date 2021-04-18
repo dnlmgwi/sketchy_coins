@@ -3,6 +3,7 @@ import 'package:hive/hive.dart';
 import 'package:sketchy_coins/packages.dart';
 import 'package:sketchy_coins/src/Account_api/accountExceptions.dart';
 import 'package:sketchy_coins/src/Account_api/accountService.dart';
+import 'package:sketchy_coins/src/Auth_api/AuthService.dart';
 import 'package:sketchy_coins/src/Blockchain_api/miner.dart';
 import 'package:sketchy_coins/src/Blockchain_api/blockchainValidation.dart';
 import 'package:sketchy_coins/src/Models/Account/account.dart';
@@ -23,7 +24,7 @@ void main() async {
   var blockchainService = BlockchainService();
   var a = BlockChainValidity();
   var miner = Miner(blockchainService);
-  var accountService = AccountService();
+  var authService = AuthService();
   group('Blockchain', () {
     test('Test', () {
       expect(blockchainService, isNotNull);
@@ -53,22 +54,26 @@ void main() async {
     test(
       'New Account',
       () {
-        accountService.register(password: '9', email: '0');
-        expect(accountService.accountList.values, isNotNull);
+        authService.register(
+          password: '9',
+          email: '0',
+          phoneNumber: '00000000',
+        );
+        expect(authService.accountList.values, isNotNull);
       },
     );
 
     test('List Accounts', () {
-      expect(accountService.accountList.values, isNotNull);
-      accountService.accountList.values
+      expect(authService.accountList.values, isNotNull);
+      authService.accountList.values
           .forEach((element) => print(element.toJson()));
     });
 
     test(
       'Find Account',
       () {
-        var account = accountService.findAccount(
-            accounts: accountService.accountList,
+        var account = authService.findAccount(
+            accounts: authService.accountList,
             address:
                 'a23f0faec57e4219d83c4b67b5cea0f185718dbd4a1eb6d744e1e1bc69fd8a4e');
         expect(account.toJson(), {
@@ -84,8 +89,8 @@ void main() async {
       'Account Not Found',
       () {
         try {
-          var account = accountService.findAccount(
-              accounts: accountService.accountList,
+          var account = authService.findAccount(
+              accounts: authService.accountList,
               address: 'bcb7a14f8-0eb3-4ec7-9399-975b89ba65a8');
           expect(account, account.toString());
         } on AccountNotFoundException catch (e) {
@@ -99,11 +104,11 @@ void main() async {
       () {
         var account;
         print(
-            'Before: ${accountService.findAccount(accounts: accountService.accountList, address: 'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d').toJson()}');
+            'Before: ${authService.findAccount(accounts: authService.accountList, address: 'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d').toJson()}');
         expect(
-            account = accountService.deposit(
-                account: accountService.findAccount(
-                    accounts: accountService.accountList,
+            account = authService.deposit(
+                account: authService.findAccount(
+                    accounts: authService.accountList,
                     address:
                         'a23f0faec57e4219d83c4b67b5cea0f185718dbd4a1eb6d744e1e1bc69fd8a4e'),
                 value: 1000000),
@@ -118,15 +123,15 @@ void main() async {
       () {
         try {
           expect(
-              accountService.withdraw(
-                  account: accountService.findAccount(
-                      accounts: accountService.accountList,
+              authService.withdraw(
+                  account: authService.findAccount(
+                      accounts: authService.accountList,
                       address:
                           'a23f0faec57e4219d83c4b67b5cea0f185718dbd4a1eb6d744e1e1bc69fd8a4e'),
                   value: 0.3),
-              accountService
+              authService
                   .findAccount(
-                      accounts: accountService.accountList,
+                      accounts: authService.accountList,
                       address:
                           'a23f0faec57e4219d83c4b67b5cea0f185718dbd4a1eb6d744e1e1bc69fd8a4e')
                   .balance);
@@ -143,8 +148,8 @@ void main() async {
       () {
         try {
           expect(
-              accountService.findAccount(
-                  accounts: accountService.accountList,
+              authService.findAccount(
+                  accounts: authService.accountList,
                   address: 'ncb7a14f8-0eb3-4ec7-9399-975b89ba65a8'),
               AccountNotFoundException().toString());
         } on AccountNotFoundException catch (e) {
@@ -157,12 +162,12 @@ void main() async {
       'New Withdraw Fail',
       () {
         var account;
-        print('Before: ${accountService.accountList.values.first.balance}');
+        print('Before: ${authService.accountList.values.first.balance}');
         try {
           expect(
-              account = accountService.withdraw(
-                  account: accountService.findAccount(
-                      accounts: accountService.accountList,
+              account = authService.withdraw(
+                  account: authService.findAccount(
+                      accounts: authService.accountList,
                       address:
                           'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d'),
                   value: 19),
@@ -178,12 +183,12 @@ void main() async {
       'New Withdraw Pass',
       () {
         var account;
-        print(accountService.accountList.values.first.email);
-        print('Before: ${accountService.accountList.values.first.balance}');
+        print(authService.accountList.values.first.email);
+        print('Before: ${authService.accountList.values.first.balance}');
         expect(
-            account = accountService.withdraw(
-                account: accountService.findAccount(
-                    accounts: accountService.accountList,
+            account = authService.withdraw(
+                account: authService.findAccount(
+                    accounts: authService.accountList,
                     address:
                         'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d'),
                 value: 100),

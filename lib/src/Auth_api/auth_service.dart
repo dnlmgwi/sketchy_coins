@@ -2,7 +2,7 @@ import 'package:sketchy_coins/packages.dart';
 import 'package:sketchy_coins/src/Auth_api/AuthService.dart';
 
 class AuthApi {
-  Box store;
+  Box<Account> store;
   String secret;
 
   AuthApi({required this.store, required this.secret});
@@ -59,7 +59,11 @@ class AuthApi {
           }
 
           //TODO: Change Account Fields
-          _authService.register(password: password, email: email);
+          _authService.register(
+            password: password,
+            email: email,
+            phoneNumber: phoneNumber,
+          );
 
           return Response.ok(
             json.encode({
@@ -83,90 +87,85 @@ class AuthApi {
       }),
     );
 
-    // router.post(
-    //   '/create',
-    //   ((
-    //     Request request,
-    //   ) async {
-    //     try {
-    //       final payload = await request.readAsString();
-    //       final data = json.decode(payload);
+    router.post(
+      '/login',
+      ((
+        Request request,
+      ) async {
+        try {
+          final payload = await request.readAsString();
+          final userData = json.decode(payload);
 
-    //       if (data['number'] == '') {
-    //         return Response.forbidden(
-    //           json.encode({
-    //             'data': {
-    //               'message': 'Please provide a Number',
-    //             }
-    //           }),
-    //           headers: {
-    //             'Content-Type': 'application/json',
-    //           },
-    //         );
-    //       }
+          final address = userData['address'];
+          final password = userData['password'];
 
-    //       if (data['pin'] == '') {
-    //         return Response.forbidden(
-    //           json.encode({
-    //             'data': {
-    //               'message': 'Please provide a PIN',
-    //             }
-    //           }),
-    //           headers: {
-    //             'Content-Type': 'application/json',
-    //           },
-    //         );
-    //       }
+          if (address.isEmpty || address == null) {
+            //Todo: Input Validation Errors
+            return Response(
+              HttpStatus.badRequest,
+              body: 'Please provide a address',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            );
+          }
 
-    //       _accountService.createAccount(
-    //           pin: data['pin'], number: data['number']);
+          if (password.isEmpty || password == null) {
+            //Todo: Input Validation Errors
+            return Response(
+              HttpStatus.badRequest,
+              body: 'Please provide a password',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            );
+          }
 
-    //       return Response.ok(
-    //         json.encode({
-    //           'data': {
-    //             'message': 'Account Created',
-    //             'details': data,
-    //             'address':
-    //                 '${_accountService.identityHash('${data['pin']}${data['number']}')}'
-    //           }
-    //         }),
-    //         headers: {
-    //           'Content-Type': 'application/json',
-    //         },
-    //       );
-    //     } catch (e) {
-    //       print(e);
-    //       return Response.forbidden(
-    //         json.encode({
-    //           'data': {'message': '${e.toString()}'}
-    //         }),
-    //         headers: {
-    //           'Content-Type': 'application/json',
-    //         },
-    //       );
-    //     }
-    //   }),
-    // );
+          //TODO: Change Account Fields
+          final token =
+              _authService.login(password: password, address: address);
 
-    // router.get(
-    //   '/accounts',
-    //   ((
-    //     Request request,
-    //   ) async {
-    //     try {
-    //       return Response.ok(
-    //         json.encode({
-    //           'data': {'accounts': _accountService.accountList.values.toList()}
-    //         }),
-    //         headers: {
-    //           'Content-Type': 'application/json',
-    //         },
-    //       );
-    //     } catch (e) {
-    //       print(e);
-    //     }
-    //   }),
-    // );
+          return Response.ok(
+            json.encode({
+              'data': {'token': token}
+            }),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          );
+        } catch (e) {
+          print(e);
+          return Response.forbidden(
+            json.encode({
+              'data': {'message': '${e.toString()}'}
+            }),
+            headers: {
+              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+            },
+          );
+        }
+      }),
+    );
+
+    router.get(
+      '/accounts',
+      ((
+        Request request,
+      ) async {
+        try {
+          return Response.ok(
+            json.encode({
+              'data': {'accounts': _authService.accountList.values.toList()}
+            }),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          );
+        } catch (e) {
+          print(e);
+        }
+      }),
+    );
 
     return router;
   }

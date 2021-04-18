@@ -13,7 +13,7 @@ void main(List<String> arguments) async {
   await Hive.openBox<Transaction>('transactions');
   // await Hive.openBox<Transaction>('tokens');
 
-  final _tokenDb =
+  final _accountsDb =
       Hive.box<Account>('accounts'); //TODO: Implement PostgresSQL Database
 
   var app = Router();
@@ -32,7 +32,7 @@ void main(List<String> arguments) async {
   );
 
   app.mount('/v1/info/', BaseApi().router);
-  app.mount('/v1/auth/', AuthApi(store: _tokenDb, secret: 'mysecret').router);
+  app.mount('/v1/auth/', AuthApi(store: _accountsDb, secret: Env.secret).router);
   app.mount('/v1/blockchain/', BlockChainApi().router);
   // app.mount('/v1/account/', AccountApi().router);
 

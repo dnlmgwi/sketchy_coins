@@ -14,20 +14,24 @@ class Account extends HiveObject {
   String password;
 
   @HiveField(3)
-  String salt;
+  String phoneNumber;
 
   @HiveField(4)
-  String address;
+  String salt;
 
   @HiveField(5)
-  String status;
+  String address;
 
   @HiveField(6)
+  String status;
+
+  @HiveField(7)
   double balance;
 
   Account({
     required this.email,
     required this.password,
+    required this.phoneNumber,
     required this.salt,
     required this.status,
     required this.address,

@@ -34,6 +34,7 @@ class AuthService {
   void register({
     required String password,
     required String email,
+    required String phoneNumber,
   }) {
     final salt = generateSalt();
     final hashpassword = hashPassword(password: password, salt: salt);
@@ -43,6 +44,7 @@ class AuthService {
         Account(
           email: email,
           address: identityHash('$hashpassword$email'),
+          phoneNumber: phoneNumber, //TODO: Hash PhoneNumber
           password: hashpassword,
           salt: salt,
           status: 'normal',
@@ -54,7 +56,7 @@ class AuthService {
     }
   }
 
-  void login({
+  String login({
     required String password,
     required String address,
   }) {
@@ -73,7 +75,9 @@ class AuthService {
       }
 
       //TODO: Return JWT and Send Response
-
+      final token = generateJWT(
+          subject: user.address, issuer: Env.hostName, secret: Env.secret);
+      return token;
     } catch (e) {
       print(e.toString());
       rethrow;

@@ -10,7 +10,7 @@ class BaseApi {
       final data = {
         'message': 'Welcome to P23',
         'status': 'Testing',
-        'version': '0.0.4-alpha'
+        'version': '0.0.7-alpha'
       };
       return Response.ok(
         json.encode(data),

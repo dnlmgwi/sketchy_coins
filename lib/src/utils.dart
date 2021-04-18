@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:sketchy_coins/packages.dart';
 
 Middleware handleCors() {
@@ -28,4 +26,35 @@ String hashPassword({required String password, required String salt}) {
   final hmac = Hmac(sha256, key);
   final digest = hmac.convert(saltbytes);
   return digest.toString();
+}
+
+String generateJWT({
+  required String subject,
+  required String issuer,
+  required String secret,
+}) {
+  // Create a json web token
+  final jwt = JWT(
+    {
+      'iat': DateTime.now().millisecondsSinceEpoch,
+    },
+    subject: subject,
+    issuer: Env.issuer,
+  );
+
+  print('Signed token: $jwt');
+
+  return jwt.sign(SecretKey(secret));
+}
+
+dynamic verifyJWT({required String token, required String secret}) {
+  try {
+    final jwt = JWT.verify(token, SecretKey(secret));
+    return jwt;
+  } on JWTExpiredError {
+    rethrow;
+  } on JWTError catch (e) {
+    print(e.message);
+    rethrow;
+  }
 }
