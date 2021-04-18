@@ -23,6 +23,9 @@ void main(List<String> arguments) async {
   var handler = Pipeline()
       .addMiddleware(logRequests())
       .addMiddleware(handleCors())
+      .addMiddleware(handleAuth(
+        secret: Env.secret,
+      ))
       .addHandler(app);
 
   var server = await io.serve(
@@ -32,9 +35,10 @@ void main(List<String> arguments) async {
   );
 
   app.mount('/v1/info/', BaseApi().router);
-  app.mount('/v1/auth/', AuthApi(store: _accountsDb, secret: Env.secret).router);
+  app.mount(
+      '/v1/auth/', AuthApi(store: _accountsDb, secret: Env.secret).router);
   app.mount('/v1/blockchain/', BlockChainApi().router);
-  // app.mount('/v1/account/', AccountApi().router);
+  app.mount('/v1/account/', AccountApi().router);
 
   print('Serving at http://${server.address.host}:${server.port}');
 }

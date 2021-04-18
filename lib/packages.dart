@@ -1,6 +1,6 @@
 library packages;
 
-export 'src/utils.dart';
+export './src/utils.dart';
 
 //Core Packages
 export 'dart:io';
@@ -14,33 +14,35 @@ export 'package:shelf/shelf.dart';
 export 'package:uuid/uuid.dart';
 export 'package:hex/hex.dart';
 export 'package:crypto/crypto.dart';
+export 'package:json_annotation/json_annotation.dart';
 export 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 
 //Config File
-export 'src/config.dart';
+export './src/config.dart';
 
 //Api Endpoints
-export 'src/Base_api/base_api.dart';
-export 'src/Blockchain_api/blockchain_api.dart';
+export './src/Base_api/base_api.dart';
+export './src/Blockchain_api/blockchain_api.dart';
 
 //Services
-export 'src/Blockchain_api/blockchainService.dart';
-export 'src/Account_api/accountService.dart';
-export 'src/Blockchain_api/blockchainValidation.dart';
-export 'src/Blockchain_api/miner.dart';
-export 'src/Models/mineResult/mineResult.dart';
+export './src/Blockchain_api/blockchainService.dart';
+export './src/Account_api/accountService.dart';
+export './src/Blockchain_api/blockchainValidation.dart';
+export './src/Blockchain_api/miner.dart';
+export './src/Auth_api/AuthService.dart';
 
 //Account
-export 'src/Account_api/account_api.dart';
-export 'src/Account_api/accountService.dart';
-export 'src/Auth_api/auth_service.dart';
+export './src/Account_api/account_api.dart';
+export './src/Account_api/accountService.dart';
+export './src/Auth_api/auth_service.dart';
 
 //Models
-export 'src/Models/block/block.dart';
-export 'src/Models/Account/account.dart';
-export 'src/Models/mineResult/mineResult.dart';
-export 'src/Models/transaction/transaction.dart';
-import 'src/Models/Account/account.dart';
+export './src/Models/0.account/account.dart';
+export './src/Models/1.block/block.dart';
+export './src/Models/2.mineResult/mineResult.dart';
+export './src/Models/3.transaction/transaction.dart';
+export './src/Models/4.jwtModel/jwtModel.dart';
+export './src/Models/5.location/location.dart';
 
 //Exceptions
-export 'src/Account_api/accountExceptions.dart';
+export './src/Account_api/accountExceptions.dart';

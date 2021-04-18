@@ -1,5 +1,4 @@
-import 'package:hive/hive.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'package:sketchy_coins/packages.dart';
 part 'transaction.g.dart';
 
 @HiveType(typeId: 3)
@@ -23,6 +22,9 @@ class Transaction extends HiveObject {
   @HiveField(6)
   int transType;
 
+  // @HiveField(7)
+  // Location location;
+
   Transaction({
     required this.sender,
     required this.recipient,
@@ -30,6 +32,7 @@ class Transaction extends HiveObject {
     required this.timestamp,
     required this.transID,
     required this.transType,
+    // required this.location,
   });
 
   factory Transaction.fromJson(Map<String, dynamic> json) =>

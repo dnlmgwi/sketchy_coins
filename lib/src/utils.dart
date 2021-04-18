@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:sketchy_coins/packages.dart';
 
 Middleware handleCors() {
@@ -57,4 +59,33 @@ dynamic verifyJWT({required String token, required String secret}) {
     print(e.message);
     rethrow;
   }
+}
+
+Middleware handleAuth({required String secret}) {
+  return (Handler innerhandler) {
+    return (Request request) async {
+      final authHeader = request.headers['authorization'];
+      var token, jwt;
+
+      if (authHeader != null && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+        jwt = verifyJWT(token: token, secret: secret);
+      }
+
+      final updateRequest = request.change(context: {
+        'authDetails': jwt,
+      });
+
+      return await innerhandler(updateRequest);
+    };
+  };
+}
+
+Middleware checkAuth() {
+  return createMiddleware(requestHandler: (Request request) {
+    if (request.context['authDetails'] == null) {
+      return Response.forbidden('Not authorised to perform this request');
+    }
+    return null;
+  });
 }

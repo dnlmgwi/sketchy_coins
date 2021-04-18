@@ -1,5 +1,4 @@
-import 'package:hive/hive.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'package:sketchy_coins/packages.dart';
 part 'account.g.dart';
 
 /// An annotation for the code generator to know that this class needs the

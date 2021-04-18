@@ -1,5 +1,4 @@
 import 'package:sketchy_coins/packages.dart';
-import 'package:sketchy_coins/src/Auth_api/AuthService.dart';
 
 class AuthApi {
   Box<Account> store;
@@ -144,6 +143,24 @@ class AuthApi {
             },
           );
         }
+      }),
+    );
+
+    router.post(
+      '/logout',
+      ((
+        Request request,
+      ) async {
+        if (request.context['authDetails'] == null) {
+          return Response.forbidden(
+            'Not Authorised to perform this action',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          );
+        }
+
+        return Response.ok('Successfully Logged Out');
       }),
     );
 

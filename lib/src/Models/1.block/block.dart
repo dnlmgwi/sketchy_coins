@@ -1,6 +1,4 @@
-import 'package:hive/hive.dart';
-import 'package:json_annotation/json_annotation.dart';
-import 'package:sketchy_coins/src/Models/transaction/transaction.dart';
+import 'package:sketchy_coins/packages.dart';
 part 'block.g.dart';
 
 @HiveType(typeId: 1)

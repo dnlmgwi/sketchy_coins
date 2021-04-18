@@ -3,16 +3,22 @@ import 'package:sketchy_coins/packages.dart';
 class AccountService {
   final _accountList = Hive.box<Account>('accounts');
 
-  Account findAccount(
-      {required Box<Account> accounts, required String address}) {
-    return accounts.values.firstWhere((element) => element.email == address,
+//TODO: Duplicate Email & PhoneNumber
+  Account findAccount({
+    required Box<Account> accounts,
+    required String address,
+  }) {
+    return accounts.values.firstWhere((element) => element.address == address,
         orElse: () => throw AccountNotFoundException());
   }
 
+//TODO: Duplicate Email & PhoneNumber
   Account findDuplicateAccount(
-      {required Box<Account> accounts, required String address}) {
+      //TODO: Duplicate Email & PhoneNumber
+      {required Box<Account> accounts,
+      required String address}) {
     return accounts.values.firstWhere(
-      (element) => element.email == address,
+      (element) => element.address == address,
       orElse: () => throw AccountDuplicationException(),
     );
   }
@@ -37,7 +43,7 @@ class AccountService {
   // }) {
   //   final salt = generateSalt();
   //   final hashpassword = hashPassowrd(password: password, salt: salt);
-    
+
   //   if (validateAccount(pin: hashpassword, number: email)) {
   //     _accountList.add(
   //       Account(
@@ -52,7 +58,7 @@ class AccountService {
   // }
 
   String identityHash(String data) {
-    var key = utf8.encode('psalms23');
+    var key = utf8.encode(Env.secret);
     var bytes = utf8.encode(data);
 
     var hmacSha256 = Hmac(sha256, key); // HMAC-SHA256
@@ -115,8 +121,10 @@ class AccountService {
     return account.balance;
   }
 
-  double checkAccountBalance(
-      {required double value, required Account account}) {
+  double checkAccountBalance({
+    required double value,
+    required Account account,
+  }) {
     try {
       if (value > account.balance) {
         throw InsufficientFundsException();
