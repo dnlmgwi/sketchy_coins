@@ -26,6 +26,20 @@ class AccountDuplicationException implements Exception {
   }
 }
 
+class IncorrectInputException implements Exception {
+  ///This Exception is thrown when there is an excisting account in the DB
+  late String _message;
+
+  IncorrectInputException([String message = 'Incorrect Address/Password']) {
+    _message = message;
+  }
+
+  @override
+  String toString() {
+    return _message;
+  }
+}
+
 class InvalidInputException implements Exception {
   ///This Exception is thrown when there is an invalid Input Entered in the DB
   late String _message;

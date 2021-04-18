@@ -102,7 +102,7 @@ class BlockchainService {
           account: foundAccount,
           value: element.amount,
           transactionType: element.transType);
-      changeAccountStatusNormal(foundAccount.address);
+      changeAccountStatusNormal(foundAccount.email);
     } catch (e) {
       print(e.toString());
       print('Failed Processing');
@@ -120,7 +120,7 @@ class BlockchainService {
           account: foundAccount,
           value: element.amount,
           transactionType: element.transType);
-      changeAccountStatusNormal(foundAccount.address);
+      changeAccountStatusNormal(foundAccount.email);
     } catch (e) {
       print(e.toString());
       print('Failed Processing');

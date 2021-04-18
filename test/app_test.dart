@@ -53,7 +53,7 @@ void main() async {
     test(
       'New Account',
       () {
-        accountService.createAccount(pin: '9', number: '0');
+        accountService.register(password: '9', email: '0');
         expect(accountService.accountList.values, isNotNull);
       },
     );
@@ -178,7 +178,7 @@ void main() async {
       'New Withdraw Pass',
       () {
         var account;
-        print(accountService.accountList.values.first.address);
+        print(accountService.accountList.values.first.email);
         print('Before: ${accountService.accountList.values.first.balance}');
         expect(
             account = accountService.withdraw(

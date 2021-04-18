@@ -1,3 +1,5 @@
+library packages;
+
 export 'src/utils.dart';
 
 //Core Packages
@@ -40,9 +42,3 @@ import 'src/Models/Account/account.dart';
 
 //Exceptions
 export 'src/Account_api/accountExceptions.dart';
-
-
-
-
-
-

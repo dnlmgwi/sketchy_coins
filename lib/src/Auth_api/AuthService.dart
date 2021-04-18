@@ -1,18 +1,18 @@
 import 'package:sketchy_coins/packages.dart';
 
-class AccountService {
+class AuthService {
   final _accountList = Hive.box<Account>('accounts');
 
   Account findAccount(
       {required Box<Account> accounts, required String address}) {
-    return accounts.values.firstWhere((element) => element.email == address,
+    return accounts.values.firstWhere((element) => element.address == address,
         orElse: () => throw AccountNotFoundException());
   }
 
   Account findDuplicateAccount(
       {required Box<Account> accounts, required String address}) {
     return accounts.values.firstWhere(
-      (element) => element.email == address,
+      (element) => element.address == address,
       orElse: () => throw AccountDuplicationException(),
     );
   }
@@ -31,25 +31,54 @@ class AccountService {
     return duplicateAccount;
   }
 
-  // void createAccount({
-  //   required String password,
-  //   required String email,
-  // }) {
-  //   final salt = generateSalt();
-  //   final hashpassword = hashPassowrd(password: password, salt: salt);
-    
-  //   if (validateAccount(pin: hashpassword, number: email)) {
-  //     _accountList.add(
-  //       Account(
-  //         status: 'normal',
-  //         email: identityHash('$hashpassword$email'),
-  //         balance: double.parse(Env.newAccountBalance),
-  //       ),
-  //     );
-  //   } else {
-  //     throw AccountDuplicationException();
-  //   }
-  // }
+  void register({
+    required String password,
+    required String email,
+  }) {
+    final salt = generateSalt();
+    final hashpassword = hashPassword(password: password, salt: salt);
+
+    if (validateAccount(pin: hashpassword, number: email)) {
+      _accountList.add(
+        Account(
+          email: email,
+          address: identityHash('$hashpassword$email'),
+          password: hashpassword,
+          salt: salt,
+          status: 'normal',
+          balance: double.parse(Env.newAccountBalance),
+        ),
+      );
+    } else {
+      throw AccountDuplicationException();
+    }
+  }
+
+  void login({
+    required String password,
+    required String address,
+  }) {
+    Account user;
+
+    try {
+      user = findAccount(accounts: _accountList, address: address);
+
+      final hashpassword = hashPassword(
+        password: password,
+        salt: user.salt,
+      );
+
+      if (hashpassword != user.password) {
+        throw IncorrectInputException();
+      }
+
+      //TODO: Return JWT and Send Response
+
+    } catch (e) {
+      print(e.toString());
+      rethrow;
+    }
+  }
 
   String identityHash(String data) {
     var key = utf8.encode('psalms23');

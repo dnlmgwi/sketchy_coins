@@ -1,7 +1,7 @@
 import 'package:sketchy_coins/packages.dart';
+import 'package:sketchy_coins/src/Auth_api/AuthService.dart';
 
 class AuthApi {
-
   Box store;
   String secret;
 
@@ -10,7 +10,8 @@ class AuthApi {
   Router get router {
     final router = Router();
 
-    final _accountService = AccountService();
+    final _authService = AuthService();
+
     router.post(
       '/register',
       ((
@@ -18,45 +19,51 @@ class AuthApi {
       ) async {
         try {
           final payload = await request.readAsString();
-          final data = json.decode(payload);
+          final userData = json.decode(payload);
 
-          if (data['number'] == '') {
-            return Response.forbidden(
-              json.encode({
-                'data': {
-                  'message': 'Please provide a Number',
-                }
-              }),
+          final email = userData['email'];
+          final password = userData['password'];
+          final phoneNumber = userData['phoneNumber'];
+
+          if (email.isEmpty || email == null) {
+            //Todo: Input Validation Errors
+            return Response(
+              HttpStatus.badRequest,
+              body: 'Please provide a email',
               headers: {
                 'Content-Type': 'application/json',
               },
             );
           }
 
-          if (data['pin'] == '') {
-            return Response.forbidden(
-              json.encode({
-                'data': {
-                  'message': 'Please provide a PIN',
-                }
-              }),
+          if (password.isEmpty || password == null) {
+            //Todo: Input Validation Errors
+            return Response(
+              HttpStatus.badRequest,
+              body: 'Please provide a number',
               headers: {
                 'Content-Type': 'application/json',
               },
             );
           }
 
-          _accountService.createAccount(
-              pin: data['pin'], number: data['number']);
+          if (phoneNumber.isEmpty || phoneNumber == null) {
+            //Todo: Input Validation Errors
+            return Response(
+              HttpStatus.badRequest,
+              body: 'Please provide a number',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            );
+          }
+
+          //TODO: Change Account Fields
+          _authService.register(password: password, email: email);
 
           return Response.ok(
             json.encode({
-              'data': {
-                'message': 'Account Created',
-                'details': data,
-                'address':
-                    '${_accountService.identityHash('${data['pin']}${data['number']}')}'
-              }
+              'data': {'message': 'Account Created'}
             }),
             headers: {
               'Content-Type': 'application/json',

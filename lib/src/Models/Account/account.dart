@@ -8,17 +8,29 @@ part 'account.g.dart';
 @HiveType(typeId: 0)
 class Account extends HiveObject {
   @HiveField(1)
-  final String address;
+  String email;
 
   @HiveField(2)
-  String status;
+  String password;
 
   @HiveField(3)
+  String salt;
+
+  @HiveField(4)
+  String address;
+
+  @HiveField(5)
+  String status;
+
+  @HiveField(6)
   double balance;
 
   Account({
-    required this.address,
+    required this.email,
+    required this.password,
+    required this.salt,
     required this.status,
+    required this.address,
     required this.balance,
   });
 
