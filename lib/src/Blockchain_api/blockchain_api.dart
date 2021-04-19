@@ -99,7 +99,7 @@ class BlockChainApi {
             return Response.forbidden(
               noSenderError(),
               headers: {
-                'Content-Type': 'application/json',
+                HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
               },
             );
           }
@@ -108,7 +108,7 @@ class BlockChainApi {
             return Response.forbidden(
               noRecipientError(),
               headers: {
-                'Content-Type': 'application/json',
+                HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
               },
             );
           }
@@ -117,7 +117,7 @@ class BlockChainApi {
             return Response.forbidden(
               noAmountError(),
               headers: {
-                'Content-Type': 'application/json',
+                HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
               },
             );
           }
@@ -137,7 +137,7 @@ class BlockChainApi {
                 }
               }),
               headers: {
-                'Content-Type': 'application/json',
+                HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
               },
             );
           } on PendingTransactionException catch (e) {
@@ -146,7 +146,7 @@ class BlockChainApi {
                 'data': {'message': '${e.toString()}'}
               })),
               headers: {
-                'Content-Type': 'application/json',
+                HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
               },
             );
           }
@@ -158,7 +158,7 @@ class BlockChainApi {
               'data': {'message': '${e.toString()}'}
             }),
             headers: {
-              'Content-Type': 'application/json',
+              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
             },
           );
         }
@@ -181,7 +181,7 @@ class BlockChainApi {
               'data': {'message': '${e.toString()}'}
             }),
             headers: {
-              'Content-Type': 'application/json',
+              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
             },
           );
         }
@@ -195,14 +195,14 @@ class BlockChainApi {
               },
             ),
             headers: {
-              'Content-Type': 'application/json',
+              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
             },
           );
         } else if (mineResult.isNotEmpty) {
           return Response.ok(
             json.encode({'data': mineResult}),
             headers: {
-              'Content-Type': 'application/json',
+              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
             },
           );
         }
@@ -220,14 +220,14 @@ class BlockChainApi {
           return Response.ok(
             miner.blockchain.getBlockchain(),
             headers: {
-              'Content-Type': 'application/json',
+              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
             },
           );
         } else {
           return Response.notFound(
             'Invalid Blockchain',
             headers: {
-              'Content-Type': 'application/json',
+              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
             },
           );
         }

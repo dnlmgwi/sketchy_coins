@@ -8,7 +8,7 @@ class TokenService {
   late RedisClient client;
 
   final String _prefix = 'token';
-  final refreshTokenExpiry = Duration(seconds: 20); //TODO: Increase Duration
+  final refreshTokenExpiry = Duration(days: 7); //TODO: 7 Days is best practice?
 
   Future<void> start() async {
     try {

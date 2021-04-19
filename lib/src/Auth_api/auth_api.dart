@@ -30,9 +30,11 @@ class AuthApi {
             //Todo: Input Validation Errors
             return Response(
               HttpStatus.badRequest,
-              body: 'Please provide a email',
+              body: json.encode({
+                'data': {'account': 'Please provide a email'}
+              }),
               headers: {
-                'Content-Type': 'application/json',
+                HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
               },
             );
           }
@@ -41,9 +43,11 @@ class AuthApi {
             //Todo: Input Validation Errors
             return Response(
               HttpStatus.badRequest,
-              body: 'Please provide a number',
+              body: json.encode({
+                'data': {'account': 'Please provide a password'}
+              }),
               headers: {
-                'Content-Type': 'application/json',
+                HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
               },
             );
           }
@@ -52,9 +56,11 @@ class AuthApi {
             //Todo: Input Validation Errors
             return Response(
               HttpStatus.badRequest,
-              body: 'Please provide a number',
+              body: json.encode({
+                'data': {'account': 'Please provide a number'}
+              }),
               headers: {
-                'Content-Type': 'application/json',
+                HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
               },
             );
           }
@@ -71,7 +77,7 @@ class AuthApi {
               'data': {'message': 'Account Created'}
             }),
             headers: {
-              'Content-Type': 'application/json',
+              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
             },
           );
         } catch (e) {
@@ -81,7 +87,7 @@ class AuthApi {
               'data': {'message': '${e.toString()}'}
             }),
             headers: {
-              'Content-Type': 'application/json',
+              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
             },
           );
         }
@@ -106,7 +112,7 @@ class AuthApi {
               HttpStatus.badRequest,
               body: 'Please provide a address',
               headers: {
-                'Content-Type': 'application/json',
+                HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
               },
             );
           }
@@ -117,23 +123,25 @@ class AuthApi {
               HttpStatus.badRequest,
               body: 'Please provide a password',
               headers: {
-                'Content-Type': 'application/json',
+                HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
               },
             );
           }
 
           //TODO: Change Account Fields
           final token = await _authService.login(
-              password: password, address: address, tokenService: tokenService);
+            password: password,
+            address: address,
+            tokenService: tokenService,
+          );
 
           return Response.ok(
             json.encode({'data': token.toJson()}),
             headers: {
-              'Content-Type': 'application/json',
+              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
             },
           );
         } catch (e) {
-          print(e);
           return Response.forbidden(
             json.encode({
               'data': {'message': '${e.toString()}'}
@@ -149,21 +157,44 @@ class AuthApi {
     router.post('/logout', (Request req) async {
       final auth = req.context['authDetails'];
       if (auth == null) {
-        return Response.forbidden('Not authorised to perform this operation.');
+        return Response.forbidden(
+          json.encode({
+            'data': {'message': 'Not authorised to perform this request'}
+          }),
+          headers: {
+            HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+          },
+        );
       }
 
       try {
         await tokenService.removeRefreshToken((auth as JWT).jwtId);
       } catch (e) {
         return Response.internalServerError(
-            body:
-                'There was an issue logging out. Please check and try again.');
+            body: json.encode({
+              'data': {
+                'message':
+                    'There was an issue logging out. Please check and try again.'
+              }
+            }),
+            headers: {
+              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+            });
       }
 
-      return Response.ok('Successfully logged out');
+      return Response.ok(
+        json.encode({
+          'data': {'message': 'Successfully logged out'}
+        }),
+        headers: {
+          HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+        },
+      );
     });
 
     router.post('/refreshToken', (Request req) async {
+      //TODO: Error thrown by handler. type 'Null' is not a subtype of type 'String'
+
       final payload = await req.readAsString();
       final payloadMap = json.decode(payload);
 
@@ -173,21 +204,37 @@ class AuthApi {
       );
 
       if (token.payload == null) {
-        return Response(400, body: 'Refresh token is not valid.');
+        return Response(400,
+            body: json.encode({
+              'data': {'message': 'Refresh token is not valid.'}
+            }),
+            headers: {
+              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+            });
       }
 
       final dbToken = await tokenService.getRefreshToken(token.jwtId);
+
       if (dbToken == null) {
-        return Response(400, body: 'Refresh token is not recognised.');
+        return Response(400,
+            body: json.encode({
+              'data': {'message': 'Refresh token is not recognised.'}
+            }),
+            headers: {
+              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+            });
       }
 
       // Generate new token pair
       final oldJwt = token;
-      try {
-        await tokenService.removeRefreshToken(token.jwtId);
 
-        final tokenPair =
-            await tokenService.createTokenPair(userId: oldJwt.subject);
+      try {
+        await tokenService.removeRefreshToken(
+          token.jwtId,
+        );
+        final tokenPair = await tokenService.createTokenPair(
+          userId: oldJwt.subject,
+        );
         return Response.ok(
           json.encode(tokenPair.toJson()),
           headers: {
@@ -196,31 +243,17 @@ class AuthApi {
         );
       } catch (e) {
         return Response.internalServerError(
-            body:
-                'There was a problem creating a new token. Please try again.');
-      }
-    });
-
-    router.get(
-      '/accounts',
-      ((
-        Request request,
-      ) async {
-        try {
-          return Response.ok(
-            json.encode({
-              'data': {'accounts': _authService.accountList.values.toList()}
+            body: json.encode({
+              'data': {
+                'message':
+                    'There was a problem creating a new token. Please try again.'
+              }
             }),
             headers: {
-              'Content-Type': 'application/json',
-            },
-          );
-        } catch (e) {
-          print(e);
-        }
-      }),
-    );
-
+              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+            });
+      }
+    });
     return router;
   }
 }

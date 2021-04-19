@@ -34,7 +34,7 @@ String generateJWT(
     required String secret,
     String? jwtId,
     //TODO: Review JWT Validy Period
-    Duration expiry = const Duration(seconds: 20)}) {
+    Duration expiry = const Duration(days: 1)}) {
   // Create a json web token
   final jwt = JWT(
     {
@@ -70,10 +70,12 @@ Middleware handleAuth({required String secret}) {
 
       if (authHeader != null && authHeader.startsWith('Bearer ')) {
         token = authHeader.substring(7);
-        jwt = verifyJWT(
-            token: token,
-            secret:
-                secret); //TODO: Handle: JWTUndefinedError: JWTExpiredError: jwt expired
+
+        try {
+          jwt = verifyJWT(token: token, secret: secret);
+        } catch (e) {
+          print('Handler Auth Error: ${e.toString()}');
+        }
       }
 
       final updateRequest = request.change(context: {
@@ -88,7 +90,14 @@ Middleware handleAuth({required String secret}) {
 Middleware checkAuth() {
   return createMiddleware(requestHandler: (Request request) {
     if (request.context['authDetails'] == null) {
-      return Response.forbidden('Not authorised to perform this request');
+      return Response.forbidden(
+        json.encode({
+          'data': {'message': 'Not authorised to perform this request'}
+        }),
+        headers: {
+          HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+        },
+      );
     }
     return null;
   });
@@ -98,7 +107,13 @@ Middleware checkAuthorisation() {
   return createMiddleware(
     requestHandler: (Request request) {
       if (request.context['authDetails'] == null) {
-        return Response.forbidden('Not authorised to perform this action.');
+        return Response.forbidden(
+            json.encode({
+              'data': {'message': 'Not authorised to perform this request'}
+            }),
+            headers: {
+              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+            });
       }
       return null;
     },

@@ -18,12 +18,13 @@ class AuthService {
   }
 
   bool validateAccount({
-    required String pin,
-    required String number,
+    required String hashpassword,
+    required String email,
   }) {
     var duplicateAccount = false;
     try {
-      findAccount(accounts: _accountList, address: identityHash('$pin$number'));
+      findDuplicateAccount(
+          accounts: _accountList, address: identityHash('$hashpassword$email'));
     } catch (e) {
       duplicateAccount = true;
       print('Error ${e.toString()}');
@@ -36,16 +37,16 @@ class AuthService {
     required String email,
     required String phoneNumber,
   }) {
-    //TODO: find duplicate registration
     final salt = generateSalt();
     final hashpassword = hashPassword(password: password, salt: salt);
 
-    if (validateAccount(pin: hashpassword, number: email)) {
+    if (!validateAccount(hashpassword: hashpassword, email: email)) {
       _accountList.add(
         Account(
-          email: email,
-          address: identityHash('$hashpassword$email'),
-          phoneNumber: phoneNumber, //TODO: Hash PhoneNumber
+          email: email, //TODO: dateCreated
+          address:
+              identityHash('$hashpassword$email'), //TODO: Revisit address algo
+          phoneNumber: phoneNumber, //TODO: Hash PhoneNumber?
           password: hashpassword,
           salt: salt,
           status: 'normal',
@@ -80,7 +81,6 @@ class AuthService {
         throw IncorrectInputException();
       }
 
-      //TODO: Return JWT and Send Response
       tokenPair = await tokenService.createTokenPair(userId: user.address);
     } catch (e) {
       rethrow;
@@ -90,13 +90,13 @@ class AuthService {
   }
 
   String identityHash(String data) {
-    var key = utf8.encode('psalms23');
+    var key = utf8.encode('psalms23'); //TODO: improve address hashing
     var bytes = utf8.encode(data);
 
     var hmacSha256 = Hmac(sha256, key); // HMAC-SHA256
     var digest = hmacSha256.convert(bytes);
 
-    return digest.toString().split('-').first;
+    return digest.toString();
   }
 
   Box<Account> get accountList {

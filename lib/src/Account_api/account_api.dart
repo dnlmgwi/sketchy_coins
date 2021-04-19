@@ -7,71 +7,6 @@ class AccountApi {
 
     final _accountService = AccountService();
 
-    // router.post(
-    //   '/create',
-    //   ((
-    //     Request request,
-    //   ) async {
-    //     try {
-    //       final payload = await request.readAsString();
-    //       final data = json.decode(payload);
-
-    //       if (data['number'] == '') {
-    //         return Response.forbidden(
-    //           json.encode({
-    //             'data': {
-    //               'message': 'Please provide a Number',
-    //             }
-    //           }),
-    //           headers: {
-    //             'Content-Type': 'application/json',
-    //           },
-    //         );
-    //       }
-
-    //       if (data['pin'] == '') {
-    //         return Response.forbidden(
-    //           json.encode({
-    //             'data': {
-    //               'message': 'Please provide a PIN',
-    //             }
-    //           }),
-    //           headers: {
-    //             'Content-Type': 'application/json',
-    //           },
-    //         );
-    //       }
-
-    //       _accountService.createAccount(
-    //           password: data['pin'], email: data['number']);
-
-    //       return Response.ok(
-    //         json.encode({
-    //           'data': {
-    //             'message': 'Account Created',
-    //             'details': data,
-    //             'address':
-    //                 '${_accountService.identityHash('${data['pin']}${data['number']}')}'
-    //           }
-    //         }),
-    //         headers: {
-    //           'Content-Type': 'application/json',
-    //         },
-    //       );
-    //     } catch (e) {
-    //       print(e);
-    //       return Response.forbidden(
-    //         json.encode({
-    //           'data': {'message': '${e.toString()}'}
-    //         }),
-    //         headers: {
-    //           'Content-Type': 'application/json',
-    //         },
-    //       );
-    //     }
-    //   }),
-    // );
-
     router.get(
       '/account',
       ((
@@ -88,7 +23,7 @@ class AccountApi {
               'data': {'account': user.toJson()}
             }),
             headers: {
-              'Content-Type': 'application/json',
+              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
             },
           );
         } catch (e) {

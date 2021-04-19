@@ -16,7 +16,8 @@ class AccountDuplicationException implements Exception {
   ///This Exception is thrown when there is an excisting account in the DB
   late String _message;
 
-  AccountDuplicationException([String message = 'Duplicate Account Found']) {
+  AccountDuplicationException(
+      [String message = 'Duplicate Account Found, Login Instead']) {
     _message = message;
   }
 
@@ -75,6 +76,21 @@ class PendingTransactionException implements Exception {
 
   PendingTransactionException(
       [String message = 'Please await your pending transaction']) {
+    _message = message;
+  }
+
+  @override
+  String toString() {
+    return _message;
+  }
+}
+
+class UnauthorisedException implements Exception {
+  ///This Exception is thrown when there is an excisting account in the DB
+  late String _message;
+
+  UnauthorisedException(
+      [String message = 'Not authorised to perform this request']) {
     _message = message;
   }
 

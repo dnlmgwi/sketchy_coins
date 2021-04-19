@@ -3,7 +3,6 @@ import 'package:sketchy_coins/packages.dart';
 class AccountService {
   final _accountList = Hive.box<Account>('accounts');
 
-//TODO: Duplicate Email & PhoneNumber
   Account findAccount({
     required Box<Account> accounts,
     required String address,
@@ -11,66 +10,6 @@ class AccountService {
     return accounts.values.firstWhere((element) => element.address == address,
         orElse: () => throw AccountNotFoundException());
   }
-
-//TODO: Duplicate Email & PhoneNumber
-  Account findDuplicateAccount(
-      //TODO: Duplicate Email & PhoneNumber
-      {required Box<Account> accounts,
-      required String address}) {
-    return accounts.values.firstWhere(
-      (element) => element.address == address,
-      orElse: () => throw AccountDuplicationException(),
-    );
-  }
-
-  bool validateAccount({
-    required String pin,
-    required String number,
-  }) {
-    var duplicateAccount = false;
-    try {
-      findAccount(accounts: _accountList, address: identityHash('$pin$number'));
-    } catch (e) {
-      duplicateAccount = true;
-      print('Error ${e.toString()}');
-    }
-    return duplicateAccount;
-  }
-
-  // void createAccount({
-  //   required String password,
-  //   required String email,
-  // }) {
-  //   final salt = generateSalt();
-  //   final hashpassword = hashPassowrd(password: password, salt: salt);
-
-  //   if (validateAccount(pin: hashpassword, number: email)) {
-  //     _accountList.add(
-  //       Account(
-  //         status: 'normal',
-  //         email: identityHash('$hashpassword$email'),
-  //         balance: double.parse(Env.newAccountBalance),
-  //       ),
-  //     );
-  //   } else {
-  //     throw AccountDuplicationException();
-  //   }
-  // }
-
-  String identityHash(String data) {
-    var key = utf8.encode(Env.secret);
-    var bytes = utf8.encode(data);
-
-    var hmacSha256 = Hmac(sha256, key); // HMAC-SHA256
-    var digest = hmacSha256.convert(bytes);
-
-    return digest.toString().split('-').first;
-  }
-
-  /// Edit User Account Balance
-  /// String address - User P23 Address
-  /// String value - Transaction Value
-  /// String transactionType - 0: Withdraw, 1: Deposit
 
   double editAccountBalance({
     required Account account,
@@ -140,5 +79,9 @@ class AccountService {
 
   Box<Account> get accountList {
     return _accountList;
+  }
+
+  int get accountListCount {
+    return _accountList.values.length;
   }
 }
