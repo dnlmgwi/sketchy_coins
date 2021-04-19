@@ -168,6 +168,9 @@ class BlockchainService {
       required double amount}) {
     if (accountValidation(sender, recipient)) {
       //Check if the sender & recipient are in the database
+      if (sender == recipient) {
+        throw SelfTransferException();
+      }
       _accountService.checkAccountBalance(
           value: amount,
           account: _accountService.findAccount(
@@ -324,8 +327,7 @@ class BlockchainService {
   bool validProof(int? lastProof, int proof) {
     var guess = utf8.encode('$lastProof$proof');
     var guessHash = crypto.sha256.convert(guess).bytes;
-    return HEX.encode(guessHash).substring(0, 4) ==
-        Env.difficulty;
+    return HEX.encode(guessHash).substring(0, 4) == Env.difficulty;
   }
 
   String getBlockchain() {

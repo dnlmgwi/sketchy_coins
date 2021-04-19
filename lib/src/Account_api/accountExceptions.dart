@@ -85,6 +85,22 @@ class PendingTransactionException implements Exception {
   }
 }
 
+class SelfTransferException implements Exception {
+  ///This Exception is thrown when the account has a pending transaction
+  late String _message;
+
+  SelfTransferException(
+      [String message =
+          'Please provided a different accounts to preform a transfer']) {
+    _message = message;
+  }
+
+  @override
+  String toString() {
+    return _message;
+  }
+}
+
 class UnauthorisedException implements Exception {
   ///This Exception is thrown when there is an excisting account in the DB
   late String _message;

@@ -69,11 +69,8 @@ class TokenService {
     return await client.get('$_prefix:$id');
   }
 
-  Future<dynamic> deleteCache() async {
-    return await client.deleteAllDBs();
-  }
-
   Future<void> removeRefreshToken(String? id) async {
     await client.expire('$_prefix:$id', Duration(seconds: -1));
+    await client.delete('$_prefix:$id');
   }
 }

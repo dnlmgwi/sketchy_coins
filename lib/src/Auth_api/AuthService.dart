@@ -10,24 +10,22 @@ class AuthService {
   }
 
   Account findDuplicateAccount(
-      {required Box<Account> accounts, required String address}) {
+      {required Box<Account> accounts, required String email}) {
     return accounts.values.firstWhere(
-      (element) => element.address == address,
+      (element) => element.email == email,
       orElse: () => throw AccountDuplicationException(),
     );
   }
 
   bool validateAccount({
-    required String hashpassword,
     required String email,
   }) {
     var duplicateAccount = false;
     try {
-      findDuplicateAccount(
-          accounts: _accountList, address: identityHash('$hashpassword$email'));
+      findDuplicateAccount(accounts: _accountList, email: email);
     } catch (e) {
-      duplicateAccount = true;
-      print('Error ${e.toString()}');
+      // If account is found return true and thrown error is
+      return duplicateAccount = true;
     }
     return duplicateAccount;
   }
@@ -40,17 +38,17 @@ class AuthService {
     final salt = generateSalt();
     final hashpassword = hashPassword(password: password, salt: salt);
 
-    if (!validateAccount(hashpassword: hashpassword, email: email)) {
+    if (validateAccount(email: email)) {
       _accountList.add(
         Account(
           email: email, //TODO: dateCreated
-          address:
-              identityHash('$hashpassword$email'), //TODO: Revisit address algo
+          address: email, //TODO: Revisit address algo
           phoneNumber: phoneNumber, //TODO: Hash PhoneNumber?
           password: hashpassword,
           salt: salt,
           status: 'normal',
           balance: double.parse(Env.newAccountBalance),
+          joinedDate: DateTime.now().millisecondsSinceEpoch
         ),
       );
     } else {

@@ -17,6 +17,7 @@ export 'package:crypto/crypto.dart';
 export 'package:json_annotation/json_annotation.dart';
 export 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 export 'package:redis_dart/redis_dart.dart';
+export 'package:validators/validators.dart';
 
 //Config File
 export './src/config.dart';

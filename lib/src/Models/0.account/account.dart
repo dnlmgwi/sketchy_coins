@@ -27,6 +27,9 @@ class Account extends HiveObject {
   @HiveField(7)
   double balance;
 
+  @HiveField(8)
+  int joinedDate;
+
   Account({
     required this.email,
     required this.password,
@@ -35,6 +38,7 @@ class Account extends HiveObject {
     required this.status,
     required this.address,
     required this.balance,
+    required this.joinedDate,
   });
 
   factory Account.fromJson(Map<String, dynamic> json) =>

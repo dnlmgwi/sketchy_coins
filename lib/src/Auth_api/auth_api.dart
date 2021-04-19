@@ -25,13 +25,13 @@ class AuthApi {
           final email = userData['email'];
           final password = userData['password'];
           final phoneNumber = userData['phoneNumber'];
-
-          if (email == null) {
+          //TODO: isEmail, isPhone Number and Strong password
+          if (email == null || email == '' || !isEmail(email)) {
             //Todo: Input Validation Errors
             return Response(
               HttpStatus.badRequest,
               body: json.encode({
-                'data': {'account': 'Please provide a email'}
+                'data': {'message': 'Please provide a valid email'}
               }),
               headers: {
                 HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
@@ -39,12 +39,19 @@ class AuthApi {
             );
           }
 
-          if (password == null) {
+          var isPasswordRegExp = RegExp(
+              r'(?=^.{8,}$)(?=.*\d)(?=.*[!@#$%^&*]+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$');
+
+          if (password == null ||
+              password == '' ||
+              !isPasswordRegExp.hasMatch(password)) {
             //Todo: Input Validation Errors
             return Response(
               HttpStatus.badRequest,
               body: json.encode({
-                'data': {'account': 'Please provide a password'}
+                'data': {
+                  'message': 'Please provide a valid password',
+                }
               }),
               headers: {
                 HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
@@ -52,12 +59,17 @@ class AuthApi {
             );
           }
 
-          if (phoneNumber == null) {
+          var isphoneNumberRegEx = RegExp(
+              r'^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$');
+
+          if (phoneNumber == null ||
+              phoneNumber == '' ||
+              !isphoneNumberRegEx.hasMatch(phoneNumber)) {
             //Todo: Input Validation Errors
             return Response(
               HttpStatus.badRequest,
               body: json.encode({
-                'data': {'account': 'Please provide a number'}
+                'data': {'message': 'Please provide a valid number'}
               }),
               headers: {
                 HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
@@ -67,8 +79,8 @@ class AuthApi {
 
           //TODO: Change Account Fields
           _authService.register(
-            password: password,
             email: email,
+            password: password,
             phoneNumber: phoneNumber,
           );
 
@@ -85,7 +97,7 @@ class AuthApi {
           return Response(
             HttpStatus.badRequest,
             body: json.encode({
-              'data': {'message': 'Email, Password & PhoneNumber Keys Required'}
+              'data': {'message': e.toString()}
             }),
             headers: {
               HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
@@ -108,7 +120,7 @@ class AuthApi {
           final address = userData['address'];
           final password = userData['password'];
 
-          if (address == null) {
+          if (address == null || address == '') {
             //Todo: Input Validation Errors
             return Response(
               HttpStatus.badRequest,
@@ -121,7 +133,7 @@ class AuthApi {
             );
           }
 
-          if (password == null) {
+          if (password == null || address == '') {
             //Todo: Input Validation Errors
             return Response(
               HttpStatus.badRequest,
@@ -164,6 +176,8 @@ class AuthApi {
 
     router.post('/logout', (Request req) async {
       final auth = req.context['authDetails'];
+
+      print((auth as JWT).jwtId);
       if (auth == null) {
         return Response.forbidden(
           json.encode({
@@ -176,7 +190,7 @@ class AuthApi {
       }
 
       try {
-        await tokenService.removeRefreshToken((auth as JWT).jwtId);
+        await tokenService.removeRefreshToken((auth).jwtId);
       } catch (e) {
         return Response.internalServerError(
             body: json.encode({
@@ -201,24 +215,23 @@ class AuthApi {
     });
 
     router.post('/refreshToken', (Request req) async {
-      //TODO: Error thrown by handler. type 'Null' is not a subtype of type 'String'
-
       final payload = await req.readAsString();
       final payloadMap;
       final JWT token;
 
       try {
         payloadMap = json.decode(payload);
+
         token = verifyJWT(
           token: payloadMap['refreshToken'],
           secret: secret,
         );
-      } catch (e) {
+      } on FormatException catch (e) {
         print(e.toString());
         return Response(
           HttpStatus.badRequest,
           body: json.encode({
-            'data': {'message': 'refreshToken Key Required'}
+            'data': {'message': 'Invalid Refresh Token'}
           }),
           headers: {
             HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
@@ -226,10 +239,30 @@ class AuthApi {
         );
       }
 
-      if (token.payload == null) {
+      try {
+        if (token.payload == null || token.payload == '') {
+          return Response(HttpStatus.badRequest,
+              body: json.encode({
+                'data': {'message': 'Refresh token is not valid.'}
+              }),
+              headers: {
+                HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+              });
+        }
+      } on JWTExpiredError catch (e) {
+        return Response(HttpStatus.badRequest,
+            body: json.encode(
+              {
+                'data': {'message': '$e'}
+              },
+            ),
+            headers: {
+              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+            });
+      } on JWTError catch (e) {
         return Response(HttpStatus.badRequest,
             body: json.encode({
-              'data': {'message': 'Refresh token is not valid.'}
+              'data': {'message': '$e'}
             }),
             headers: {
               HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
