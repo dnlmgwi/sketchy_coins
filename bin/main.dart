@@ -6,15 +6,21 @@ void main(List<String> arguments) async {
   Hive.registerAdapter(BlockAdapter());
   Hive.registerAdapter(MineResultAdapter());
   Hive.registerAdapter(AccountAdapter());
-  Hive.registerAdapter(TransactionAdapter());
+  Hive.registerAdapter(TransactionRecordAdapter());
+  Hive.registerAdapter(TokenPairAdapter());
 
   await Hive.openBox<Block>('blockchain');
   await Hive.openBox<Account>('accounts');
-  await Hive.openBox<Transaction>('transactions');
-  // await Hive.openBox<Transaction>('tokens');
+  await Hive.openBox<TransactionRecord>('transactions');
 
   final _accountsDb =
       Hive.box<Account>('accounts'); //TODO: Implement PostgresSQL Database
+
+  final tokenService = TokenService(
+    secret: Env.secret,
+  );
+
+  await tokenService.start();
 
   var app = Router();
   var portEnv = Platform.environment['PORT'];
@@ -34,11 +40,30 @@ void main(List<String> arguments) async {
     _port,
   );
 
-  app.mount('/v1/info/', BaseApi().router);
   app.mount(
-      '/v1/auth/', AuthApi(store: _accountsDb, secret: Env.secret).router);
-  app.mount('/v1/blockchain/', BlockChainApi().router);
-  app.mount('/v1/account/', AccountApi().router);
+    '/v1/info/',
+    BaseApi().router,
+  );
 
-  print('Serving at http://${server.address.host}:${server.port}');
+  app.mount(
+    '/v1/auth/',
+    AuthApi(
+      store: _accountsDb,
+      secret: Env.secret,
+      tokenService: tokenService,
+    ).router,
+  );
+
+  app.mount(
+    '/v1/blockchain/',
+    BlockChainApi().router,
+  );
+  app.mount(
+    '/v1/account/',
+    AccountApi().router,
+  );
+
+  print(
+    'Serving at http://${server.address.host}:${server.port}',
+  );
 }

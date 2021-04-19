@@ -14,7 +14,7 @@ class MineResult extends HiveObject {
   final bool? validBlock;
 
   @HiveField(4)
-  final List<Transaction> transactions;
+  final List<TransactionRecord> transactions;
   
   @HiveField(5)
   final int proof;

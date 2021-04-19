@@ -12,7 +12,7 @@ class Block extends HiveObject {
   int timestamp;
 
   @HiveField(3)
-  List<Transaction> transactions;
+  List<TransactionRecord> transactions;
   
   @HiveField(4)
   int proof;

@@ -3,8 +3,10 @@ import 'package:sketchy_coins/packages.dart';
 class AuthApi {
   Box<Account> store;
   String secret;
+  TokenService tokenService;
 
-  AuthApi({required this.store, required this.secret});
+  AuthApi(
+      {required this.store, required this.secret, required this.tokenService});
 
   Router get router {
     final router = Router();
@@ -121,13 +123,11 @@ class AuthApi {
           }
 
           //TODO: Change Account Fields
-          final token =
-              _authService.login(password: password, address: address);
+          final token = await _authService.login(
+              password: password, address: address, tokenService: tokenService);
 
           return Response.ok(
-            json.encode({
-              'data': {'token': token}
-            }),
+            json.encode({'data': token.toJson()}),
             headers: {
               'Content-Type': 'application/json',
             },
@@ -146,23 +146,60 @@ class AuthApi {
       }),
     );
 
-    router.post(
-      '/logout',
-      ((
-        Request request,
-      ) async {
-        if (request.context['authDetails'] == null) {
-          return Response.forbidden(
-            'Not Authorised to perform this action',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          );
-        }
+    router.post('/logout', (Request req) async {
+      final auth = req.context['authDetails'];
+      if (auth == null) {
+        return Response.forbidden('Not authorised to perform this operation.');
+      }
 
-        return Response.ok('Successfully Logged Out');
-      }),
-    );
+      try {
+        await tokenService.removeRefreshToken((auth as JWT).jwtId);
+      } catch (e) {
+        return Response.internalServerError(
+            body:
+                'There was an issue logging out. Please check and try again.');
+      }
+
+      return Response.ok('Successfully logged out');
+    });
+
+    router.post('/refreshToken', (Request req) async {
+      final payload = await req.readAsString();
+      final payloadMap = json.decode(payload);
+
+      final JWT token = verifyJWT(
+        token: payloadMap['refreshToken'],
+        secret: secret,
+      );
+
+      if (token.payload == null) {
+        return Response(400, body: 'Refresh token is not valid.');
+      }
+
+      final dbToken = await tokenService.getRefreshToken(token.jwtId);
+      if (dbToken == null) {
+        return Response(400, body: 'Refresh token is not recognised.');
+      }
+
+      // Generate new token pair
+      final oldJwt = token;
+      try {
+        await tokenService.removeRefreshToken(token.jwtId);
+
+        final tokenPair =
+            await tokenService.createTokenPair(userId: oldJwt.subject);
+        return Response.ok(
+          json.encode(tokenPair.toJson()),
+          headers: {
+            HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+          },
+        );
+      } catch (e) {
+        return Response.internalServerError(
+            body:
+                'There was a problem creating a new token. Please try again.');
+      }
+    });
 
     router.get(
       '/accounts',

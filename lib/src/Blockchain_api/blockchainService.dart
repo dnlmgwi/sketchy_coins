@@ -22,7 +22,7 @@ class BlockchainService {
 
   var blockChainValidity = BlockChainValidity();
   var blockchainStore = Hive.box<Block>('blockchain');
-  var pendingTansactions = Hive.box<Transaction>('transactions');
+  var pendingTansactions = Hive.box<TransactionRecord>('transactions');
 
   // int newTransaction(
   //     {required String sender,
@@ -91,7 +91,7 @@ class BlockchainService {
     }
   }
 
-  Account depositProcess(Account? foundAccount, Transaction element) {
+  Account depositProcess(Account? foundAccount, TransactionRecord element) {
     try {
       foundAccount = _accountService.findAccount(
         accounts: _accountService.accountList,
@@ -111,7 +111,7 @@ class BlockchainService {
     return foundAccount;
   }
 
-  Account withdrawProcess(Account? foundAccount, Transaction element) {
+  Account withdrawProcess(Account? foundAccount, TransactionRecord element) {
     try {
       foundAccount = _accountService.findAccount(
           accounts: _accountService.accountList, address: element.sender);
@@ -190,7 +190,7 @@ class BlockchainService {
     /// String address - User P23 Address
     /// String value - Transaction Value
     /// String transactionType - 0: Withdraw, 1: Deposit
-    pendingTansactions.add(Transaction(
+    pendingTansactions.add(TransactionRecord(
       sender: sender,
       recipient: recipient,
       amount: amount,
@@ -206,7 +206,7 @@ class BlockchainService {
     var transId = Uuid().v4();
     var timestamp = DateTime.now().millisecondsSinceEpoch;
 
-    pendingTansactions.add(Transaction(
+    pendingTansactions.add(TransactionRecord(
       sender: sender,
       recipient: recipient,
       amount: amount,
@@ -215,7 +215,7 @@ class BlockchainService {
       transType: 0,
     ));
 
-    pendingTansactions.add(Transaction(
+    pendingTansactions.add(TransactionRecord(
       sender: sender,
       recipient: recipient,
       amount: amount,
@@ -302,7 +302,7 @@ class BlockchainService {
     return blockchainStore.values.last;
   }
 
-  List<Transaction> get pendingTransactions {
+  List<TransactionRecord> get pendingTransactions {
     return pendingTansactions.values.toList();
   }
 

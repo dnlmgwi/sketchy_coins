@@ -16,6 +16,7 @@ export 'package:hex/hex.dart';
 export 'package:crypto/crypto.dart';
 export 'package:json_annotation/json_annotation.dart';
 export 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
+export 'package:redis_dart/redis_dart.dart';
 
 //Config File
 export './src/config.dart';
@@ -34,14 +35,15 @@ export './src/Auth_api/AuthService.dart';
 //Account
 export './src/Account_api/account_api.dart';
 export './src/Account_api/accountService.dart';
-export './src/Auth_api/auth_service.dart';
+export 'src/Auth_api/auth_api.dart';
+export 'src/Auth_api/token_service.dart';
 
 //Models
 export './src/Models/0.account/account.dart';
 export './src/Models/1.block/block.dart';
 export './src/Models/2.mineResult/mineResult.dart';
-export './src/Models/3.transaction/transaction.dart';
-export './src/Models/4.jwtModel/jwtModel.dart';
+export 'src/Models/3.transactionRecord/transactionRecord.dart';
+export './src/Models/4.tokenPair/tokenPair.dart';
 export './src/Models/5.location/location.dart';
 
 //Exceptions

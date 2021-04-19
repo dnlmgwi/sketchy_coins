@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:sketchy_coins/packages.dart';
 
 Middleware handleCors() {
@@ -30,11 +28,13 @@ String hashPassword({required String password, required String salt}) {
   return digest.toString();
 }
 
-String generateJWT({
-  required String subject,
-  required String issuer,
-  required String secret,
-}) {
+String generateJWT(
+    {required String? subject,
+    required String issuer,
+    required String secret,
+    String? jwtId,
+    //TODO: Review JWT Validy Period
+    Duration expiry = const Duration(seconds: 20)}) {
   // Create a json web token
   final jwt = JWT(
     {
@@ -42,11 +42,12 @@ String generateJWT({
     },
     subject: subject,
     issuer: Env.issuer,
+    jwtId: jwtId,
   );
-
-  print('Signed token: $jwt');
-
-  return jwt.sign(SecretKey(secret));
+  return jwt.sign(
+    SecretKey(secret),
+    expiresIn: expiry,
+  );
 }
 
 dynamic verifyJWT({required String token, required String secret}) {
@@ -69,7 +70,10 @@ Middleware handleAuth({required String secret}) {
 
       if (authHeader != null && authHeader.startsWith('Bearer ')) {
         token = authHeader.substring(7);
-        jwt = verifyJWT(token: token, secret: secret);
+        jwt = verifyJWT(
+            token: token,
+            secret:
+                secret); //TODO: Handle: JWTUndefinedError: JWTExpiredError: jwt expired
       }
 
       final updateRequest = request.change(context: {
@@ -88,4 +92,15 @@ Middleware checkAuth() {
     }
     return null;
   });
+}
+
+Middleware checkAuthorisation() {
+  return createMiddleware(
+    requestHandler: (Request request) {
+      if (request.context['authDetails'] == null) {
+        return Response.forbidden('Not authorised to perform this action.');
+      }
+      return null;
+    },
+  );
 }

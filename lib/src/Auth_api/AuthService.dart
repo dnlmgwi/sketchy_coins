@@ -36,6 +36,7 @@ class AuthService {
     required String email,
     required String phoneNumber,
   }) {
+    //TODO: find duplicate registration
     final salt = generateSalt();
     final hashpassword = hashPassword(password: password, salt: salt);
 
@@ -56,14 +57,19 @@ class AuthService {
     }
   }
 
-  String login({
+  Future<TokenPair> login({
     required String password,
     required String address,
-  }) {
+    required TokenService tokenService,
+  }) async {
     Account user;
+    TokenPair tokenPair;
 
     try {
-      user = findAccount(accounts: _accountList, address: address);
+      user = findAccount(
+        accounts: _accountList,
+        address: address,
+      );
 
       final hashpassword = hashPassword(
         password: password,
@@ -75,13 +81,12 @@ class AuthService {
       }
 
       //TODO: Return JWT and Send Response
-      final token = generateJWT(
-          subject: user.address, issuer: Env.hostName, secret: Env.secret);
-      return token;
+      tokenPair = await tokenService.createTokenPair(userId: user.address);
     } catch (e) {
-      print(e.toString());
       rethrow;
     }
+
+    return tokenPair;
   }
 
   String identityHash(String data) {

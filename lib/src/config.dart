@@ -8,7 +8,12 @@ abstract class Env {
   static const hostName = _Env.hostName;
   //Reward System Address
   static const systemAddress = _Env.systemAddress;
+  //Database
   static const postgresqlUrl = _Env.postgresqlUrl;
+  //Cache
+  static const redisPort = _Env.redisPort;
+  static const redisHostname = _Env.redisHostname;
+  static const redisPassword = _Env.redisPassword;
   //JWT AuthValues
   static const secret = _Env.secret;
   static const issuer = _Env.issuer;
