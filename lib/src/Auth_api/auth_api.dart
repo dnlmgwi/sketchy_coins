@@ -26,7 +26,7 @@ class AuthApi {
           final password = userData['password'];
           final phoneNumber = userData['phoneNumber'];
 
-          if (email.isEmpty || email == null) {
+          if (email == null) {
             //Todo: Input Validation Errors
             return Response(
               HttpStatus.badRequest,
@@ -39,7 +39,7 @@ class AuthApi {
             );
           }
 
-          if (password.isEmpty || password == null) {
+          if (password == null) {
             //Todo: Input Validation Errors
             return Response(
               HttpStatus.badRequest,
@@ -52,7 +52,7 @@ class AuthApi {
             );
           }
 
-          if (phoneNumber.isEmpty || phoneNumber == null) {
+          if (phoneNumber == null) {
             //Todo: Input Validation Errors
             return Response(
               HttpStatus.badRequest,
@@ -81,10 +81,11 @@ class AuthApi {
             },
           );
         } catch (e) {
-          print(e);
-          return Response.forbidden(
-            json.encode({
-              'data': {'message': '${e.toString()}'}
+          print(e.toString());
+          return Response(
+            HttpStatus.badRequest,
+            body: json.encode({
+              'data': {'message': 'Email, Password & PhoneNumber Keys Required'}
             }),
             headers: {
               HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
@@ -101,27 +102,32 @@ class AuthApi {
       ) async {
         try {
           final payload = await request.readAsString();
+
           final userData = json.decode(payload);
 
           final address = userData['address'];
           final password = userData['password'];
 
-          if (address.isEmpty || address == null) {
+          if (address == null) {
             //Todo: Input Validation Errors
             return Response(
               HttpStatus.badRequest,
-              body: 'Please provide a address',
+              body: json.encode({
+                'data': {'message': 'Please provide an address'}
+              }),
               headers: {
                 HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
               },
             );
           }
 
-          if (password.isEmpty || password == null) {
+          if (password == null) {
             //Todo: Input Validation Errors
             return Response(
               HttpStatus.badRequest,
-              body: 'Please provide a password',
+              body: json.encode({
+                'data': {'message': 'Please provide a password'}
+              }),
               headers: {
                 HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
               },
@@ -142,9 +148,11 @@ class AuthApi {
             },
           );
         } catch (e) {
-          return Response.forbidden(
-            json.encode({
-              'data': {'message': '${e.toString()}'}
+          print(e.toString());
+          return Response(
+            HttpStatus.badRequest,
+            body: json.encode({
+              'data': {'message': 'Address & Password Keys Required'}
             }),
             headers: {
               HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
@@ -196,15 +204,30 @@ class AuthApi {
       //TODO: Error thrown by handler. type 'Null' is not a subtype of type 'String'
 
       final payload = await req.readAsString();
-      final payloadMap = json.decode(payload);
+      final payloadMap;
+      final JWT token;
 
-      final JWT token = verifyJWT(
-        token: payloadMap['refreshToken'],
-        secret: secret,
-      );
+      try {
+        payloadMap = json.decode(payload);
+        token = verifyJWT(
+          token: payloadMap['refreshToken'],
+          secret: secret,
+        );
+      } catch (e) {
+        print(e.toString());
+        return Response(
+          HttpStatus.badRequest,
+          body: json.encode({
+            'data': {'message': 'refreshToken Key Required'}
+          }),
+          headers: {
+            HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+          },
+        );
+      }
 
       if (token.payload == null) {
-        return Response(400,
+        return Response(HttpStatus.badRequest,
             body: json.encode({
               'data': {'message': 'Refresh token is not valid.'}
             }),
@@ -216,7 +239,7 @@ class AuthApi {
       final dbToken = await tokenService.getRefreshToken(token.jwtId);
 
       if (dbToken == null) {
-        return Response(400,
+        return Response(HttpStatus.badRequest,
             body: json.encode({
               'data': {'message': 'Refresh token is not recognised.'}
             }),
@@ -224,10 +247,8 @@ class AuthApi {
               HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
             });
       }
-
       // Generate new token pair
       final oldJwt = token;
-
       try {
         await tokenService.removeRefreshToken(
           token.jwtId,
