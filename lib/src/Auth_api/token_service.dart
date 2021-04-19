@@ -28,11 +28,11 @@ class TokenService {
     final tokenId = Uuid().v4();
 
     final token = generateJWT(
-      subject: userId,
-      issuer: Env.hostName,
-      secret: secret,
-      jwtId: tokenId,
-    );
+        subject: userId,
+        issuer: Env.hostName,
+        secret: secret,
+        jwtId: tokenId,
+        expiry: Duration(minutes: 15));
 
     final refreshToken = generateJWT(
       subject: userId,
@@ -58,19 +58,18 @@ class TokenService {
   }) async {
     await client.set('$_prefix:$id', token);
     await client.expire(
-      '$_prefix:$id',
+      '$_prefix: $id',
       Duration(
-        seconds: expiry.inSeconds,
+        days: expiry.inSeconds,
       ),
     );
   }
 
   Future<dynamic> getRefreshToken(String? id) async {
-    return await client.get('$_prefix:$id');
+    return await client.get('$_prefix: $id');
   }
 
   Future<void> removeRefreshToken(String? id) async {
-    await client.expire('$_prefix:$id', Duration(seconds: -1));
-    await client.delete('$_prefix:$id');
+    await client.expire('$_prefix: $id', Duration(seconds: -1));
   }
 }

@@ -10,7 +10,7 @@ class BaseApi {
         'message': 'Welcome to P23',
         'status': 'Testing',
         'version': '0.1.3-alpha',
-        'accounts': '${accountService.accountList.values}'
+        'accounts': '${accountService.accountList.values.last.toJson()}'
       };
       return Response.ok(
         json.encode(data),

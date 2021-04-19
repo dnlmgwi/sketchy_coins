@@ -176,6 +176,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.2"
+  crdt:
+    dependency: transitive
+    description:
+      name: crdt
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.0.1"
   crypto:
     dependency: "direct main"
     description:
@@ -183,6 +190,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.1"
+  cryptography:
+    dependency: "direct main"
+    description:
+      name: cryptography
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.1"
   dart_jsonwebtoken:
     dependency: "direct main"
     description:
@@ -274,6 +288,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.3"
+  hive_crdt:
+    dependency: "direct main"
+    description:
+      name: hive_crdt
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.3"
   hive_generator:
     dependency: "direct main"
     description:
@@ -441,7 +462,7 @@ packages:
       name: redis_dart
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.0+3"
+    version: "0.1.0+4"
   scratch_space:
     dependency: transitive
     description:
@@ -478,7 +499,7 @@ packages:
     source: hosted
     version: "1.0.0"
   shelf_web_socket:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: shelf_web_socket
       url: "https://pub.dartlang.org"

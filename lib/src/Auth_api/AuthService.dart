@@ -1,4 +1,6 @@
+import 'package:cryptography/dart.dart';
 import 'package:sketchy_coins/packages.dart';
+import 'package:cryptography/cryptography.dart' as secure;
 
 class AuthService {
   final _accountList = Hive.box<Account>('accounts');
@@ -41,15 +43,14 @@ class AuthService {
     if (validateAccount(email: email)) {
       _accountList.add(
         Account(
-          email: email, //TODO: dateCreated
-          address: email, //TODO: Revisit address algo
-          phoneNumber: phoneNumber, //TODO: Hash PhoneNumber?
-          password: hashpassword,
-          salt: salt,
-          status: 'normal',
-          balance: double.parse(Env.newAccountBalance),
-          joinedDate: DateTime.now().millisecondsSinceEpoch
-        ),
+            email: email, //TODO: dateCreated
+            address: '$hashpassword-$phoneNumber', //TODO: Revisit address algo
+            phoneNumber: phoneNumber, //TODO: Hash PhoneNumber?
+            password: hashpassword,
+            salt: salt,
+            status: 'normal',
+            balance: double.parse(Env.newAccountBalance),
+            joinedDate: DateTime.now().millisecondsSinceEpoch),
       );
     } else {
       throw AccountDuplicationException();
@@ -85,16 +86,6 @@ class AuthService {
     }
 
     return tokenPair;
-  }
-
-  String identityHash(String data) {
-    var key = utf8.encode('psalms23'); //TODO: improve address hashing
-    var bytes = utf8.encode(data);
-
-    var hmacSha256 = Hmac(sha256, key); // HMAC-SHA256
-    var digest = hmacSha256.convert(bytes);
-
-    return digest.toString();
   }
 
   Box<Account> get accountList {
