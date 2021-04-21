@@ -21,7 +21,7 @@ dependencies:
   validators: ^3.0.0
   cryptography: ^2.0.1
   shelf_web_socket: ^1.0.1
-  hive_crdt: ^1.0.3
+  crdt: ^4.0.1
   geodesy: ^0.4.0-nullsafety.0
 
 dev_dependencies:

@@ -1,8 +1,7 @@
 import 'package:sketchy_coins/packages.dart';
-import 'package:shelf/shelf_io.dart' as io;
 import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_web_socket/shelf_web_socket.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:sketchy_coins/src/dataSync_api/offlineAccountsSync_api.dart';
 
 void main(List<String> arguments) async {
   Hive.init('./storage');
@@ -37,21 +36,15 @@ void main(List<String> arguments) async {
       ))
       .addHandler(app);
 
-  var server = await io.serve(
-    handler,
-    Env.hostName,
-    _port,
-  );
+  webSocketHandler((webSocket) {
+    webSocket.stream.listen((message) {
+      webSocket.sink.add('echo $message');
+    });
+  });
 
-  // webSocketHandler((webSocket) {
-  //   webSocket.stream.listen((message) {
-  //     webSocket.sink.add('echo $message');
-  //   });
-  // });
-
-  // await shelf_io.serve(handler, Env.hostName, _port).then((server) {
-  //   print('Serving at ws://${server.address.host}:${server.port}');
-  // });
+  await shelf_io.serve(handler, Env.hostName, _port).then((server) {
+    print('Serving at ws://${server.address.host}:${server.port}');
+  });
 
   app.mount(
     '/v1/info/',
@@ -76,7 +69,8 @@ void main(List<String> arguments) async {
     AccountApi().router,
   );
 
-  print(
-    'Serving at http://${server.address.host}:${server.port}',
+  app.mount(
+    '/v1/offlineAccounts/',
+    OfflineAccountsServiceApi().router,
   );
 }
