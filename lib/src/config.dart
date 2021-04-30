@@ -1,5 +1,4 @@
 import 'package:sketchy_coins/packages.dart';
-part 'config.g.dart';
 
 class Env {
   //Server Side
