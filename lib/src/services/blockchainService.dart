@@ -20,7 +20,7 @@ class BlockchainService {
 
   final _accountService = AccountService();
 
-  var blockChainValidity = BlockChainValidity();
+  var blockChainValidity = BlockChainValidationService();
   var blockchainStore = Hive.box<Block>('blockchain');
   var pendingTansactions = Hive.box<TransactionRecord>('transactions');
 

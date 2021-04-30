@@ -1,7 +1,7 @@
 import 'package:sketchy_coins/packages.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_web_socket/shelf_web_socket.dart';
-import 'package:sketchy_coins/src/dataSync_api/offlineAccountsSync_api.dart';
+// import 'package:sketchy_coins/src/dataSync_api/offlineAccountsSync_api.dart';
 
 void main(List<String> arguments) async {
   Hive.init('./storage');
@@ -15,8 +15,9 @@ void main(List<String> arguments) async {
   await Hive.openBox<Account>('accounts');
   await Hive.openBox<TransactionRecord>('transactions');
 
-  final _accountsDb =
-      Hive.box<Account>('accounts'); //TODO: Implement PostgresSQL Database
+  final _store = Hive.box<Account>(
+    'accounts',
+  ); //TODO: Implement PostgresSQL/SQLite Database Sync
 
   final tokenService = TokenService(
     secret: Env.secret,
@@ -54,7 +55,7 @@ void main(List<String> arguments) async {
   app.mount(
     '/v1/auth/',
     AuthApi(
-      store: _accountsDb,
+      store: _store,
       secret: Env.secret,
       tokenService: tokenService,
     ).router,
@@ -64,13 +65,14 @@ void main(List<String> arguments) async {
     '/v1/blockchain/',
     BlockChainApi().router,
   );
+  
   app.mount(
     '/v1/account/',
     AccountApi().router,
   );
 
-  app.mount(
-    '/v1/offlineAccounts/',
-    OfflineAccountsServiceApi().router,
-  );
+  // app.mount(
+  //   '/v1/offlineAccounts/',
+  //   OfflineAccountsServiceApi().router,
+  // );
 }

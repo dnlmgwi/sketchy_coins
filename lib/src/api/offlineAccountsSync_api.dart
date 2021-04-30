@@ -1,5 +1,5 @@
 import 'package:sketchy_coins/packages.dart';
-import 'package:sketchy_coins/src/dataSync_api/offlineAccountsSync.dart';
+import 'package:sketchy_coins/src/services/OfflineAccountsService.dart';
 
 class OfflineAccountsServiceApi {
   final offlineAccountsService = OfflineAccountsService();
@@ -12,7 +12,6 @@ class OfflineAccountsServiceApi {
         Request request,
       ) async {
         final payload = await request.readAsString();
-        final data = json.decode(payload);
 
         try {
           //TODO:

@@ -1,6 +1,6 @@
 import 'package:sketchy_coins/packages.dart';
 
-class BlockChainValidity {
+class BlockChainValidationService {
   bool isFirstBlockValid({
     required Box<Block> chain,
     required BlockchainService blockchainService,

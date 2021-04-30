@@ -9,8 +9,7 @@ class BaseApi {
       final data = {
         'message': 'Welcome to P23',
         'status': 'Testing',
-        'version': '0.1.3-alpha',
-        'accounts': '${accountService.accountList.values.last.toJson()}'
+        'version': '0.1.5-alpha',
       };
       return Response.ok(
         json.encode(data),
@@ -19,6 +18,21 @@ class BaseApi {
         },
       );
     });
+
+    router.get('/accounts', (Request request) {
+      final data = {
+        'accounts':
+            '${accountService.accountList.values.toList().map((e) => e.toJson())}',
+        'users': '${accountService.accountListCount}'
+      };
+      return Response.ok(
+        json.encode(data),
+        headers: {
+          HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+        },
+      );
+    });
+
     return router;
   }
 }

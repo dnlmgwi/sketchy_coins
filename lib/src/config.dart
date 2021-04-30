@@ -9,7 +9,7 @@ abstract class Env {
   //Reward System Address
   static const systemAddress = _Env.systemAddress;
   //Database
-  static const postgresqlUrl = _Env.postgresqlUrl;
+  // static const postgresqlUrl = _Env.postgresqlUrl;
   //Cache
   static const redisPort = _Env.redisPort;
   static const redisHostname = _Env.redisHostname;

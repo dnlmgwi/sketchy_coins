@@ -1,10 +1,10 @@
 import 'package:sketchy_coins/packages.dart';
 
-class Miner {
+class MineServices {
   final BlockchainService blockchain;
-  var blockChainValidity = BlockChainValidity();
+  var blockChainValidity = BlockChainValidationService();
 
-  Miner(this.blockchain);
+  MineServices(this.blockchain);
 
   Map<String, dynamic> mine({
     required String recipient,

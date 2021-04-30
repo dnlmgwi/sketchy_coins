@@ -2,8 +2,8 @@ import 'package:sketchy_coins/packages.dart';
 
 class BlockChainApi {
   static final blockchainService = BlockchainService();
-  var miner = Miner(blockchainService);
-  var blockChainValidity = BlockChainValidity();
+  var miner = MineServices(blockchainService);
+  var blockChainValidity = BlockChainValidationService();
 
   Router get router {
     final router = Router();

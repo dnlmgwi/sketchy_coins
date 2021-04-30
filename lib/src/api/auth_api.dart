@@ -25,7 +25,7 @@ class AuthApi {
           final email = userData['email'];
           final password = userData['password'];
           final phoneNumber = userData['phoneNumber'];
-          //TODO: isEmail, isPhone Number and Strong password
+
           if (email == null || email == '' || !isEmail(email)) {
             //Todo: Input Validation Errors
             return Response(
@@ -39,6 +39,19 @@ class AuthApi {
             );
           }
 
+          //Strong Password
+          ///               # assert that
+          /// (?=^.{8,}$)    # there are at least 8 characters
+          /// (              # and
+          /// (?=.*\d)       # there is at least a digit
+          /// |              # or
+          /// (?=.*\W+)      # there is one or more "non word" characters (\W is equivalent to [^a-zA-Z0-9_])
+          /// )              # and
+          /// (?![.\n])      # there is no . or newline and
+          /// (?=.*[A-Z])    # there is at least an upper case letter and
+          /// (?=.*[a-z]).*$ # there is at least a lower case letter
+          /// .*$            # in a string of any characters
+
           var isPasswordRegExp = RegExp(
               r'(?=^.{8,}$)(?=.*\d)(?=.*[!@#$%^&*]+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$');
 
@@ -50,7 +63,7 @@ class AuthApi {
               HttpStatus.badRequest,
               body: json.encode({
                 'data': {
-                  'message': 'Please provide a valid password',
+                  'message': InvalidPasswordException().toString(),
                 }
               }),
               headers: {
@@ -69,7 +82,7 @@ class AuthApi {
             return Response(
               HttpStatus.badRequest,
               body: json.encode({
-                'data': {'message': 'Please provide a valid number'}
+                'data': {'message': InvalidPhoneNumberException().toString()}
               }),
               headers: {
                 HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
@@ -226,7 +239,7 @@ class AuthApi {
           token: payloadMap['refreshToken'],
           secret: secret,
         );
-      } on FormatException catch (e) {
+      } catch (e) {
         print(e.toString());
         return Response(
           HttpStatus.badRequest,
