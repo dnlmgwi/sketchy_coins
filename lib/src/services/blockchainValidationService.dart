@@ -1,7 +1,6 @@
-import 'package:hive/hive.dart';
-import 'package:sketchy_coins/blockchain.dart';
+import 'package:sketchy_coins/packages.dart';
 
-class BlockChainValidity {
+class BlockChainValidationService {
   bool isFirstBlockValid({
     required Box<Block> chain,
     required BlockchainService blockchainService,

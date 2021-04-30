@@ -1,10 +1,9 @@
-import 'package:hive/hive.dart';
-import 'package:json_annotation/json_annotation.dart';
-part 'transaction.g.dart';
+import 'package:sketchy_coins/packages.dart';
+part 'transactionRecord.g.dart';
 
 @HiveType(typeId: 3)
 @JsonSerializable()
-class Transaction extends HiveObject {
+class TransactionRecord extends HiveObject {
   @HiveField(1)
   String sender;
 
@@ -23,16 +22,20 @@ class Transaction extends HiveObject {
   @HiveField(6)
   int transType;
 
-  Transaction({
+  // @HiveField(7)
+  // Location location;
+
+  TransactionRecord({
     required this.sender,
     required this.recipient,
     required this.amount,
     required this.timestamp,
     required this.transID,
     required this.transType,
+    // required this.location,
   });
 
-  factory Transaction.fromJson(Map<String, dynamic> json) =>
-      _$TransactionFromJson(json);
-  Map<String, dynamic> toJson() => _$TransactionToJson(this);
+  factory TransactionRecord.fromJson(Map<String, dynamic> json) =>
+      _$TransactionRecordFromJson(json);
+  Map<String, dynamic> toJson() => _$TransactionRecordToJson(this);
 }

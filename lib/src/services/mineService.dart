@@ -1,15 +1,14 @@
-import 'package:sketchy_coins/blockchain.dart';
-import 'package:sketchy_coins/src/Blockchain_api/blockchainValidation.dart';
-import 'package:sketchy_coins/src/Auth_api/EnvValues.dart';
-import 'package:sketchy_coins/src/Models/mineResult/mineResult.dart';
+import 'package:sketchy_coins/packages.dart';
 
-class Miner {
+class MineServices {
   final BlockchainService blockchain;
-  var blockChainValidity = BlockChainValidity();
+  var blockChainValidity = BlockChainValidationService();
 
-  Miner(this.blockchain);
+  MineServices(this.blockchain);
 
-  Map<String, dynamic> mine({required String recipient,}) {
+  Map<String, dynamic> mine({
+    required String recipient,
+  }) {
     if (blockchain.pendingTransactions.isEmpty) {
       return {
         'message': 'Nothing to Mine',
@@ -23,7 +22,7 @@ class Miner {
     try {
       blockchain.newMineTransaction(
         recipient: recipient,
-        amount: enviromentVariables.rewardValue,
+        amount: double.parse(Env.rewardValue),
       );
     } catch (e) {
       print(e.toString());

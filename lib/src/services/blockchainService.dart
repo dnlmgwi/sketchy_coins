@@ -1,15 +1,5 @@
-import 'dart:convert';
-import 'package:hive/hive.dart';
-import 'package:sketchy_coins/blockchain.dart';
-import 'package:sketchy_coins/src/Account_api/accountExeptions.dart';
-import 'package:sketchy_coins/src/Account_api/accountService.dart';
-import 'package:sketchy_coins/src/Blockchain_api/blockchainValidation.dart';
-import 'package:sketchy_coins/src/Auth_api/EnvValues.dart';
-import 'package:sketchy_coins/src/Models/Account/account.dart';
-import 'package:sketchy_coins/src/Models/transaction/transaction.dart';
-import 'package:uuid/uuid.dart';
 import 'package:crypto/crypto.dart' as crypto;
-import 'package:hex/hex.dart';
+import 'package:sketchy_coins/packages.dart';
 
 class BlockchainService {
   //Adds a node to our peer table
@@ -30,9 +20,9 @@ class BlockchainService {
 
   final _accountService = AccountService();
 
-  var blockChainValidity = BlockChainValidity();
+  var blockChainValidity = BlockChainValidationService();
   var blockchainStore = Hive.box<Block>('blockchain');
-  var pendingTansactions = Hive.box<Transaction>('transactions');
+  var pendingTansactions = Hive.box<TransactionRecord>('transactions');
 
   // int newTransaction(
   //     {required String sender,
@@ -101,7 +91,7 @@ class BlockchainService {
     }
   }
 
-  Account depositProcess(Account? foundAccount, Transaction element) {
+  Account depositProcess(Account? foundAccount, TransactionRecord element) {
     try {
       foundAccount = _accountService.findAccount(
         accounts: _accountService.accountList,
@@ -112,7 +102,7 @@ class BlockchainService {
           account: foundAccount,
           value: element.amount,
           transactionType: element.transType);
-      changeAccountStatusNormal(foundAccount.address);
+      changeAccountStatusNormal(foundAccount.email);
     } catch (e) {
       print(e.toString());
       print('Failed Processing');
@@ -121,7 +111,7 @@ class BlockchainService {
     return foundAccount;
   }
 
-  Account withdrawProcess(Account? foundAccount, Transaction element) {
+  Account withdrawProcess(Account? foundAccount, TransactionRecord element) {
     try {
       foundAccount = _accountService.findAccount(
           accounts: _accountService.accountList, address: element.sender);
@@ -130,7 +120,7 @@ class BlockchainService {
           account: foundAccount,
           value: element.amount,
           transactionType: element.transType);
-      changeAccountStatusNormal(foundAccount.address);
+      changeAccountStatusNormal(foundAccount.email);
     } catch (e) {
       print(e.toString());
       print('Failed Processing');
@@ -178,6 +168,9 @@ class BlockchainService {
       required double amount}) {
     if (accountValidation(sender, recipient)) {
       //Check if the sender & recipient are in the database
+      if (sender == recipient) {
+        throw SelfTransferException();
+      }
       _accountService.checkAccountBalance(
           value: amount,
           account: _accountService.findAccount(
@@ -200,7 +193,7 @@ class BlockchainService {
     /// String address - User P23 Address
     /// String value - Transaction Value
     /// String transactionType - 0: Withdraw, 1: Deposit
-    pendingTansactions.add(Transaction(
+    pendingTansactions.add(TransactionRecord(
       sender: sender,
       recipient: recipient,
       amount: amount,
@@ -216,7 +209,7 @@ class BlockchainService {
     var transId = Uuid().v4();
     var timestamp = DateTime.now().millisecondsSinceEpoch;
 
-    pendingTansactions.add(Transaction(
+    pendingTansactions.add(TransactionRecord(
       sender: sender,
       recipient: recipient,
       amount: amount,
@@ -225,7 +218,7 @@ class BlockchainService {
       transType: 0,
     ));
 
-    pendingTansactions.add(Transaction(
+    pendingTansactions.add(TransactionRecord(
       sender: sender,
       recipient: recipient,
       amount: amount,
@@ -277,7 +270,7 @@ class BlockchainService {
     //Check if the recipient is in the database
     if (recipientValidation(recipient)) {
       changeAccountStatusToProcessing(recipient);
-      addToPendingDeposit(enviromentVariables.systemAddress, recipient, amount);
+      addToPendingDeposit(Env.systemAddress, recipient, amount);
     }
     return lastBlock.index + 1;
   }
@@ -312,7 +305,7 @@ class BlockchainService {
     return blockchainStore.values.last;
   }
 
-  List<Transaction> get pendingTransactions {
+  List<TransactionRecord> get pendingTransactions {
     return pendingTansactions.values.toList();
   }
 
@@ -334,8 +327,7 @@ class BlockchainService {
   bool validProof(int? lastProof, int proof) {
     var guess = utf8.encode('$lastProof$proof');
     var guessHash = crypto.sha256.convert(guess).bytes;
-    return HEX.encode(guessHash).substring(0, 4) ==
-        enviromentVariables.difficulty;
+    return HEX.encode(guessHash).substring(0, 4) == Env.difficulty;
   }
 
   String getBlockchain() {

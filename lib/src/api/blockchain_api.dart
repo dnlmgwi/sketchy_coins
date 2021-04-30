@@ -1,16 +1,9 @@
-import 'package:shelf_router/shelf_router.dart';
-import 'package:sketchy_coins/src/Account_api/accountExeptions.dart';
-import 'package:sketchy_coins/src/Auth_api/EnvValues.dart';
-import 'blockchainService.dart';
-import 'blockchainValidation.dart';
-import 'miner.dart';
-import 'dart:convert';
-import 'package:shelf/shelf.dart';
+import 'package:sketchy_coins/packages.dart';
 
 class BlockChainApi {
   static final blockchainService = BlockchainService();
-  var miner = Miner(blockchainService);
-  var blockChainValidity = BlockChainValidity();
+  var miner = MineServices(blockchainService);
+  var blockChainValidity = BlockChainValidationService();
 
   Router get router {
     final router = Router();
@@ -106,7 +99,7 @@ class BlockChainApi {
             return Response.forbidden(
               noSenderError(),
               headers: {
-                'Content-Type': 'application/json',
+                HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
               },
             );
           }
@@ -115,7 +108,7 @@ class BlockChainApi {
             return Response.forbidden(
               noRecipientError(),
               headers: {
-                'Content-Type': 'application/json',
+                HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
               },
             );
           }
@@ -124,7 +117,7 @@ class BlockChainApi {
             return Response.forbidden(
               noAmountError(),
               headers: {
-                'Content-Type': 'application/json',
+                HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
               },
             );
           }
@@ -144,7 +137,7 @@ class BlockChainApi {
                 }
               }),
               headers: {
-                'Content-Type': 'application/json',
+                HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
               },
             );
           } on PendingTransactionException catch (e) {
@@ -153,7 +146,7 @@ class BlockChainApi {
                 'data': {'message': '${e.toString()}'}
               })),
               headers: {
-                'Content-Type': 'application/json',
+                HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
               },
             );
           }
@@ -165,7 +158,7 @@ class BlockChainApi {
               'data': {'message': '${e.toString()}'}
             }),
             headers: {
-              'Content-Type': 'application/json',
+              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
             },
           );
         }
@@ -188,7 +181,7 @@ class BlockChainApi {
               'data': {'message': '${e.toString()}'}
             }),
             headers: {
-              'Content-Type': 'application/json',
+              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
             },
           );
         }
@@ -202,14 +195,14 @@ class BlockChainApi {
               },
             ),
             headers: {
-              'Content-Type': 'application/json',
+              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
             },
           );
         } else if (mineResult.isNotEmpty) {
           return Response.ok(
             json.encode({'data': mineResult}),
             headers: {
-              'Content-Type': 'application/json',
+              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
             },
           );
         }
@@ -227,14 +220,14 @@ class BlockChainApi {
           return Response.ok(
             miner.blockchain.getBlockchain(),
             headers: {
-              'Content-Type': 'application/json',
+              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
             },
           );
         } else {
           return Response.notFound(
             'Invalid Blockchain',
             headers: {
-              'Content-Type': 'application/json',
+              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
             },
           );
         }
@@ -264,14 +257,14 @@ class BlockChainApi {
     return json.encode({
       'data': {
         'message':
-            'Please include valid amount Greater Than P${enviromentVariables.minTransactionAmount}',
+            'Please include valid amount Greater Than P${Env.minTransactionAmount}',
       }
     });
   }
 
   bool noAmountCheck(data) =>
       data['amount'] == null ||
-      data['amount'] < enviromentVariables.minTransactionAmount;
+      data['amount'] < double.parse(Env.minTransactionAmount);
 
   bool noRecipientCheck(data) => data['recipient'] == '';
 

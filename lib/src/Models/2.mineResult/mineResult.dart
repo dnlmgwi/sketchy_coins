@@ -1,6 +1,4 @@
-import 'package:hive/hive.dart';
-import 'package:json_annotation/json_annotation.dart';
-import 'package:sketchy_coins/src/Models/transaction/transaction.dart';
+import 'package:sketchy_coins/packages.dart';
 part 'mineResult.g.dart';
 
 @HiveType(typeId: 2)
@@ -16,7 +14,7 @@ class MineResult extends HiveObject {
   final bool? validBlock;
 
   @HiveField(4)
-  final List<Transaction> transactions;
+  final List<TransactionRecord> transactions;
   
   @HiveField(5)
   final int proof;
