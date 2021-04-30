@@ -27,7 +27,7 @@ void main(List<String> arguments) async {
 
   var app = Router();
   var portEnv = Platform.environment['PORT'];
-  final _port = portEnv == null ? int.parse(Env.port) : int.parse(portEnv);
+  final _port = portEnv ?? Env.port;
 
   var handler = Pipeline()
       .addMiddleware(logRequests())
@@ -43,7 +43,7 @@ void main(List<String> arguments) async {
     });
   });
 
-  await shelf_io.serve(handler, Env.hostName, _port).then((server) {
+  await shelf_io.serve(handler, Env.hostName, int.parse(_port)).then((server) {
     print('Serving at ws://${server.address.host}:${server.port}');
   });
 
@@ -65,7 +65,7 @@ void main(List<String> arguments) async {
     '/v1/blockchain/',
     BlockChainApi().router,
   );
-  
+
   app.mount(
     '/v1/account/',
     AccountApi().router,
