@@ -9,23 +9,29 @@ class AuthService {
         orElse: () => throw AccountNotFoundException());
   }
 
-  Account findDuplicateAccount(
-      {required Box<Account> accounts, required String email}) {
+  Account findDuplicateAccountCredentials(
+      {required Box<Account> accounts,
+      required String email,
+      required String phoneNumber}) {
     return accounts.values.firstWhere(
-      (element) => element.email == email,
-      orElse: () => throw Exception('This account doesn\'t exist'),
+      (element) => element.email == email || element.phoneNumber == phoneNumber,
+      orElse: () =>
+          throw Exception('These Details are Registered, Login instead'),
     );
   }
 
-  bool validateAccount({
+  bool isNotDuplicatedAccount({
     required String email,
+    required String phoneNumber,
   }) {
     var duplicateAccount = false;
     try {
-      findDuplicateAccount(accounts: _accountList, email: email);
+      findDuplicateAccountCredentials(
+          accounts: _accountList, email: email, phoneNumber: phoneNumber);
     } catch (e) {
-      // If account is found return true and thrown error is
-      return duplicateAccount = true;
+      // If account is found return Duplicate account is true and thrown error message.
+      !duplicateAccount;
+      rethrow;
     }
     return duplicateAccount;
   }
@@ -46,21 +52,25 @@ class AuthService {
       phoneNumber: phoneNumber,
     );
 
-    if (validateAccount(email: email)) {
-      _accountList.add(
-        Account(
-          email: email,
-          address: address, //TODO: Revisit address algo
-          phoneNumber: phoneNumber,
-          password: hashpassword,
-          salt: salt,
-          status: 'normal',
-          balance: double.parse(Env.newAccountBalance),
-          joinedDate: DateTime.now().millisecondsSinceEpoch,
-        ),
-      );
-    } else {
-      throw AccountDuplicationException();
+    try {
+      if (isNotDuplicatedAccount(email: email, phoneNumber: phoneNumber)) {
+        _accountList.add(
+          Account(
+            email: email,
+            address: address, //TODO: Revisit address algo
+            phoneNumber: phoneNumber,
+            password: hashpassword,
+            salt: salt,
+            status: 'normal',
+            balance: double.parse(Env.newAccountBalance),
+            joinedDate: DateTime.now().millisecondsSinceEpoch,
+          ),
+        );
+      } else {
+        throw AccountDuplicationFoundException();
+      }
+    } catch (e) {
+      rethrow;
     }
   }
 
