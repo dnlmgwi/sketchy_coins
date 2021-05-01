@@ -188,7 +188,7 @@ class AuthApi {
     router.post('/logout', (Request req) async {
       final auth = req.context['authDetails'];
 
-      print('Auth Details: ${(auth as JWT).jwtId}');
+      //print('Auth Details: ${(auth as JWT).jwtId}');
       if (auth == null) {
         return Response.forbidden(
           json.encode({
@@ -201,7 +201,7 @@ class AuthApi {
       }
 
       try {
-        await tokenService.removeRefreshToken((auth).jwtId);
+        await tokenService.removeRefreshToken((auth as JWT).jwtId);
       } catch (e) {
         return Response.internalServerError(
             body: json.encode({
