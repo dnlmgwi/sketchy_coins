@@ -27,6 +27,21 @@ class AccountDuplicationFoundException implements Exception {
   }
 }
 
+class RegisteredCredentialsException implements Exception {
+  ///This Exception is thrown when there is an excisting account in the DB
+  late String _message;
+
+  RegisteredCredentialsException(
+      [String message = 'These Details are Registered, Login instead']) {
+    _message = message;
+  }
+
+  @override
+  String toString() {
+    return _message;
+  }
+}
+
 class IncorrectInputException implements Exception {
   ///This Exception is thrown when there is an excisting account in the DB
   late String _message;
