@@ -1,6 +1,4 @@
-import 'package:cryptography/dart.dart';
 import 'package:sketchy_coins/packages.dart';
-import 'package:cryptography/cryptography.dart' as secure;
 
 class AuthService {
   final _accountList = Hive.box<Account>('accounts');
@@ -15,7 +13,7 @@ class AuthService {
       {required Box<Account> accounts, required String email}) {
     return accounts.values.firstWhere(
       (element) => element.email == email,
-      orElse: () => throw AccountDuplicationException(),
+      orElse: () => throw Exception('This account doesn\'t exist'),
     );
   }
 
@@ -38,19 +36,28 @@ class AuthService {
     required String phoneNumber,
   }) {
     final salt = generateSalt();
-    final hashpassword = hashPassword(password: password, salt: salt);
+
+    final hashpassword = hashPassword(
+      password: password,
+      salt: salt,
+    );
+
+    final address = userAddressAlgo(
+      phoneNumber: phoneNumber,
+    );
 
     if (validateAccount(email: email)) {
       _accountList.add(
         Account(
-            email: email, //TODO: dateCreated
-            address: '$hashpassword-$phoneNumber', //TODO: Revisit address algo
-            phoneNumber: phoneNumber, //TODO: Hash PhoneNumber?
-            password: hashpassword,
-            salt: salt,
-            status: 'normal',
-            balance: double.parse(Env.newAccountBalance),
-            joinedDate: DateTime.now().millisecondsSinceEpoch),
+          email: email,
+          address: address, //TODO: Revisit address algo
+          phoneNumber: phoneNumber,
+          password: hashpassword,
+          salt: salt,
+          status: 'normal',
+          balance: double.parse(Env.newAccountBalance),
+          joinedDate: DateTime.now().millisecondsSinceEpoch,
+        ),
       );
     } else {
       throw AccountDuplicationException();

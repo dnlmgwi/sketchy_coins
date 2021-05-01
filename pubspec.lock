@@ -190,13 +190,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.1"
-  cryptography:
-    dependency: "direct main"
-    description:
-      name: cryptography
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.0.1"
   dart_jsonwebtoken:
     dependency: "direct main"
     description:
@@ -212,7 +205,7 @@ packages:
     source: hosted
     version: "2.0.0"
   dotenv:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: dotenv
       url: "https://pub.dartlang.org"
@@ -533,6 +526,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.10.0"
+  steel_crypt:
+    dependency: "direct main"
+    description:
+      name: steel_crypt
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.0+1"
   stream_channel:
     dependency: transitive
     description:

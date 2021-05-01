@@ -9,7 +9,7 @@ class BaseApi {
       final data = {
         'message': 'Welcome to P23',
         'status': 'Testing',
-        'version': '0.1.5-alpha',
+        'version': '0.1.6-alpha',
       };
       return Response.ok(
         json.encode(data),
@@ -21,8 +21,10 @@ class BaseApi {
 
     router.get('/accounts', (Request request) {
       final data = {
-        'accounts':
-            '${accountService.accountList.values.toList().map((e) => e.toJson())}',
+        'accounts': accountService.accountList.values
+            .toList()
+            .map((e) => e.toJson())
+            .toList(),
         'users': '${accountService.accountListCount}'
       };
       return Response.ok(

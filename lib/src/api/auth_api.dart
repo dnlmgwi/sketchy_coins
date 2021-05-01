@@ -106,7 +106,6 @@ class AuthApi {
             },
           );
         } catch (e) {
-          print(e.toString());
           return Response(
             HttpStatus.badRequest,
             body: json.encode({
@@ -173,11 +172,10 @@ class AuthApi {
             },
           );
         } catch (e) {
-          print(e.toString());
           return Response(
             HttpStatus.badRequest,
             body: json.encode({
-              'data': {'message': 'Address & Password Keys Required'}
+              'data': {'message': e.toString()}
             }),
             headers: {
               HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
