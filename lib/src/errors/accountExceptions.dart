@@ -12,11 +12,11 @@ class AccountNotFoundException implements Exception {
   }
 }
 
-class AccountDuplicationException implements Exception {
+class AccountDuplicationFoundException implements Exception {
   ///This Exception is thrown when there is an excisting account in the DB
   late String _message;
 
-  AccountDuplicationException(
+  AccountDuplicationFoundException(
       [String message = 'Duplicate Account Found, Login Instead']) {
     _message = message;
   }

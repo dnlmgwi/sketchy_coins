@@ -16,11 +16,11 @@ class AuthService {
     return accounts.values.firstWhere(
       (element) => element.email == email || element.phoneNumber == phoneNumber,
       orElse: () =>
-          throw Exception('This Details are Registered, Login instead'),
+          throw Exception('These Details are Registered, Login instead'),
     );
   }
 
-  bool isDuplicatedAccount({
+  bool isNotDuplicatedAccount({
     required String email,
     required String phoneNumber,
   }) {
@@ -53,7 +53,7 @@ class AuthService {
     );
 
     try {
-      if (isDuplicatedAccount(email: email, phoneNumber: phoneNumber)) {
+      if (isNotDuplicatedAccount(email: email, phoneNumber: phoneNumber)) {
         _accountList.add(
           Account(
             email: email,
@@ -67,7 +67,7 @@ class AuthService {
           ),
         );
       } else {
-        throw AccountDuplicationException();
+        throw AccountDuplicationFoundException();
       }
     } catch (e) {
       rethrow;
