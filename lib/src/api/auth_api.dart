@@ -94,7 +94,6 @@ class AuthApi {
             );
           }
 
-          //TODO: Change Account Fields
           await _authService.register(
             email: email,
             password: password,
@@ -162,7 +161,6 @@ class AuthApi {
             );
           }
 
-          //TODO: Change Account Fields
           final token = await _authService.login(
             password: password,
             address: address,

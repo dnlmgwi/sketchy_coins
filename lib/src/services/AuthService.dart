@@ -11,7 +11,7 @@ class AuthService {
     var response = await databaseService.client
         .from('accounts')
         .select(
-          'email,phoneNumber,password, salt,status,balance,joinedDate, address',
+          'id,email,phoneNumber,password, salt,status,balance,joinedDate, address',
         )
         .match({
           'address': address,
@@ -59,8 +59,7 @@ class AuthService {
     }
   }
 
-  Future<bool> isNotDuplicatedAccountNew({
-    //Todo: Fix Logic
+  Future<bool> isNotDuplicatedAccount({
     required String email,
     required String phoneNumber,
   }) async {
@@ -96,7 +95,7 @@ class AuthService {
 
     try {
       var response;
-      var isDuplicate = await isNotDuplicatedAccountNew(
+      var isDuplicate = await isNotDuplicatedAccount(
         email: email,
         phoneNumber: phoneNumber,
       );
@@ -114,7 +113,6 @@ class AuthService {
               joinedDate: DateTime.now().millisecondsSinceEpoch,
             ).toJson()
           ],
-          upsert: true,
         ).execute();
       }
 

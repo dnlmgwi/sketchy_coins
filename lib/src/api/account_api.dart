@@ -27,7 +27,9 @@ class AccountApi {
         try {
           return Response.ok(
             json.encode({
-              'data': {'account': user.toJson()}
+              'data': {
+                'account': user.toJson(),
+              }
             }),
             headers: {
               HttpHeaders.contentTypeHeader: ContentType.json.mimeType,

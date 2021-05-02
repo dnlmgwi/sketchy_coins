@@ -40,7 +40,7 @@ export './src/services/accountService.dart';
 export 'package:sketchy_coins/src/services/databaseService.dart';
 
 //Models
-export './src/Models/0.account/account.dart';
+export './src/Models/account/account.dart';
 export './src/Models/1.block/block.dart';
 export './src/Models/2.mineResult/mineResult.dart';
 export './src/Models/3.transactionRecord/transactionRecord.dart';

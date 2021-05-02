@@ -1,7 +1,6 @@
 import 'package:sketchy_coins/packages.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_web_socket/shelf_web_socket.dart';
-// import 'package:sketchy_coins/src/dataSync_api/offlineAccountsSync_api.dart';
 
 void main(List<String> arguments) async {
   Hive.init('./storage');
@@ -18,6 +17,7 @@ void main(List<String> arguments) async {
   );
 
   final databaseService = DatabaseService();
+  final blockchainService = BlockchainService();
 
   await tokenService.start();
 
@@ -57,10 +57,12 @@ void main(List<String> arguments) async {
     ).router,
   );
 
-  // app.mount(
-  //   '/v1/blockchain/',
-  //   BlockChainApi().router,
-  // );
+  app.mount(
+    '/v1/blockchain/',
+    BlockChainApi(
+      blockchainService: blockchainService,
+    ).router,
+  );
 
   app.mount(
     '/v1/account/',
@@ -68,9 +70,4 @@ void main(List<String> arguments) async {
       databaseService: databaseService,
     ).router,
   );
-
-  // app.mount(
-  //   '/v1/offlineAccounts/',
-  //   OfflineAccountsServiceApi().router,
-  // );
 }
