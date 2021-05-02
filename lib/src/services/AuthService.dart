@@ -1,7 +1,33 @@
 import 'package:sketchy_coins/packages.dart';
 
 class AuthService {
+  DatabaseService databaseService;
+
+  AuthService({
+    required this.databaseService,
+  });
+
   final _accountList = Hive.box<Account>('accounts');
+
+  Future fetchUsers() async {
+    var response = await getUsers();
+    return response;
+  }
+
+  Future getUsers() async {
+    try {
+      final response =
+          await databaseService.client.from('countries').select().execute();
+      if (response.error != null) {
+        throw response.error!;
+      }
+      return response.data;
+    } on PostgrestError catch (e) {
+      print(e.code);
+      print(e.message);
+      rethrow;
+    }
+  }
 
   Account findAccount(
       {required Box<Account> accounts, required String address}) {
@@ -106,5 +132,9 @@ class AuthService {
 
   Box<Account> get accountList {
     return _accountList;
+  }
+
+  Future get accountdbList async {
+    return await fetchUsers();
   }
 }

@@ -23,6 +23,8 @@ void main(List<String> arguments) async {
     secret: Env.secret,
   );
 
+  final databaseService = DatabaseService();
+
   await tokenService.start();
 
   var app = Router();
@@ -41,7 +43,9 @@ void main(List<String> arguments) async {
     });
   });
 
-  await shelf_io.serve(handler, Env.hostName, int.parse(Env.port)).then((server) {
+  await shelf_io
+      .serve(handler, Env.hostName, int.parse(Env.port))
+      .then((server) {
     print('Serving at ws://${server.address.host}:${server.port}');
   });
 
@@ -56,6 +60,7 @@ void main(List<String> arguments) async {
       store: _store,
       secret: Env.secret,
       tokenService: tokenService,
+      databaseService: databaseService,
     ).router,
   );
 

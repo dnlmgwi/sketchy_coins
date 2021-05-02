@@ -19,6 +19,7 @@ dependencies:
   validators: ^3.0.0
   shelf_web_socket: ^1.0.1
   crdt: ^4.0.1
+  postgrest: ^0.1.0
   geodesy: ^0.4.0-nullsafety.0
   steel_crypt: ^3.0.0+1
 

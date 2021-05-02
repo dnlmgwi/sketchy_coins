@@ -18,6 +18,7 @@ export 'package:json_annotation/json_annotation.dart';
 export 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 export 'package:redis_dart/redis_dart.dart';
 export 'package:validators/validators.dart';
+export 'package:postgrest/postgrest.dart';
 
 //Config File
 export './src/config.dart';
@@ -36,6 +37,7 @@ export './src/services/mineService.dart';
 export './src/services/AuthService.dart';
 export './src/services/token_service.dart';
 export './src/services/accountService.dart';
+export 'package:sketchy_coins/src/services/databaseService.dart';
 
 //Models
 export './src/Models/0.account/account.dart';
@@ -48,4 +50,3 @@ export './src/Models/5.location/location.dart';
 //Exceptions
 export './src/errors/accountExceptions.dart';
 export './src/errors/authException.dart';
-
