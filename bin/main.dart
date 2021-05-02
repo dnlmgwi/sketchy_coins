@@ -7,17 +7,11 @@ void main(List<String> arguments) async {
   Hive.init('./storage');
   Hive.registerAdapter(BlockAdapter());
   Hive.registerAdapter(MineResultAdapter());
-  Hive.registerAdapter(AccountAdapter());
   Hive.registerAdapter(TransactionRecordAdapter());
   Hive.registerAdapter(TokenPairAdapter());
 
   await Hive.openBox<Block>('blockchain');
-  await Hive.openBox<Account>('accounts');
   await Hive.openBox<TransactionRecord>('transactions');
-
-  final _store = Hive.box<Account>(
-    'accounts',
-  ); //TODO: Implement PostgresSQL/SQLite Database Sync
 
   final tokenService = TokenService(
     secret: Env.secret,
@@ -57,21 +51,22 @@ void main(List<String> arguments) async {
   app.mount(
     '/v1/auth/',
     AuthApi(
-      store: _store,
       secret: Env.secret,
       tokenService: tokenService,
       databaseService: databaseService,
     ).router,
   );
 
-  app.mount(
-    '/v1/blockchain/',
-    BlockChainApi().router,
-  );
+  // app.mount(
+  //   '/v1/blockchain/',
+  //   BlockChainApi().router,
+  // );
 
   app.mount(
     '/v1/account/',
-    AccountApi().router,
+    AccountApi(
+      databaseService: databaseService,
+    ).router,
   );
 
   // app.mount(

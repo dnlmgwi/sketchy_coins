@@ -1,14 +1,30 @@
 import 'package:sketchy_coins/packages.dart';
 
 class AccountService {
-  final _accountList = Hive.box<Account>('accounts');
+  DatabaseService databaseService;
+  AccountService({required this.databaseService});
 
-  Account findAccount({
-    required Box<Account> accounts,
-    required String address,
-  }) {
-    return accounts.values.firstWhere((element) => element.address == address,
-        orElse: () => throw AccountNotFoundException());
+  Future<Account> findAccount({required String address}) async {
+    var response = await databaseService.client
+        .from('accounts')
+        .select(
+          'id,email,phoneNumber,password, salt,status,balance,joinedDate, address',
+        )
+        .match({
+          'address': address,
+        })
+        .execute()
+        .onError(
+          (error, stackTrace) => throw Exception(error),
+        );
+
+    var result = response.data as List;
+
+    if (result.isEmpty) {
+      throw AccountNotFoundException();
+    }
+
+    return Account.fromJson(response.data[0]);
   }
 
   double editAccountBalance({
@@ -75,13 +91,5 @@ class AccountService {
     }
 
     return account.balance;
-  }
-
-  Box<Account> get accountList {
-    return _accountList;
-  }
-
-  int get accountListCount {
-    return _accountList.values.length;
   }
 }

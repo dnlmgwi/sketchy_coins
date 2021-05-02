@@ -2,41 +2,20 @@ import 'package:sketchy_coins/packages.dart';
 import 'package:sketchy_coins/src/services/databaseService.dart';
 
 class AuthApi {
-  Box<Account> store;
   String secret;
   TokenService tokenService;
   DatabaseService databaseService;
 
-  AuthApi(
-      {required this.store,
-      required this.secret,
-      required this.tokenService,
-      required this.databaseService});
+  AuthApi({
+    required this.secret,
+    required this.tokenService,
+    required this.databaseService,
+  });
 
   Router get router {
     final router = Router();
 
     final _authService = AuthService(databaseService: databaseService);
-
-    router.get('/accountServer', (Request req) async {
-      var info;
-      try {
-        info = await _authService.accountdbList;
-      } catch (e) {
-        return Response.internalServerError(
-            body: json.encode({'data': e.toString()}),
-            headers: {
-              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
-            });
-      }
-
-      return Response.ok(
-        json.encode(info),
-        headers: {
-          HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
-        },
-      );
-    });
 
     router.post(
       '/register',
@@ -116,7 +95,7 @@ class AuthApi {
           }
 
           //TODO: Change Account Fields
-          _authService.register(
+          await _authService.register(
             email: email,
             password: password,
             phoneNumber: phoneNumber,

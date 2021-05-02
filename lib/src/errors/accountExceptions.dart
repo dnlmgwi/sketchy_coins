@@ -17,7 +17,7 @@ class AccountDuplicationFoundException implements Exception {
   late String _message;
 
   AccountDuplicationFoundException(
-      [String message = 'Duplicate Account Found, Login Instead']) {
+      [String message = 'Please, login Instead.']) {
     _message = message;
   }
 
