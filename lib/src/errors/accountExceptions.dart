@@ -26,6 +26,21 @@ class TransIDNotFoundException implements Exception {
   }
 }
 
+class TransIDClaimedException implements Exception {
+  ///This Exception is thrown when the account cannot be Found in the DB
+  late String _message;
+
+  TransIDClaimedException(
+      [String message = 'TransID has already been claimed']) {
+    _message = message;
+  }
+
+  @override
+  String toString() {
+    return _message;
+  }
+}
+
 class AccountDuplicationFoundException implements Exception {
   ///This Exception is thrown when there is an excisting account in the DB
   late String _message;
@@ -121,6 +136,20 @@ class SelfTransferException implements Exception {
   SelfTransferException(
       [String message =
           'Please provided a different accounts to preform a transfer']) {
+    _message = message;
+  }
+
+  @override
+  String toString() {
+    return _message;
+  }
+}
+
+class NoPendingTransactionException implements Exception {
+  ///This Exception is thrown when there is an excisting account in the DB
+  late String _message;
+
+  NoPendingTransactionException([String message = 'Nothing to Mine']) {
     _message = message;
   }
 

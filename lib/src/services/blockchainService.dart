@@ -283,6 +283,10 @@ class BlockchainService {
         .onError(
           (error, stackTrace) => throw Exception(error),
         );
+    if (response.data[0]['claimed']) {
+      throw TransIDClaimedException();
+    }
+    changeClaimToTrue(transID);
 
     if (response.data == null) {
       throw TransIDNotFoundException();
@@ -319,6 +323,15 @@ class BlockchainService {
         .from('accounts')
         .update({'status': 'processing'})
         .eq('address', address)
+        .execute();
+  }
+
+  void changeClaimToTrue(String transID) async {
+    //Changes the Users Account Status to processing.
+    await accountService.databaseService.client
+        .from('rechargeNotifications')
+        .update({'claimed': true})
+        .eq('transID', transID)
         .execute();
   }
 
