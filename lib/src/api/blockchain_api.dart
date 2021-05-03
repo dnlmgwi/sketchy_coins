@@ -187,9 +187,8 @@ class BlockChainApi {
         );
       } catch (e) {
         print(e);
-        return Response(
-          HttpStatus.notModified,
-          body: json.encode({
+        return Response.ok(
+          json.encode({
             'data': {'message': '${e.toString()}'}
           }),
           headers: {
