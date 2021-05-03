@@ -187,8 +187,9 @@ class BlockChainApi {
         );
       } catch (e) {
         print(e);
-        return Response.forbidden(
-          json.encode({
+        return Response(
+          HttpStatus.notModified,
+          body: json.encode({
             'data': {'message': '${e.toString()}'}
           }),
           headers: {
@@ -207,9 +208,7 @@ class BlockChainApi {
 
     router.get(
       '/pending',
-      (
-        Request request,
-      ) async {
+      (Request request) async {
         if (blockChainValidity.isBlockChainValid(
             chain: await miner.blockchain.getBlockchain(),
             blockchain: blockchainService)) {

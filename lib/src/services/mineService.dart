@@ -10,7 +10,7 @@ class MineServices {
     required String recipient,
   }) async {
     if (blockchain.pendingTransactions.isEmpty) {
-      throw Exception('Nothing to Mine');
+      throw NoPendingTransactionException();
     }
 
     var lastBlock = await blockchain.lastBlock;
@@ -61,7 +61,6 @@ class MineServices {
         transID: transID,
       );
     } catch (e) {
-      print(e.toString());
       rethrow;
     }
     return response;
