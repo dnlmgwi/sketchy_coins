@@ -256,6 +256,7 @@ class BlockchainService {
       try {
         var data = await findTransID(transID: transID);
         //Change the account to processing to prevent any overdraft issues.
+        //TODO Change Recharge notification to Claimed true to provent muliple claims.
         changeAccountStatusToProcessing(recipient);
         addToPendingDeposit('MobileMoney: ${data['transID']}', recipient,
             double.parse(extractAmount(data)));

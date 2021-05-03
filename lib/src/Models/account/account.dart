@@ -7,7 +7,6 @@ part 'account.g.dart';
 @JsonSerializable(explicitToJson: true)
 class Account {
   String? id;
-
   String email;
 
   String? password;
@@ -18,7 +17,7 @@ class Account {
 
   String address;
 
-  String status;
+  String? status;
 
   double balance;
 
@@ -30,7 +29,7 @@ class Account {
     this.password,
     required this.phoneNumber,
     this.salt,
-    required this.status,
+    this.status,
     required this.address,
     required this.balance,
     this.joinedDate,

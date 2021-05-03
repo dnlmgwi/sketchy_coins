@@ -11,7 +11,7 @@ class AuthService {
     var response = await databaseService.client
         .from('accounts')
         .select(
-          'id,email,phoneNumber,password,address',
+          'id,email,phoneNumber,password,address, balance, salt',
         )
         .match({
           'address': address,
