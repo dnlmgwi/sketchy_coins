@@ -11,84 +11,6 @@ class BlockChainApi {
 
     final router = Router();
 
-    // router.post(
-    //   '/pay',
-    //   ((
-    //     Request request,
-    //   ) async {
-    //     try {
-    //       final payload = await request.readAsString();
-    //       final data = json.decode(payload);
-
-    //       if (noSenderCheck(data)) {
-    //         return Response.forbidden(
-    //           noSenderError(),
-    //           headers: {
-    //             'Content-Type': 'application/json',
-    //           },
-    //         );
-    //       }
-
-    //       if (noRecipientCheck(data)) {
-    //         return Response.forbidden(
-    //           noRecipientError(),
-    //           headers: {
-    //             'Content-Type': 'application/json',
-    //           },
-    //         );
-    //       }
-
-    //       if (noAmountCheck(data)) {
-    //         return Response.forbidden(
-    //           noAmountError(),
-    //           headers: {
-    //             'Content-Type': 'application/json',
-    //           },
-    //         );
-    //       }
-
-    //       try {
-    //         blockchainService.newDeposit(
-    //           sender: data['sender'],
-    //           amount: double.parse(data['amount'].toString()),
-    //         );
-
-    //         return Response.ok(
-    //           json.encode({
-    //             'data': {
-    //               'message': 'Transaction Complete',
-    //               'transaction': json.decode(payload),
-    //             }
-    //           }),
-    //           headers: {
-    //             'Content-Type': 'application/json',
-    //           },
-    //         );
-    //       } on PendingTransactionException catch (e) {
-    //         return Response.forbidden(
-    //           (json.encode({
-    //             'data': {'message': '${e.toString()}'}
-    //           })),
-    //           headers: {
-    //             'Content-Type': 'application/json',
-    //           },
-    //         );
-    //       }
-    //     } catch (e) {
-    //       print(e);
-
-    //       return Response.forbidden(
-    //         json.encode({
-    //           'data': {'message': '${e.toString()}'}
-    //         }),
-    //         headers: {
-    //           'Content-Type': 'application/json',
-    //         },
-    //       );
-    //     }
-    //   }),
-    // );
-
     router.post(
       '/transfer',
       ((
@@ -173,10 +95,10 @@ class BlockChainApi {
       (Request request) async {
         final payload = await request.readAsString();
         final address = json.decode(payload);
-        var mineResult;
+        MineResult mineResult;
 
         try {
-          mineResult = miner.mine(recipient: address['address']);
+          mineResult = await miner.mine(recipient: address['address']);
         } catch (e) {
           print(e);
           return Response.forbidden(
@@ -201,7 +123,7 @@ class BlockChainApi {
               HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
             },
           );
-        } else if (mineResult.isNotEmpty) {
+        } else if (mineResult.validBlock!) {
           return Response.ok(
             json.encode({'data': mineResult}),
             headers: {
@@ -212,16 +134,87 @@ class BlockChainApi {
       },
     );
 
+    router.post('/recharge', (Request request) async {
+      final payload = await request.readAsString();
+      final userData = json.decode(payload);
+
+      final transID = userData['transID'];
+      final address = userData['address'];
+      var rechargeResult;
+
+      var regExpPayload = RegExp(
+        r'^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$',
+        caseSensitive: false,
+        multiLine: false,
+      );
+
+      bool isTransID(String transID) {
+        return transID.contains(
+          regExpPayload,
+        );
+      }
+
+      if (transID == null || transID == '' || !isTransID(transID)) {
+        //Todo: Input Validation Errors
+        return Response(
+          HttpStatus.badRequest,
+          body: json.encode({
+            'data': {'message': 'Please provide a valid TransID'}
+          }),
+          headers: {
+            HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+          },
+        );
+      }
+
+      if (address == null || address == '') {
+        return Response(
+          HttpStatus.badRequest,
+          body: json.encode({
+            'data': {'message': 'Please provide a valid Address'}
+          }),
+          headers: {
+            HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+          },
+        );
+      }
+
+      try {
+        //TODO: Once Clained False
+        rechargeResult = await miner.recharge(
+          recipient: address,
+          transID: transID,
+        );
+      } catch (e) {
+        print(e);
+        return Response.forbidden(
+          json.encode({
+            'data': {'message': '${e.toString()}'}
+          }),
+          headers: {
+            HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+          },
+        );
+      }
+
+      return Response.ok(
+        json.encode({'data': rechargeResult}),
+        headers: {
+          HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+        },
+      );
+    });
+
     router.get(
-      '/chain',
+      '/pending',
       (
         Request request,
       ) async {
         if (blockChainValidity.isBlockChainValid(
-            chain: miner.blockchain.blockchainStore,
+            chain: await miner.blockchain.getBlockchain(),
             blockchain: blockchainService)) {
           return Response.ok(
-            miner.blockchain.getBlockchain(),
+            miner.blockchain.getPendingTransactions(),
             headers: {
               HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
             },

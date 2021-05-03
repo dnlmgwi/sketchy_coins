@@ -10,11 +10,11 @@ class Account {
 
   String email;
 
-  String password;
+  String? password;
 
   String phoneNumber;
 
-  String salt;
+  String? salt;
 
   String address;
 
@@ -22,18 +22,18 @@ class Account {
 
   double balance;
 
-  int joinedDate;
+  int? joinedDate;
 
   Account({
     this.id,
     required this.email,
-    required this.password,
+    this.password,
     required this.phoneNumber,
-    required this.salt,
+    this.salt,
     required this.status,
     required this.address,
     required this.balance,
-    required this.joinedDate,
+    this.joinedDate,
   });
 
   factory Account.fromJson(Map<String, dynamic> json) =>

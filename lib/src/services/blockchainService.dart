@@ -2,61 +2,95 @@ import 'package:crypto/crypto.dart' as crypto;
 import 'package:sketchy_coins/packages.dart';
 
 class BlockchainService {
-  BlockchainService() {
-    if (blockchainStore.isEmpty) {
-      newBlock(100, '1');
-    }
-  }
+  DatabaseService databaseService;
+
+  BlockchainService({required this.databaseService});
 
   var accountService = AccountService(databaseService: DatabaseService());
   var blockChainValidity = BlockChainValidationService();
-  var blockchainStore = Hive.box<Block>('blockchain'); //Store
+
   var pendingTansactions = Hive.box<TransactionRecord>('transactions');
 
-  Block newBlock(int proof, String previousHash) {
+  Future<Block> newBlock(int proof, String previousHash) async {
+    var response;
     if (previousHash.isEmpty) {
-      hash(blockchainStore.values.last);
+      hash(Block.fromJson(response.data));
     }
 
-    var block = Block(
-      index: blockchainStore.values.length,
-      timestamp: DateTime.now().millisecondsSinceEpoch,
-      proof: proof,
-      prevHash: previousHash,
-      transactions: List.from(
-        //If there is a duplicate transaction will ensure that there is no double deduction.
-        pendingTransactions.toSet(),
-      ),
-    );
+    try {
+      response = await databaseService.client
+          .from('blockchain')
+          .select()
+          .limit(1)
+          .order('timestamp', ascending: false)
+          .execute();
 
-    blockchainStore.add(block);
-    processPayments();
-    pendingTansactions.clear(); //Successfully Mined
+      await databaseService.client.from('blockchain').insert(
+        [
+          Block(
+            index: Block.fromJson(response.data[0]).index! + 1,
+            timestamp: DateTime.now().millisecondsSinceEpoch,
+            proof: proof,
+            prevHash: previousHash,
+            transactions: pendingTansactions.values.toList(),
+            //If there is a duplicate transaction will ensure that there is no double deduction.
+          ).toJson()
+        ],
+      ).execute();
 
-    return block;
-  }
+      await processPayments().whenComplete(() => pendingTansactions.clear());
+      //Successfully Mined
 
-  void processPayments() async {
-    if (DateTime.fromMillisecondsSinceEpoch(
-            blockchainStore.values.last.timestamp)
-        .isBefore(DateTime.now())) {
-      pendingTansactions.values.forEach((element) async {
-        Account? foundAccount;
+      if (response.error != null) {
+        throw response.error!.message;
+      }
 
-        /// Edit User Account Balance
-        /// String address - User P23 Address
-        /// String value - Transaction Value
-        /// String transactionType - 0: Withdraw, 1: Deposit, 2: Transfer 3: Reversal
-        if (element.transType == 1) {
-          await depositProcess(foundAccount, element);
-        } else {
-          await withdrawProcess(foundAccount, element);
-        }
-      });
+      return Block.fromJson(response.data[0]);
+    } on PostgrestError catch (e) {
+      print(e.code);
+      print(e.message);
+      rethrow;
     }
   }
 
-  Future<void> depositProcess(
+  Future processPayments() async {
+    var response;
+    try {
+      response = await databaseService.client
+          .from('blockchain')
+          .select()
+          .limit(1)
+          .order('timestamp', ascending: false)
+          .execute();
+      if (DateTime.fromMillisecondsSinceEpoch(
+              Block.fromJson(response.data[0]).timestamp)
+          .isBefore(DateTime.now())) {
+        pendingTansactions.values.forEach((element) async {
+          Account? foundAccount;
+
+          /// Edit User Account Balance
+          /// String address - User Address
+          /// String value - Transaction Value
+          /// String transactionType - 0: Withdraw, 1: Deposit, 2: Transfer 3: Reversal
+          if (element.transType == 1) {
+            await depositProcess(foundAccount, element);
+          } else {
+            await withdrawProcess(foundAccount, element);
+          }
+        });
+      }
+      if (response.error != null) {
+        throw response.error!.message;
+      }
+      // return response.data;
+    } on PostgrestError catch (e) {
+      print(e.code);
+      print(e.message);
+      rethrow;
+    }
+  }
+
+  Future<Account> depositProcess(
       Account? foundAccount, TransactionRecord element) async {
     try {
       foundAccount = await accountService.findAccount(
@@ -72,9 +106,10 @@ class BlockchainService {
       print('Failed Processing');
       rethrow;
     }
+    return foundAccount;
   }
 
-  Future<void> withdrawProcess(
+  Future<Account> withdrawProcess(
       Account? foundAccount, TransactionRecord element) async {
     try {
       foundAccount = await accountService.findAccount(address: element.sender);
@@ -88,9 +123,11 @@ class BlockchainService {
       print('Failed Processing');
       rethrow;
     }
+
+    return foundAccount;
   }
 
-  Future<int> initiateTransfer(
+  Future<void> initiateTransfer(
       {required String sender,
       required String recipient,
       required double amount}) async {
@@ -112,7 +149,6 @@ class BlockchainService {
         throw PendingTransactionException();
       }
     }
-    return lastBlock.index + 1;
   }
 
   void addToPendingDeposit(String sender, String recipient, double amount) {
@@ -198,17 +234,62 @@ class BlockchainService {
     //FindBothAccounts
   }
 
-  Future<int> newMineTransaction({
+  //TODO Future<void> newMineTransaction({
+  //   required String recipient,
+  //   required double amount,
+  // }) async {
+  //   //Check if the recipient is in the system if not an no reward is provided
+  //   // if (await recipientValidation(recipient)) {
+  //   //   //Change the account to processing to prevent any overdraft issues.
+  //   //   changeAccountStatusToProcessing(recipient);
+  //   //   addToPendingDeposit(Env.systemAddress, recipient, amount);
+  //   // }
+  // }
+
+  Future rechargeAccount({
     required String recipient,
-    required double amount,
+    required String transID,
   }) async {
     //Check if the recipient is in the system if not an no reward is provided
+    //Check if TransID and Amount match the recieved notification.
     if (await recipientValidation(recipient)) {
-      //Change the account to processing to prevent any overdraft issues.
-      changeAccountStatusToProcessing(recipient);
-      addToPendingDeposit(Env.systemAddress, recipient, amount);
+      try {
+        var data = await findTransID(transID: transID);
+        //Change the account to processing to prevent any overdraft issues.
+        changeAccountStatusToProcessing(recipient);
+        addToPendingDeposit('MobileMoney: ${data['transID']}', recipient,
+            double.parse(extractAmount(data)));
+        return {
+          'message': 'Transaction Verified',
+          'recipient': recipient,
+          'amount': extractAmount(data)
+        };
+      } catch (e) {
+        rethrow;
+      }
     }
-    return lastBlock.index + 1;
+  }
+
+  String extractAmount(data) => data['amount'].toString().split('MK').last;
+
+  Future findTransID({required String transID}) async {
+    var response = await databaseService.client
+        .from('rechargeNotifications')
+        .select()
+        .eq('transID', transID)
+        .limit(1)
+        .execute()
+        .onError(
+          (error, stackTrace) => throw Exception(error),
+        );
+
+    if (response.data == null) {
+      throw TransIDNotFoundException();
+    }
+
+    response.data as List;
+
+    return response.data[0];
   }
 
   Future<bool> recipientValidation(
@@ -249,8 +330,14 @@ class BlockchainService {
         .execute();
   }
 
-  Block get lastBlock {
-    return blockchainStore.values.last;
+  Future<Block> get lastBlock async {
+    var response = await databaseService.client
+        .from('blockchain')
+        .select()
+        .limit(1)
+        .order('timestamp', ascending: false)
+        .execute();
+    return Block.fromJson(response.data[0]);
   }
 
   List<TransactionRecord> get pendingTransactions {
@@ -278,9 +365,26 @@ class BlockchainService {
     return HEX.encode(guessHash).substring(0, 4) == Env.difficulty;
   }
 
-  String getBlockchain() {
+  Future<List<Block>> getBlockchain() async {
+    var jsonChain = <Block>[];
+    var response = await databaseService.client
+        .from('blockchain')
+        .select()
+        .limit(1)
+        .order('timestamp', ascending: false)
+        .execute();
+
+    var chain = response.data as List;
+    chain.forEach((element) {
+      jsonChain.add(Block.fromJson(element));
+    });
+
+    return jsonChain;
+  }
+
+  String getPendingTransactions() {
     var jsonChain = [];
-    blockchainStore.values.forEach((element) {
+    pendingTansactions.values.forEach((element) {
       jsonChain.add(element.toJson());
     });
     json.encode(jsonChain);

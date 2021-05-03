@@ -4,12 +4,8 @@ import 'package:shelf_web_socket/shelf_web_socket.dart';
 
 void main(List<String> arguments) async {
   Hive.init('./storage');
-  Hive.registerAdapter(BlockAdapter());
-  Hive.registerAdapter(MineResultAdapter());
   Hive.registerAdapter(TransactionRecordAdapter());
-  Hive.registerAdapter(TokenPairAdapter());
 
-  await Hive.openBox<Block>('blockchain');
   await Hive.openBox<TransactionRecord>('transactions');
 
   final tokenService = TokenService(
@@ -17,7 +13,10 @@ void main(List<String> arguments) async {
   );
 
   final databaseService = DatabaseService();
-  final blockchainService = BlockchainService();
+
+  final blockchainService = BlockchainService(
+    databaseService: databaseService,
+  );
 
   await tokenService.start();
 

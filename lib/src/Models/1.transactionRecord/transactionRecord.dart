@@ -1,7 +1,7 @@
 import 'package:sketchy_coins/packages.dart';
 part 'transactionRecord.g.dart';
 
-@HiveType(typeId: 3)
+@HiveType(typeId: 0)
 @JsonSerializable()
 class TransactionRecord extends HiveObject {
   @HiveField(1)
@@ -21,9 +21,6 @@ class TransactionRecord extends HiveObject {
 
   @HiveField(6)
   int transType;
-
-  // @HiveField(7)
-  // Location location;
 
   TransactionRecord({
     required this.sender,

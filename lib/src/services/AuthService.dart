@@ -11,7 +11,7 @@ class AuthService {
     var response = await databaseService.client
         .from('accounts')
         .select(
-          'id,email,phoneNumber,password, salt,status,balance,joinedDate, address',
+          'id,email,phoneNumber,password,address',
         )
         .match({
           'address': address,
@@ -142,7 +142,7 @@ class AuthService {
 
       final hashpassword = hashPassword(
         password: password,
-        salt: user.salt,
+        salt: user.salt!,
       );
 
       if (hashpassword != user.password) {

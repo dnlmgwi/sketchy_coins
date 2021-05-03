@@ -77,41 +77,37 @@ class AccountService {
     return account.balance;
   }
 
-  Future deposit({
+  Future<void> deposit({
     required double value,
     required Account account,
   }) async {
-    PostgrestResponse response;
     try {
-      response = await databaseService.client
+      await databaseService.client
           .from('accounts')
           .update({'balance': account.balance + value})
           .eq('address', account.address)
           .execute();
-      print(response.data);
     } catch (e) {
       throw Exception(e);
     }
   }
 
-  Future withdraw({
+  Future<void> withdraw({
     required double value,
     required Account account,
   }) async {
     try {
-      PostgrestResponse response;
       if (value > account.balance) {
         throw InsufficientFundsException();
       } else if (value < double.parse(Env.minTransactionAmount)) {
         throw InvalidInputException();
       }
 
-      response = await databaseService.client
+      await databaseService.client
           .from('accounts')
           .update({'balance': account.balance - value})
           .eq('address', account.address)
           .execute();
-      print(response.data);
     } catch (e) {
       rethrow;
     }

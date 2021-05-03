@@ -1,16 +1,12 @@
 import 'package:sketchy_coins/packages.dart';
 part 'location.g.dart';
 
-@HiveType(typeId: 5)
 @JsonSerializable(explicitToJson: true)
-class Location extends HiveObject {
-  @HiveField(1)
+class Location {
   int address;
 
-  @HiveField(2)
   int lat;
 
-  @HiveField(3)
   int lng;
 
   Location({

@@ -41,11 +41,11 @@ export 'package:sketchy_coins/src/services/databaseService.dart';
 
 //Models
 export './src/Models/account/account.dart';
-export './src/Models/1.block/block.dart';
-export './src/Models/2.mineResult/mineResult.dart';
-export './src/Models/3.transactionRecord/transactionRecord.dart';
-export './src/Models/4.tokenPair/tokenPair.dart';
-export './src/Models/5.location/location.dart';
+export './src/Models/block/block.dart';
+export './src/Models/mineResult/mineResult.dart';
+export './src/Models/1.transactionRecord/transactionRecord.dart';
+export './src/Models/tokenPair/tokenPair.dart';
+export './src/Models/location/location.dart';
 
 //Exceptions
 export './src/errors/accountExceptions.dart';

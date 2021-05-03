@@ -2,10 +2,10 @@ import 'package:sketchy_coins/packages.dart';
 
 class BlockChainValidationService {
   bool isFirstBlockValid({
-    required Box<Block> chain,
+    required List<Block> chain,
     required BlockchainService blockchainService,
   }) {
-    var firstBlock = chain.values.first;
+    var firstBlock = chain.first;
 
     if (firstBlock.index != 0) {
       return true;
@@ -16,8 +16,8 @@ class BlockChainValidationService {
     }
 
     if (blockchainService.hash(firstBlock).isEmpty ||
-        blockchainService.hash(chain.values.first) ==
-            blockchainService.hash(chain.values.first)) {
+        blockchainService.hash(chain.first) ==
+            blockchainService.hash(chain.first)) {
       return true;
     }
 
@@ -30,7 +30,7 @@ class BlockChainValidationService {
     BlockchainService? blockchain,
   }) {
     if (newBlock != null && previousBlock != null) {
-      if (previousBlock.index + 1 != newBlock.index) {
+      if (previousBlock.index! + 1 != newBlock.index) {
         return true;
       }
 
@@ -51,7 +51,7 @@ class BlockChainValidationService {
   }
 
   bool isBlockChainValid({
-    required Box<Block> chain,
+    required List<Block> chain,
     required BlockchainService blockchain,
   }) {
     if (!isFirstBlockValid(
@@ -62,8 +62,8 @@ class BlockChainValidationService {
     }
 
     for (var i = 1; i < chain.length; i++) {
-      final currentBlock = chain.values.elementAt(i);
-      final previousBlock = chain.values.elementAt(i - 1);
+      final currentBlock = chain.elementAt(i);
+      final previousBlock = chain.elementAt(i - 1);
 
       if (!isValidNewBlock(
         blockchain: blockchain,
