@@ -1,26 +1,21 @@
 import 'package:sketchy_coins/packages.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_web_socket/shelf_web_socket.dart';
-// import 'package:sketchy_coins/src/dataSync_api/offlineAccountsSync_api.dart';
 
 void main(List<String> arguments) async {
   Hive.init('./storage');
-  Hive.registerAdapter(BlockAdapter());
-  Hive.registerAdapter(MineResultAdapter());
-  Hive.registerAdapter(AccountAdapter());
   Hive.registerAdapter(TransactionRecordAdapter());
-  Hive.registerAdapter(TokenPairAdapter());
 
-  await Hive.openBox<Block>('blockchain');
-  await Hive.openBox<Account>('accounts');
   await Hive.openBox<TransactionRecord>('transactions');
-
-  final _store = Hive.box<Account>(
-    'accounts',
-  ); //TODO: Implement PostgresSQL/SQLite Database Sync
 
   final tokenService = TokenService(
     secret: Env.secret,
+  );
+
+  final databaseService = DatabaseService();
+
+  final blockchainService = BlockchainService(
+    databaseService: databaseService,
   );
 
   await tokenService.start();
@@ -41,7 +36,9 @@ void main(List<String> arguments) async {
     });
   });
 
-  await shelf_io.serve(handler, Env.hostName, int.parse(Env.port)).then((server) {
+  await shelf_io
+      .serve(handler, Env.hostName, int.parse(Env.port))
+      .then((server) {
     print('Serving at ws://${server.address.host}:${server.port}');
   });
 
@@ -53,24 +50,23 @@ void main(List<String> arguments) async {
   app.mount(
     '/v1/auth/',
     AuthApi(
-      store: _store,
       secret: Env.secret,
       tokenService: tokenService,
+      databaseService: databaseService,
     ).router,
   );
 
   app.mount(
     '/v1/blockchain/',
-    BlockChainApi().router,
+    BlockChainApi(
+      blockchainService: blockchainService,
+    ).router,
   );
 
   app.mount(
     '/v1/account/',
-    AccountApi().router,
+    AccountApi(
+      databaseService: databaseService,
+    ).router,
   );
-
-  // app.mount(
-  //   '/v1/offlineAccounts/',
-  //   OfflineAccountsServiceApi().router,
-  // );
 }

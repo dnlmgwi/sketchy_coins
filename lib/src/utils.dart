@@ -46,8 +46,7 @@ String generateJWT(
     required String issuer,
     required String secret,
     String? jwtId,
-    //TODO: Review JWT Validy Period
-    Duration expiry = const Duration(days: 1)}) {
+    Duration expiry = const Duration(minutes: 20)}) {
   // Create a json web token
   final jwt = JWT(
     {

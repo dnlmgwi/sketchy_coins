@@ -1,34 +1,74 @@
 import 'package:sketchy_coins/packages.dart';
 
 class AccountService {
-  final _accountList = Hive.box<Account>('accounts');
+  DatabaseService databaseService;
+  AccountService({required this.databaseService});
 
-  Account findAccount({
-    required Box<Account> accounts,
-    required String address,
-  }) {
-    return accounts.values.firstWhere((element) => element.address == address,
-        orElse: () => throw AccountNotFoundException());
+  Future<Account> findAccount({required String address}) async {
+    var response = await databaseService.client
+        .from('accounts')
+        .select(
+          'id,email,phoneNumber,password, salt,status,balance,joinedDate, address',
+        )
+        .match({
+          'address': address,
+        })
+        .execute()
+        .onError(
+          (error, stackTrace) => throw Exception(error),
+        );
+
+    var result = response.data as List;
+
+    if (result.isEmpty) {
+      throw AccountNotFoundException();
+    }
+
+    return Account.fromJson(response.data[0]);
   }
 
-  double editAccountBalance({
+  Future<List> findAccounts({
+    required String recipient,
+    required String sender,
+  }) async {
+    var response = await databaseService.client
+        .from('accounts')
+        .select(
+          'address',
+        )
+        .in_('address', ['$sender', '$recipient'])
+        .execute()
+        .onError(
+          (error, stackTrace) => throw Exception(error),
+        );
+
+    var result = response.data as List;
+
+    if (result.isEmpty) {
+      throw AccountNotFoundException();
+    }
+
+    return result;
+  }
+
+  Future editAccountBalance({
     required Account account,
     required double value,
     required int transactionType,
-  }) {
+  }) async {
     try {
       var operation = transactionType;
 
       if (operation == 0) {
         try {
-          return withdraw(account: account, value: value);
+          return await withdraw(account: account, value: value);
         } on InsufficientFundsException catch (e) {
           print(e.toString());
           //Rethrow the Exception as it will be caught in API Call.
           rethrow;
         }
       } else if (operation == 1) {
-        return deposit(account: account, value: value);
+        return await deposit(account: account, value: value);
       }
     } on AccountNotFoundException catch (e) {
       print(e.toString());
@@ -37,27 +77,40 @@ class AccountService {
     return account.balance;
   }
 
-  double deposit({required Account account, required double value}) {
-    account.balance = account.balance + value;
-    account.save();
-    return account.balance;
+  Future<void> deposit({
+    required double value,
+    required Account account,
+  }) async {
+    try {
+      await databaseService.client
+          .from('accounts')
+          .update({'balance': account.balance + value})
+          .eq('address', account.address)
+          .execute();
+    } catch (e) {
+      throw Exception(e);
+    }
   }
 
-  double withdraw({required double value, required Account account}) {
+  Future<void> withdraw({
+    required double value,
+    required Account account,
+  }) async {
     try {
       if (value > account.balance) {
         throw InsufficientFundsException();
       } else if (value < double.parse(Env.minTransactionAmount)) {
         throw InvalidInputException();
       }
+
+      await databaseService.client
+          .from('accounts')
+          .update({'balance': account.balance - value})
+          .eq('address', account.address)
+          .execute();
     } catch (e) {
       rethrow;
     }
-
-    account.balance = account.balance - value;
-    account.save();
-
-    return account.balance;
   }
 
   double checkAccountBalance({
@@ -75,13 +128,5 @@ class AccountService {
     }
 
     return account.balance;
-  }
-
-  Box<Account> get accountList {
-    return _accountList;
-  }
-
-  int get accountListCount {
-    return _accountList.values.length;
   }
 }

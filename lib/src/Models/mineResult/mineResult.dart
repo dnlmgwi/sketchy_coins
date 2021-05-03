@@ -1,25 +1,18 @@
 import 'package:sketchy_coins/packages.dart';
 part 'mineResult.g.dart';
 
-@HiveType(typeId: 2)
 @JsonSerializable(explicitToJson: true)
-class MineResult extends HiveObject {
-  @HiveField(1)
+class MineResult {
   final String message;
 
-  @HiveField(2)
-  final int blockIndex;
+  final int? blockIndex;
 
-  @HiveField(3)
   final bool? validBlock;
 
-  @HiveField(4)
-  final List<TransactionRecord> transactions;
-  
-  @HiveField(5)
+  final List? transactions;
+
   final int proof;
 
-  @HiveField(6)
   final String prevHash;
 
   MineResult({

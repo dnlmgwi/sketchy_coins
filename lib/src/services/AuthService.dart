@@ -1,32 +1,74 @@
 import 'package:sketchy_coins/packages.dart';
 
 class AuthService {
-  final _accountList = Hive.box<Account>('accounts');
+  DatabaseService databaseService;
 
-  Account findAccount(
-      {required Box<Account> accounts, required String address}) {
-    return accounts.values.firstWhere((element) => element.address == address,
-        orElse: () => throw AccountNotFoundException());
+  AuthService({
+    required this.databaseService,
+  });
+
+  Future<Account> findAccount({required String address}) async {
+    var response = await databaseService.client
+        .from('accounts')
+        .select(
+          'id,email,phoneNumber,password,address',
+        )
+        .match({
+          'address': address,
+        })
+        .execute()
+        .onError(
+          (error, stackTrace) => throw Exception(error),
+        );
+
+    var result = response.data as List;
+
+    if (result.isEmpty) {
+      throw AccountNotFoundException();
+    }
+
+    return Account.fromJson(response.data[0]);
   }
 
-  Account findDuplicateAccountCredentials(
-      {required Box<Account> accounts,
-      required String email,
-      required String phoneNumber}) {
-    return accounts.values.firstWhere(
-      (element) => element.email == email,
-      orElse: () => throw RegisteredCredentialsException(),
-    );
-  }
-
-  bool isNotDuplicatedAccount({
+  Future findDuplicateAccountCredentials({
     required String email,
     required String phoneNumber,
-  }) {
+  }) async {
+    try {
+      var response = await databaseService.client
+          .from('accounts')
+          .select('email,phoneNumber')
+          .or(
+            'email.eq.$email, phoneNumber.eq.$phoneNumber',
+          )
+          .execute();
+
+      if (response.error != null) {
+        throw Exception(response.error!);
+      }
+
+      var result = response.data as List;
+
+      if (result.isNotEmpty) {
+        throw AccountDuplicationFoundException();
+      }
+    } on PostgrestError catch (e) {
+      print(e.code);
+      print(e.message);
+      rethrow;
+    }
+  }
+
+  Future<bool> isNotDuplicatedAccount({
+    required String email,
+    required String phoneNumber,
+  }) async {
     var duplicateAccount = false;
     try {
-      findDuplicateAccountCredentials(
-          accounts: _accountList, email: email, phoneNumber: phoneNumber);
+      await findDuplicateAccountCredentials(
+        email: email,
+        phoneNumber: phoneNumber,
+      );
     } catch (e) {
       // If account is found return Duplicate account is true and thrown error message.
       duplicateAccount = true;
@@ -35,11 +77,11 @@ class AuthService {
     return duplicateAccount;
   }
 
-  void register({
+  Future register({
     required String password,
     required String email,
     required String phoneNumber,
-  }) {
+  }) async {
     final salt = generateSalt();
 
     final hashpassword = hashPassword(
@@ -52,23 +94,35 @@ class AuthService {
     );
 
     try {
-      if (isNotDuplicatedAccount(email: email, phoneNumber: phoneNumber)) {
-        _accountList.add(
-          Account(
-            email: email,
-            address: address, //TODO: Revisit address algo
-            phoneNumber: phoneNumber,
-            password: hashpassword,
-            salt: salt,
-            status: 'normal',
-            balance: double.parse(Env.newAccountBalance),
-            joinedDate: DateTime.now().millisecondsSinceEpoch,
-          ),
-        );
-      } else {
-        throw AccountDuplicationFoundException();
+      var response;
+      var isDuplicate = await isNotDuplicatedAccount(
+        email: email,
+        phoneNumber: phoneNumber,
+      );
+      if (!isDuplicate) {
+        response = await databaseService.client.from('accounts').insert(
+          [
+            Account(
+              email: email,
+              address: address,
+              phoneNumber: phoneNumber,
+              password: hashpassword,
+              salt: salt,
+              status: 'normal',
+              balance: double.parse(Env.newAccountBalance),
+              joinedDate: DateTime.now().millisecondsSinceEpoch,
+            ).toJson()
+          ],
+        ).execute();
       }
-    } catch (e) {
+
+      if (response.error != null) {
+        throw response.error!.message;
+      }
+      return response.data;
+    } on PostgrestError catch (e) {
+      print(e.code);
+      print(e.message);
       rethrow;
     }
   }
@@ -82,14 +136,13 @@ class AuthService {
     TokenPair tokenPair;
 
     try {
-      user = findAccount(
-        accounts: _accountList,
+      user = await findAccount(
         address: address,
       );
 
       final hashpassword = hashPassword(
         password: password,
-        salt: user.salt,
+        salt: user.salt!,
       );
 
       if (hashpassword != user.password) {
@@ -102,9 +155,5 @@ class AuthService {
     }
 
     return tokenPair;
-  }
-
-  Box<Account> get accountList {
-    return _accountList;
   }
 }

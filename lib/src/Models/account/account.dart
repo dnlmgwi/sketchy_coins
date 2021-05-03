@@ -1,44 +1,39 @@
 import 'package:sketchy_coins/packages.dart';
+
 part 'account.g.dart';
 
 /// An annotation for the code generator to know that this class needs the
 /// JSON serialization logic to be generated.
 @JsonSerializable(explicitToJson: true)
-@HiveType(typeId: 0)
-class Account extends HiveObject {
-  @HiveField(1)
+class Account {
+  String? id;
+
   String email;
 
-  @HiveField(2)
-  String password;
+  String? password;
 
-  @HiveField(3)
   String phoneNumber;
 
-  @HiveField(4)
-  String salt;
+  String? salt;
 
-  @HiveField(5)
   String address;
 
-  @HiveField(6)
   String status;
 
-  @HiveField(7)
   double balance;
 
-  @HiveField(8)
-  int joinedDate;
+  int? joinedDate;
 
   Account({
+    this.id,
     required this.email,
-    required this.password,
+    this.password,
     required this.phoneNumber,
-    required this.salt,
+    this.salt,
     required this.status,
     required this.address,
     required this.balance,
-    required this.joinedDate,
+    this.joinedDate,
   });
 
   factory Account.fromJson(Map<String, dynamic> json) =>

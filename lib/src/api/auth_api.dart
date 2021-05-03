@@ -1,17 +1,21 @@
 import 'package:sketchy_coins/packages.dart';
+import 'package:sketchy_coins/src/services/databaseService.dart';
 
 class AuthApi {
-  Box<Account> store;
   String secret;
   TokenService tokenService;
+  DatabaseService databaseService;
 
-  AuthApi(
-      {required this.store, required this.secret, required this.tokenService});
+  AuthApi({
+    required this.secret,
+    required this.tokenService,
+    required this.databaseService,
+  });
 
   Router get router {
     final router = Router();
 
-    final _authService = AuthService();
+    final _authService = AuthService(databaseService: databaseService);
 
     router.post(
       '/register',
@@ -90,8 +94,7 @@ class AuthApi {
             );
           }
 
-          //TODO: Change Account Fields
-          _authService.register(
+          await _authService.register(
             email: email,
             password: password,
             phoneNumber: phoneNumber,
@@ -158,7 +161,6 @@ class AuthApi {
             );
           }
 
-          //TODO: Change Account Fields
           final token = await _authService.login(
             password: password,
             address: address,

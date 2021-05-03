@@ -12,12 +12,26 @@ class AccountNotFoundException implements Exception {
   }
 }
 
+class TransIDNotFoundException implements Exception {
+  ///This Exception is thrown when the account cannot be Found in the DB
+  late String _message;
+
+  TransIDNotFoundException([String message = 'Invalid TransID']) {
+    _message = message;
+  }
+
+  @override
+  String toString() {
+    return _message;
+  }
+}
+
 class AccountDuplicationFoundException implements Exception {
   ///This Exception is thrown when there is an excisting account in the DB
   late String _message;
 
   AccountDuplicationFoundException(
-      [String message = 'Duplicate Account Found, Login Instead']) {
+      [String message = 'Please, login Instead.']) {
     _message = message;
   }
 

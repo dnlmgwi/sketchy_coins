@@ -19,7 +19,6 @@ class TokenService {
         ),
       );
     } catch (e) {
-      //TODO: Provide alternative redis when not available
       rethrow;
     }
   }

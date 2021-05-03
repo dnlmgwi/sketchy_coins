@@ -1,27 +1,21 @@
 import 'package:sketchy_coins/packages.dart';
+
 part 'block.g.dart';
 
-@HiveType(typeId: 1)
 @JsonSerializable(explicitToJson: true)
-class Block extends HiveObject {
-  
-  @HiveField(1)
-  int index;
+class Block {
+  int? index;
 
-  @HiveField(2)
   int timestamp;
 
-  @HiveField(3)
-  List<TransactionRecord> transactions;
-  
-  @HiveField(4)
+  List? transactions;
+
   int proof;
 
-  @HiveField(5)
   final String prevHash;
 
   Block({
-    required this.index,
+    this.index,
     required this.timestamp,
     required this.proof,
     required this.prevHash,
