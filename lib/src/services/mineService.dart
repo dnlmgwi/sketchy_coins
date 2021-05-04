@@ -43,7 +43,7 @@ class MineServices {
     return MineResult(
       message: 'New Block Forged',
       validBlock: validblock,
-      blockIndex: block.index! - 1,
+      blockIndex: block.index,
       transactions: block.transactions,
       proof: proof,
       prevHash: prevHash,

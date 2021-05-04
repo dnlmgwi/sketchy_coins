@@ -5,11 +5,12 @@ class BlockChainApi {
 
   BlockChainApi({required this.blockchainService});
 
-  Router get router {
+  Handler get router {
+    final router = Router();
+    final handler = Pipeline().addMiddleware(checkAuth()).addHandler(router);
+
     var miner = MineServices(blockchain: blockchainService);
     var blockChainValidity = BlockChainValidationService();
-
-    final router = Router();
 
     router.post(
       '/transfer',
@@ -180,7 +181,6 @@ class BlockChainApi {
       }
 
       try {
-        //TODO: Once Clained False
         rechargeResult = await miner.recharge(
           recipient: address,
           transID: transID,
@@ -228,7 +228,7 @@ class BlockChainApi {
       },
     );
 
-    return router;
+    return handler;
   }
 
   String noSenderError() {

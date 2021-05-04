@@ -12,40 +12,52 @@ class BlockchainService {
   var pendingTansactions = Hive.box<TransactionRecord>('transactions');
 
   Future<Block> newBlock(int proof, String previousHash) async {
-    var response;
+    var lastBlock;
     if (previousHash.isEmpty) {
-      hash(Block.fromJson(response.data));
+      hash(Block.fromJson(lastBlock.data));
     }
 
     try {
-      response = await databaseService.client
+      lastBlock = await databaseService.client
           .from('blockchain')
           .select()
           .limit(1)
-          .order('timestamp', ascending: false)
+          .order('timestamp', ascending: true)
           .execute();
 
-      await databaseService.client.from('blockchain').insert(
-        [
-          Block(
-            index: Block.fromJson(response.data[0]).index! + 1,
-            timestamp: DateTime.now().millisecondsSinceEpoch,
-            proof: proof,
-            prevHash: previousHash,
-            transactions: pendingTansactions.values.toList(),
-            //If there is a duplicate transaction will ensure that there is no double deduction.
-          ).toJson()
-        ],
-      ).execute();
-
-      await processPayments().whenComplete(() => pendingTansactions.clear());
+      await processPayments().onError((error, stackTrace) =>
+          throw Exception(' Error: $error StackTrace: $stackTrace'));
       //Successfully Mined
 
-      if (response.error != null) {
-        throw response.error!.message;
+      await databaseService.client
+          .from('blockchain')
+          .insert(
+            [
+              Block(
+                index: Block.fromJson(lastBlock.data[0]).index! + 1,
+                timestamp: DateTime.now().millisecondsSinceEpoch,
+                proof: proof,
+                prevHash: previousHash,
+                transactions: pendingTansactions.values.toSet().toList(),
+                //If there is a duplicate transaction will ensure that there is no double deduction.
+              ).toJson()
+            ],
+          )
+          .execute()
+          .whenComplete(() => pendingTansactions.clear());
+
+      if (lastBlock.error != null) {
+        throw lastBlock.error!.message;
       }
 
-      return Block.fromJson(response.data[0]);
+      var latestBlock = await databaseService.client
+          .from('blockchain')
+          .select()
+          .limit(1)
+          .order('timestamp', ascending: true)
+          .execute();
+
+      return Block.fromJson(latestBlock.data[0]);
     } on PostgrestError catch (e) {
       print(e.code);
       print(e.message);
@@ -53,7 +65,7 @@ class BlockchainService {
     }
   }
 
-  Future processPayments() async {
+  Future<void> processPayments() async {
     var response;
     try {
       response = await databaseService.client
@@ -66,16 +78,22 @@ class BlockchainService {
               Block.fromJson(response.data[0]).timestamp)
           .isBefore(DateTime.now())) {
         pendingTansactions.values.forEach((element) async {
-          Account? foundAccount;
-
           /// Edit User Account Balance
           /// String address - User Address
           /// String value - Transaction Value
           /// String transactionType - 0: Withdraw, 1: Deposit, 2: Transfer 3: Reversal
-          if (element.transType == 1) {
-            await depositProcess(foundAccount, element);
-          } else {
-            await withdrawProcess(foundAccount, element);
+          switch (element.transType) {
+            case 0:
+              await withdrawProcess(element);
+              break;
+            case 1:
+              await depositProcess(element);
+              break;
+
+            case 2:
+              await transferProcess(element);
+              break;
+            default:
           }
         });
       }
@@ -90,41 +108,152 @@ class BlockchainService {
     }
   }
 
-  Future<Account> depositProcess(
-      Account? foundAccount, TransactionRecord element) async {
+  Future<void> depositProcess(TransactionRecord element) async {
     try {
-      foundAccount = await accountService.findAccount(
+      var foundAccount = await accountService.findAccount(
         address: element.recipient,
       );
 
-      await accountService.editAccountBalance(
+      await editAccountBalance(
           account: foundAccount,
           value: element.amount,
           transactionType: element.transType);
       changeAccountStatusNormal(foundAccount.address);
     } catch (e) {
-      print('Failed Processing');
       rethrow;
     }
-    return foundAccount;
   }
 
-  Future<Account> withdrawProcess(
-      Account? foundAccount, TransactionRecord element) async {
+  Future<void> withdrawProcess(TransactionRecord element) async {
     try {
-      foundAccount = await accountService.findAccount(address: element.sender);
+      var foundAccount =
+          await accountService.findAccount(address: element.sender);
 
-      await accountService.editAccountBalance(
+      await editAccountBalance(
           account: foundAccount,
           value: element.amount,
           transactionType: element.transType);
       changeAccountStatusNormal(foundAccount.address);
     } catch (e) {
-      print('Failed Processing');
+      rethrow;
+    }
+  }
+
+  Future<void> transferProcess(TransactionRecord element) async {
+    try {
+      var recipientAccount = await accountService.findAccount(
+        address: element.recipient,
+      );
+
+      var senderAccount = await accountService.findAccount(
+        address: element.sender,
+      );
+
+      /// Edit User Account Balance
+      /// String address - User P23 Address
+      /// String value - Transaction Value
+      /// String transactionType - 0: Withdraw, 1: Deposit
+
+      await editAccountBalance(
+          account: senderAccount, value: element.amount, transactionType: 0);
+
+      await editAccountBalance(
+          account: recipientAccount, value: element.amount, transactionType: 1);
+
+      changeAccountStatusNormal(senderAccount.address);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> editAccountBalance({
+    required Account account,
+    required double value,
+    required int transactionType,
+  }) async {
+    try {
+      var operation = transactionType;
+
+      if (operation == 0) {
+        try {
+          await withdraw(account: account, value: value);
+        } catch (e) {
+          rethrow;
+        }
+      } else if (operation == 1) {
+        try {
+          await deposit(account: account, value: value);
+        } catch (e) {
+          rethrow;
+        }
+      }
+    } catch (e) {
+      print(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<Account> deposit({
+    required double value,
+    required Account account,
+  }) async {
+    PostgrestResponse response;
+    try {
+      response = await databaseService.client
+          .from('accounts')
+          .update({'balance': account.balance += value})
+          .eq('address', account.address)
+          .execute();
+      return Account.fromJson(response.data[0]);
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  //TODO: Sender Balance After Transfer
+
+  Future<Account> withdraw({
+    required double value,
+    required Account account,
+  }) async {
+    PostgrestResponse response;
+    try {
+      if (value > account.balance) {
+        throw InsufficientFundsException();
+      } else if (value < double.parse(Env.minTransactionAmount)) {
+        throw InvalidInputException();
+      }
+
+      response = await databaseService.client
+          .from('accounts')
+          .update({'balance': account.balance -= value})
+          .eq('address', account.address)
+          .execute();
+      return Account.fromJson(response.data[0]);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<double> checkAccountBalance({
+    required double value,
+    required Account account,
+  }) async {
+    try {
+      if (await accountStatusCheck(account.address)) {
+        if (value > account.balance) {
+          throw InsufficientFundsException();
+        } else if (value < double.parse(Env.minTransactionAmount)) {
+          throw InvalidInputException();
+        }
+      } else {
+        PendingTransactionException();
+      }
+    } catch (e) {
       rethrow;
     }
 
-    return foundAccount;
+    return account.balance;
   }
 
   Future<void> initiateTransfer(
@@ -132,11 +261,12 @@ class BlockchainService {
       required String recipient,
       required double amount}) async {
     if (await accountValidation(sender, recipient)) {
-      //Check if the sender & recipient are in the account
+      //TODO: Check The Senders JWT == to the Sender Address as switching sender and casues another use to transfer money from another account...HUGE Flaw
+      //Check if the sender & recipient are in the system
       if (sender == recipient) {
         throw SelfTransferException();
       }
-      accountService.checkAccountBalance(
+      await checkAccountBalance(
           value: amount,
           account: await accountService.findAccount(
             address: sender,
@@ -166,28 +296,31 @@ class BlockchainService {
     ));
   }
 
+  void addToPendingWithDraw(String sender, String recipient, double amount) {
+    /// Edit User Account Balance
+    /// String address - User P23 Address
+    /// String value - Transaction Value
+    /// String transactionType - 0: Withdraw, 1: Deposit
+    pendingTansactions.add(TransactionRecord(
+      sender: sender,
+      recipient: recipient,
+      amount: amount,
+      timestamp: DateTime.now().millisecondsSinceEpoch,
+      transID: Uuid().v4(),
+      transType: 0,
+    ));
+  }
+
   void addToPendingTransfer(String sender, String recipient, double amount) {
     //Allows users to transfer points between each other
     /// String transactionType - 0: Withdraw, 1: Deposit, 2: Transfer
-    var transId = Uuid().v4();
-    var timestamp = DateTime.now().millisecondsSinceEpoch;
-
     pendingTansactions.add(TransactionRecord(
       sender: sender,
       recipient: recipient,
       amount: amount,
-      timestamp: timestamp,
-      transID: transId,
-      transType: 0, //TODO: Change 0 and 1 to Deposit and Withdaw;
-    ));
-
-    pendingTansactions.add(TransactionRecord(
-      sender: sender,
-      recipient: recipient,
-      amount: amount,
-      timestamp: timestamp,
-      transID: transId,
-      transType: 1,
+      timestamp: DateTime.now().millisecondsSinceEpoch,
+      transID: Uuid().v4(),
+      transType: 2, //TODO: Change 0 and 1 to Deposit and Withdaw;
     ));
   }
 
@@ -234,18 +367,6 @@ class BlockchainService {
     //FindBothAccounts
   }
 
-  //TODO Future<void> newMineTransaction({
-  //   required String recipient,
-  //   required double amount,
-  // }) async {
-  //   //Check if the recipient is in the system if not an no reward is provided
-  //   // if (await recipientValidation(recipient)) {
-  //   //   //Change the account to processing to prevent any overdraft issues.
-  //   //   changeAccountStatusToProcessing(recipient);
-  //   //   addToPendingDeposit(Env.systemAddress, recipient, amount);
-  //   // }
-  // }
-
   Future rechargeAccount({
     required String recipient,
     required String transID,
@@ -256,10 +377,15 @@ class BlockchainService {
       try {
         var data = await findTransID(transID: transID);
         //Change the account to processing to prevent any overdraft issues.
-        //TODO Change Recharge notification to Claimed true to provent muliple claims.
-        changeAccountStatusToProcessing(recipient);
-        addToPendingDeposit('MobileMoney: ${data['transID']}', recipient,
-            double.parse(extractAmount(data)));
+        if (await accountStatusCheck(recipient)) {
+          addToPendingDeposit('MobileMoney: ${data['transID']}', recipient,
+              double.parse(extractAmount(data)));
+          changeClaimToTrue(transID);
+          // changeAccountStatusToProcessing(recipient);
+        } else {
+          throw PendingTransactionException();
+        }
+
         return {
           'message': 'Transaction Verified',
           'recipient': recipient,
@@ -270,8 +396,6 @@ class BlockchainService {
       }
     }
   }
-
-  String extractAmount(data) => data['amount'].toString().split('MK').last;
 
   Future findTransID({required String transID}) async {
     var response = await databaseService.client
@@ -286,7 +410,6 @@ class BlockchainService {
     if (response.data[0]['claimed']) {
       throw TransIDClaimedException();
     }
-    changeClaimToTrue(transID);
 
     if (response.data == null) {
       throw TransIDNotFoundException();
@@ -395,6 +518,8 @@ class BlockchainService {
 
     return jsonChain;
   }
+
+  String extractAmount(data) => data['amount'].toString().split('MK').last;
 
   String getPendingTransactions() {
     var jsonChain = [];
