@@ -9,10 +9,33 @@ class AccountService {
     var response = await DatabaseService.client
         .from('accounts')
         .select(
-          'status, balance, address',
+          'status, balance, address, phoneNumber',
         )
         .match({
           'address': address,
+        })
+        .execute()
+        .onError(
+          (error, stackTrace) => throw Exception(error),
+        );
+
+    var result = response.data as List;
+
+    if (result.isEmpty) {
+      throw AccountNotFoundException();
+    }
+
+    return TransAccount.fromJson(response.data[0]);
+  }
+
+  Future<TransAccount> findDepositAccount({required String phoneNumber}) async {
+    var response = await DatabaseService.client
+        .from('accounts')
+        .select(
+          'status, balance, address, phoneNumber',
+        )
+        .match({
+          'phoneNumber': phoneNumber,
         })
         .execute()
         .onError(

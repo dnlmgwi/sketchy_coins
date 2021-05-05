@@ -3,19 +3,22 @@ import 'package:sketchy_coins/packages.dart';
 part 'transAccount.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-class TransAccount extends IAccount {
-  @override
+class TransAccount {
   String address;
 
-  @override
+  String phoneNumber;
+
   String status;
 
-  @override
   double balance;
 
   String get getAddress => address;
 
   set setAddress(String address) => this.address = address;
+
+  String get getPhoneNumber => phoneNumber;
+
+  set setPhoneNumber(String phoneNumber) => this.phoneNumber = phoneNumber;
 
   String get getStatus => status;
 
@@ -27,6 +30,7 @@ class TransAccount extends IAccount {
 
   TransAccount({
     required this.status,
+    required this.phoneNumber,
     required this.address,
     required this.balance,
   });

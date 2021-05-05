@@ -110,79 +110,79 @@ class BlockChainApi {
       }),
     );
 
-    router.post('/recharge', (Request request) async {
-      final authDetails = request.context['authDetails'] as JWT;
-      final user = await _accountService.findAccount(
-        address: authDetails.subject.toString(),
-      );
-      final payload = await request.readAsString();
-      final userData = json.decode(payload);
+    // router.post('/recharge', (Request request) async {
+    //   final authDetails = request.context['authDetails'] as JWT;
+    //   final user = await _accountService.findAccount(
+    //     address: authDetails.subject.toString(),
+    //   );
+    //   final payload = await request.readAsString();
+    //   final userData = json.decode(payload);
 
-      final transID = userData['transID'];
-      // final address = userData['address'];
-      var rechargeResult;
+    //   final transID = userData['transID'];
+    //   // final address = userData['address'];
+    //   var rechargeResult;
 
-      var regExpPayload = RegExp(
-        r'^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$',
-        caseSensitive: false,
-        multiLine: false,
-      );
+    //   var regExpPayload = RegExp(
+    //     r'^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$',
+    //     caseSensitive: false,
+    //     multiLine: false,
+    //   );
 
-      bool isTransID(String transID) {
-        return transID.contains(
-          regExpPayload,
-        );
-      }
+    //   bool isTransID(String transID) {
+    //     return transID.contains(
+    //       regExpPayload,
+    //     );
+    //   }
 
-      if (transID == null || transID == '' || !isTransID(transID)) {
-        //Todo: Input Validation Errors
-        return Response(
-          HttpStatus.badRequest,
-          body: json.encode({
-            'data': {'message': 'Please provide a valid TransID'}
-          }),
-          headers: {
-            HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
-          },
-        );
-      }
+    //   if (transID == null || transID == '' || !isTransID(transID)) {
+    //     //Todo: Input Validation Errors
+    //     return Response(
+    //       HttpStatus.badRequest,
+    //       body: json.encode({
+    //         'data': {'message': 'Please provide a valid TransID'}
+    //       }),
+    //       headers: {
+    //         HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+    //       },
+    //     );
+    //   }
 
-      if (user.address.isEmpty || user.address == '') {
-        return Response(
-          HttpStatus.badRequest,
-          body: json.encode({
-            'data': {'message': 'Please provide a valid Address'}
-          }),
-          headers: {
-            HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
-          },
-        );
-      }
+    //   if (user.address.isEmpty || user.address == '') {
+    //     return Response(
+    //       HttpStatus.badRequest,
+    //       body: json.encode({
+    //         'data': {'message': 'Please provide a valid Address'}
+    //       }),
+    //       headers: {
+    //         HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+    //       },
+    //     );
+    //   }
 
-      try {
-        rechargeResult = await blockchainService.recharge(
-          recipient: user.address,
-          transID: transID,
-        );
-      } catch (e) {
-        print(e);
-        return Response.ok(
-          json.encode({
-            'data': {'message': '${e.toString()}'}
-          }),
-          headers: {
-            HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
-          },
-        );
-      }
+    //   try {
+    //     rechargeResult = await blockchainService.recharge(
+    //       recipient: user.address,
+    //       transID: transID,
+    //     );
+    //   } catch (e) {
+    //     print(e);
+    //     return Response.ok(
+    //       json.encode({
+    //         'data': {'message': '${e.toString()}'}
+    //       }),
+    //       headers: {
+    //         HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+    //       },
+    //     );
+    //   }
 
-      return Response.ok(
-        json.encode({'data': rechargeResult}),
-        headers: {
-          HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
-        },
-      );
-    });
+    //   return Response.ok(
+    //     json.encode({'data': rechargeResult}),
+    //     headers: {
+    //       HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+    //     },
+    //   );
+    // });
 
     router.get(
       '/pending',

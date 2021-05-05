@@ -59,6 +59,8 @@ class AuthService {
     }
   }
 
+  
+
   Future<bool> isNotDuplicatedAccount({
     required String email,
     required String phoneNumber,

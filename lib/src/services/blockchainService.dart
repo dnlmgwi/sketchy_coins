@@ -1,5 +1,6 @@
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:sketchy_coins/packages.dart';
+import 'package:supabase/supabase.dart';
 
 class BlockchainService {
   DatabaseService databaseService;
@@ -10,6 +11,8 @@ class BlockchainService {
   var blockChainValidity = BlockChainValidationService();
 
   var pendingTansactions = Hive.box<TransactionRecord>('transactions');
+  var pendingDepositsTansactions =
+      Hive.box<RechargeNotification>('rechargeNotifications');
 
   Future<Block> newBlock(int proof, String previousHash) async {
     var prevBlock;
@@ -304,20 +307,46 @@ class BlockchainService {
     return account.balance;
   }
 
-  Future recharge({
-    required String recipient,
-    required String transID,
-  }) async {
-    var response;
+  // Future recharge({
+  //   required String recipient,
+  //   required String transID,
+  // }) async {
+  //   var response;
+  //   try {
+  //     response = await rechargeAccount(
+  //       recipient: recipient,
+  //       transID: transID,
+  //     );
+  //   } catch (e) {
+  //     rethrow;
+  //   }
+  //   return response;
+  // }
+
+  Future recharge({required Box<RechargeNotification> data}) async {
     try {
-      response = await rechargeAccount(
-        recipient: recipient,
-        transID: transID,
-      );
+      //Check if TransID and Amount match the recieved notification.
+      print(data.values.length);
+
+      for (var item in data.values) {
+        var account = await accountService.findDepositAccount(
+            phoneNumber: item.phoneNumber);
+
+        try {
+          //Change the account to processing to prevent any overdraft issues.
+
+          addToPendingDeposit(item.transID, account.address,
+              double.parse(item.amount.toString().split('MK').last));
+          changeClaimToTrue(item.transID);
+          changeAccountStatusToProcessing(account.address);
+          await item.delete();
+        } catch (e) {
+          rethrow;
+        }
+      }
     } catch (e) {
       rethrow;
     }
-    return response;
   }
 
   Future<void> initiateTransfer({
@@ -420,58 +449,35 @@ class BlockchainService {
     return accountValid;
   }
 
-  Future rechargeAccount({
-    required String recipient,
-    required String transID,
-  }) async {
-    //Check if the recipient is in the system if not an no reward is provided
-    //Check if TransID and Amount match the recieved notification.
-    if (await recipientValidation(recipient)) {
-      try {
-        var data = await findTransID(transID: transID);
-        //Change the account to processing to prevent any overdraft issues.
-        if (await accountStatusCheck(recipient)) {
-          addToPendingDeposit('MobileMoney: ${data['transID']}', recipient,
-              double.parse(extractAmount(data)));
-          changeClaimToTrue(transID);
-          changeAccountStatusToProcessing(recipient);
-        } else {
-          throw PendingTransactionException();
-        }
+  // Future rechargeAccount({
+  //   required String recipient,
+  //   required String transID,
+  // }) async {
+  //   //Check if the recipient is in the system if not an no reward is provided
+  //   //Check if TransID and Amount match the recieved notification.
+  //   if (await recipientValidation(recipient)) {
+  //     try {
+  //       var data = await findTransID(transID: transID);
+  //       //Change the account to processing to prevent any overdraft issues.
+  //       if (await accountStatusCheck(recipient)) {
+  //         addToPendingDeposit(
+  //             data['transID'], recipient, double.parse(extractAmount(data)));
+  //         changeClaimToTrue(transID);
+  //         changeAccountStatusToProcessing(recipient);
+  //       } else {
+  //         throw PendingTransactionException();
+  //       }
 
-        return {
-          'message': 'Payment Verified',
-          'recipient': recipient,
-          'amount': extractAmount(data)
-        };
-      } catch (e) {
-        rethrow;
-      }
-    }
-  }
-
-  Future findTransID({required String transID}) async {
-    var response = await DatabaseService.client
-        .from('rechargeNotifications')
-        .select()
-        .eq('transID', transID)
-        .limit(1)
-        .execute()
-        .onError(
-          (error, stackTrace) => throw Exception(error),
-        );
-    if (response.data[0]['claimed']) {
-      throw TransIDClaimedException();
-    }
-
-    if (response.data == null) {
-      throw TransIDNotFoundException();
-    }
-
-    response.data as List;
-
-    return response.data[0];
-  }
+  //       return {
+  //         'message': 'Payment Verified',
+  //         'recipient': recipient,
+  //         'amount': extractAmount(data)
+  //       };
+  //     } catch (e) {
+  //       rethrow;
+  //     }
+  //   }
+  // }
 
   Future<bool> recipientValidation(
     String recipient,

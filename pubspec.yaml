@@ -22,6 +22,7 @@ dependencies:
   postgrest: ^0.1.0
   shelf_hotreload: ^0.0.2
   steel_crypt: ^3.0.0+1
+  supabase: ^0.0.1-dev.14
 
 dev_dependencies:
   pedantic: ^1.11.0
