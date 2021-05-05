@@ -13,10 +13,14 @@ class RechargeNotification extends HiveObject {
   @HiveField(3)
   String amount;
 
+  @HiveField(4)
+  int timestamp;
+
   RechargeNotification({
     required this.phoneNumber,
     required this.amount,
     required this.transID,
+    required this.timestamp
   });
 
   factory RechargeNotification.fromJson(Map<String, dynamic> json) =>

@@ -20,6 +20,7 @@ export 'package:redis_dart/redis_dart.dart';
 export 'package:validators/validators.dart';
 export 'package:postgrest/postgrest.dart';
 export 'package:cron/cron.dart';
+export 'package:session_jar/session_jar.dart';
 
 
 //Config File

@@ -20,8 +20,6 @@ class BlockChainApi {
     var miner = MineServices(blockchain: blockchainService);
     var blockChainValidity = BlockChainValidationService();
 
-    //TODO: Find Account on tranfer Shouldnt Call Sensitve Data
-
     router.post(
       '/transfer',
       ((

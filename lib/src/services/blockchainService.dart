@@ -1,6 +1,5 @@
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:sketchy_coins/packages.dart';
-import 'package:supabase/supabase.dart';
 
 class BlockchainService {
   DatabaseService databaseService;
@@ -97,25 +96,6 @@ class BlockchainService {
               .from('transactions')
               .insert([transaction.toJson()]).execute();
         }
-
-        // pendingTansactions.values.forEach((element) async {
-        //   /// Edit User Account Balance
-        //   /// String address - User Address
-        //   /// String value - Transaction Value
-        //   /// String transactionType - 0: Withdraw, 1: Deposit, 2: Transfer 3: Reversal
-        //   switch (element.transType) {
-        //     case 0:
-        //       await withdrawProcess(element);
-        //       break;
-        //     case 1:
-        //       await depositProcess(element);
-        //       break;
-
-        //     case 2:
-        //       await transferProcess(element);
-        //       break;
-        //   }
-        // });
       }
       if (response.error != null) {
         throw response.error!.message;
@@ -136,10 +116,10 @@ class BlockchainService {
       );
 
       await editAccountBalance(
-          senderAccount: foundAccount,
-          value: element.amount,
-          transactionType: element.transType);
-      changeAccountStatusNormal(foundAccount.address);
+              senderAccount: foundAccount,
+              value: element.amount,
+              transactionType: element.transType)
+          .whenComplete(() => changeAccountStatusNormal(foundAccount.address));
     } catch (e) {
       rethrow;
     }
@@ -150,13 +130,11 @@ class BlockchainService {
       var foundAccount =
           await accountService.findAccount(address: element.sender);
 
-      var response = await editAccountBalance(
+      await editAccountBalance(
               senderAccount: foundAccount,
               value: element.amount,
               transactionType: element.transType)
           .whenComplete(() => changeAccountStatusNormal(foundAccount.address));
-
-      print('S $response');
     } catch (e) {
       rethrow;
     }
@@ -182,9 +160,7 @@ class BlockchainService {
         recipientAccount: recipientAccount,
         value: element.amount,
         transactionType: element.transType,
-      );
-
-      changeAccountStatusNormal(senderAccount.address);
+      ).whenComplete(() => changeAccountStatusNormal(senderAccount.address));
     } catch (e) {
       rethrow;
     }
@@ -252,13 +228,12 @@ class BlockchainService {
           .from('accounts')
           .update({'balance': senderAccount.balance - value})
           .eq('address', senderAccount.address)
-          .execute();
-
-      await DatabaseService.client
-          .from('accounts')
-          .update({'balance': recipientAccount.balance + value})
-          .eq('address', recipientAccount.address)
-          .execute();
+          .execute()
+          .whenComplete(() => DatabaseService.client
+              .from('accounts')
+              .update({'balance': recipientAccount.balance + value})
+              .eq('address', recipientAccount.address)
+              .execute());
     } catch (e) {
       throw Exception(e);
     }
@@ -307,43 +282,23 @@ class BlockchainService {
     return account.balance;
   }
 
-  // Future recharge({
-  //   required String recipient,
-  //   required String transID,
-  // }) async {
-  //   var response;
-  //   try {
-  //     response = await rechargeAccount(
-  //       recipient: recipient,
-  //       transID: transID,
-  //     );
-  //   } catch (e) {
-  //     rethrow;
-  //   }
-  //   return response;
-  // }
-
-  Future recharge({required Box<RechargeNotification> data}) async {
+  Future initiateRecharge({required Box<RechargeNotification> data}) async {
     try {
       //Check if TransID and Amount match the recieved notification.
-      print(data.values.length);
+      print('Total Items: ${data.values.length}');
 
-      for (var item in data.values) {
-        var account = await accountService.findDepositAccount(
-            phoneNumber: item.phoneNumber);
-
-        try {
-          //Change the account to processing to prevent any overdraft issues.
-
-          addToPendingDeposit(item.transID, account.address,
-              double.parse(item.amount.toString().split('MK').last));
-          changeClaimToTrue(item.transID);
-          changeAccountStatusToProcessing(account.address);
-          await item.delete();
-        } catch (e) {
-          rethrow;
-        }
-      }
+      data.values.forEach((item) async {
+        await accountService
+            .findDepositAccount(phoneNumber: item.phoneNumber)
+            .then((account) => addToPendingDeposit(
+                    item.transID,
+                    account.address,
+                    double.parse(item.amount.toString().split('MK').last))
+                .whenComplete(() => changeClaimToTrue(item.transID))
+                .whenComplete(
+                    () => changeAccountStatusToProcessing(account.address))
+                .whenComplete(() => item.delete()));
+      });
     } catch (e) {
       rethrow;
     }
@@ -374,22 +329,23 @@ class BlockchainService {
           recipientAddress,
           amount,
         );
-        //Blocks User from Muliple Transactions As Account Balance Will no be uptoDate till after it has been proccessed
-        changeAccountStatusToProcessing(
+
+        await changeAccountStatusToProcessing(
           senderAddress,
-        ); //TODO This Prevents Overdarfting
+        );
       } else {
         throw PendingTransactionException();
       }
     }
   }
 
-  void addToPendingDeposit(String sender, String recipient, double amount) {
+  Future addToPendingDeposit(
+      String sender, String recipient, double amount) async {
     /// Edit User Account Balance
     /// String address - User P23 Address
     /// String value - Transaction Value
     /// String transactionType - 0: Withdraw, 1: Deposit
-    pendingTansactions.add(TransactionRecord(
+    await pendingTansactions.add(TransactionRecord(
       sender: sender,
       recipient: recipient,
       amount: amount,
@@ -399,12 +355,13 @@ class BlockchainService {
     ));
   }
 
-  void addToPendingWithDraw(String sender, String recipient, double amount) {
+  void addToPendingWithDraw(
+      String sender, String recipient, double amount) async {
     /// Edit User Account Balance
     /// String address - User P23 Address
     /// String value - Transaction Value
     /// String transactionType - 0: Withdraw, 1: Deposit
-    pendingTansactions.add(TransactionRecord(
+    await pendingTansactions.add(TransactionRecord(
       sender: sender,
       recipient: recipient,
       amount: amount,
@@ -414,10 +371,11 @@ class BlockchainService {
     ));
   }
 
-  void addToPendingTransfer(String sender, String recipient, double amount) {
+  void addToPendingTransfer(
+      String sender, String recipient, double amount) async {
     //Allows users to transfer points between each other
     /// String transactionType - 0: Withdraw, 1: Deposit, 2: Transfer
-    pendingTansactions.add(TransactionRecord(
+    await pendingTansactions.add(TransactionRecord(
       sender: sender,
       recipient: recipient,
       amount: amount,
@@ -449,36 +407,6 @@ class BlockchainService {
     return accountValid;
   }
 
-  // Future rechargeAccount({
-  //   required String recipient,
-  //   required String transID,
-  // }) async {
-  //   //Check if the recipient is in the system if not an no reward is provided
-  //   //Check if TransID and Amount match the recieved notification.
-  //   if (await recipientValidation(recipient)) {
-  //     try {
-  //       var data = await findTransID(transID: transID);
-  //       //Change the account to processing to prevent any overdraft issues.
-  //       if (await accountStatusCheck(recipient)) {
-  //         addToPendingDeposit(
-  //             data['transID'], recipient, double.parse(extractAmount(data)));
-  //         changeClaimToTrue(transID);
-  //         changeAccountStatusToProcessing(recipient);
-  //       } else {
-  //         throw PendingTransactionException();
-  //       }
-
-  //       return {
-  //         'message': 'Payment Verified',
-  //         'recipient': recipient,
-  //         'amount': extractAmount(data)
-  //       };
-  //     } catch (e) {
-  //       rethrow;
-  //     }
-  //   }
-  // }
-
   Future<bool> recipientValidation(
     String recipient,
   ) async {
@@ -499,7 +427,7 @@ class BlockchainService {
     return accountValid;
   }
 
-  void changeAccountStatusToProcessing(String address) async {
+  Future<void> changeAccountStatusToProcessing(String address) async {
     //Changes the Users Account Status to processing.
     await DatabaseService.client
         .from('accounts')
@@ -508,7 +436,7 @@ class BlockchainService {
         .execute();
   }
 
-  void changeClaimToTrue(String transID) async {
+  Future<void> changeClaimToTrue(String transID) async {
     await DatabaseService.client
         .from('rechargeNotifications')
         .update({'claimed': true})
@@ -516,7 +444,7 @@ class BlockchainService {
         .execute();
   }
 
-  void changeAccountStatusNormal(String address) async {
+  Future<void> changeAccountStatusNormal(String address) async {
     //Changes the Users Account Status to normal.
     await DatabaseService.client
         .from('accounts')

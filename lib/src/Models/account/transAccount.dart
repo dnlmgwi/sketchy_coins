@@ -38,6 +38,5 @@ class TransAccount {
   factory TransAccount.fromJson(Map<String, dynamic> json) =>
       _$TransAccountFromJson(json);
 
-  @override
   Map<String, dynamic> toJson() => _$TransAccountToJson(this);
 }

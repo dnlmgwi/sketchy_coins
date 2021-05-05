@@ -1,9 +1,7 @@
 import 'dart:async';
+
 import 'package:sketchy_coins/packages.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
-import 'package:shelf_web_socket/shelf_web_socket.dart' as ws;
-
-import 'package:web_socket_channel/web_socket_channel.dart' as wsChannel;
 
 void main(List<String> arguments) async {
   Hive.init('./storage');
@@ -24,35 +22,16 @@ void main(List<String> arguments) async {
     databaseService: databaseService,
   );
 
-  await tokenService.start();
-
-  var app = Router();
-
-  var handler = Pipeline()
-      .addMiddleware(logRequests())
-      .addMiddleware(handleCors())
-      .addMiddleware(handleAuth(
-        secret: Env.secret,
-      ))
-      .addHandler(app);
-
   var miner = MineServices(blockchain: blockchainService);
 
   Future<void> processPendingPayments() async {
+    print('payments?');
     if (miner.blockchain.pendingTansactions.isNotEmpty) {
       await miner.mine();
     }
   }
 
-  Timer.periodic(Duration(seconds: 5), (timer) async {
-    try {
-      await processPendingPayments();
-    } catch (e) {
-      print(e.toString());
-    }
-  });
-
-  Future getUnclaimedDeposits() async {
+  Future<void> getUnclaimedDeposits() async {
     var response = await DatabaseService.client
         .from('rechargeNotifications')
         .select()
@@ -64,71 +43,59 @@ void main(List<String> arguments) async {
           (error, stackTrace) => throw Exception(error),
         );
 
-    if (response.data == null) {
-      //Stop Checking
+    if ((response.data as List).isNotEmpty) {
+      print('Found something');
+      for (var item in response.data as List) {
+        await miner.blockchain.pendingDepositsTansactions
+            .add(RechargeNotification.fromJson(item));
+      }
     }
 
-    var data = response.data as List;
-
-    for (var item in data) {
-      await miner.blockchain.pendingDepositsTansactions
-          .add(RechargeNotification.fromJson(item));
-    }
-
-    print('process findID');
-
-    //Get Unclaimed Deposits.
-    //Add The to List prevent Duplicates.
-    //Process The Items and Delete Them from List
-    //Wait for Next Batch.
+    print('nothing here ');
   }
 
-  // Future<void> processMobileMoneyPayments(data) async {}
-  // var fetch = true;
+  final cron = Cron();
 
-  // await blockchainService.recharge(data: data);
+  var cronDepositString = '*/6 * * * * *';
+  var cronPaymentString = '*/6 * * * * *';
 
-  // if (miner.blockchain.pendingDepositsTansactions.isNotEmpty && fetch) {
-  //   Timer.periodic(Duration(seconds: 10), (timer) async {
-  // var response = await DatabaseService.client
-  //     .from('rechargeNotifications')
-  //     .select()
-  //     .match({
-  //       'claimed': false,
-  //     })
-  //     .lte('timestamp', DateTime.now().millisecondsSinceEpoch)
-  //     .execute()
-  //     .onError(
-  //       (error, stackTrace) => throw Exception(error),
-  //     );
+  cron.schedule(Schedule.parse(cronDepositString), () async {
+    //if both lists are empty fetch more
+    if (miner.blockchain.pendingDepositsTansactions.isEmpty) {
+      //Get Unclaimed Deposits.
+      print('Get Unclaimed Deposits.');
+      await getUnclaimedDeposits();
+    }
 
-  // if (response.data == null) {
-  //   fetch = false;
-  // }
+    if (miner.blockchain.pendingDepositsTansactions.isNotEmpty) {
+      // Process The Items and Delete Them from List
+      print('Process The Items and Delete Them from List');
+      await blockchainService.initiateRecharge(
+        data: miner.blockchain.pendingDepositsTansactions,
+      );
+    }
+    //Wait for Next Batch.
+  });
 
-  // var data = response.data as List;
-
-  // for (var item in data) {
-  //   await miner.blockchain.pendingDepositsTansactions
-  //       .add(RechargeNotification.fromJson(item));
-  // }
-
-  //     print('process findID');
-  //   });
-  // } else {
-  //   await processMobileMoneyPayments(
-  //           miner.blockchain.pendingDepositsTansactions)
-  //       .whenComplete(() => fetch = true);
-  //   print('process Mobi');
-  // }
-
-  Timer.periodic(Duration(seconds: 5), (timer) async {
+  cron.schedule(Schedule.parse(cronPaymentString), () async {
     try {
       await processPendingPayments();
     } catch (e) {
       print(e.toString());
     }
   });
+
+  await tokenService.start();
+
+  var app = Router();
+
+  var handler = Pipeline()
+      .addMiddleware(logRequests())
+      .addMiddleware(handleCors())
+      .addMiddleware(handleAuth(
+        secret: Env.secret,
+      ))
+      .addHandler(app);
 
   app.mount(
     '/v1/info/',
