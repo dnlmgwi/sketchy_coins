@@ -8,10 +8,10 @@ class AuthService {
   });
 
   Future<Account> findAccount({required String address}) async {
-    var response = await databaseService.client
+    var response = await DatabaseService.client
         .from('accounts')
         .select(
-          'id,email,phoneNumber,password,address, balance, salt',
+          'id,email,phoneNumber,password,address, balance, salt, status,joinedDate',
         )
         .match({
           'address': address,
@@ -35,7 +35,7 @@ class AuthService {
     required String phoneNumber,
   }) async {
     try {
-      var response = await databaseService.client
+      var response = await DatabaseService.client
           .from('accounts')
           .select('email,phoneNumber')
           .or(
@@ -100,7 +100,7 @@ class AuthService {
         phoneNumber: phoneNumber,
       );
       if (!isDuplicate) {
-        response = await databaseService.client.from('accounts').insert(
+        response = await DatabaseService.client.from('accounts').insert(
           [
             Account(
               email: email,
@@ -142,7 +142,7 @@ class AuthService {
 
       final hashpassword = hashPassword(
         password: password,
-        salt: user.salt!,
+        salt: user.salt,
       );
 
       if (hashpassword != user.password) {

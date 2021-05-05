@@ -12,6 +12,6 @@ class DatabaseService {
   // 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTYyMDA0NzE0MCwiZXhwIjoxOTM1NjIzMTQwfQ.07I6oe0MGd66Wy8wnqh4pd2Ya3qjyt_qT2l4K1ZFb-4';
   static String supabaseKey = envSupabaseKey ?? localSupabaseKey;
 
-  final client = PostgrestClient('$supabaseUrl/rest/v1',
+  static final client = PostgrestClient('$supabaseUrl/rest/v1',
       headers: {'apikey': supabaseKey}, schema: 'public');
 }
