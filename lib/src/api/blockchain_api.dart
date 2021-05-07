@@ -33,69 +33,53 @@ class BlockChainApi {
           final payload = await request.readAsString();
           final data = json.decode(payload);
 
-          var recipientid = data['recipient'];
+          var recipientid = data['id'];
+          var amount = data['amount'];
 
-          var amount = double.parse(data['amount'].toString());
+          if (recipientid == null) {
+            //If Body Doesn't container id key
+            throw InvalidUserIDException();
+          } else if (amount == null) {
+            throw InvalidAmountException();
+          } else {
+            if (noRecipientCheck(recipientid) || !isUUID(recipientid)) {
+              return Response.forbidden(
+                noRecipientError(),
+                headers: {
+                  HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+                },
+              );
+            }
 
-          if (noSenderCheck(user.id)) {
-            return Response.forbidden(
-              noSenderError(),
-              headers: {
-                HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
-              },
-            );
+            if (noAmountCheck(amount)) {
+              return Response.forbidden(
+                noAmountError(),
+                headers: {
+                  HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+                },
+              );
+            }
           }
 
-          if (noRecipientCheck(recipientid)) {
-            return Response.forbidden(
-              noRecipientError(),
-              headers: {
-                HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
-              },
-            );
-          }
+          await blockchainService.initiateTransfer(
+            senderid: user.id,
+            recipientid: recipientid,
+            amount: amount,
+          );
 
-          if (noAmountCheck(amount)) {
-            return Response.forbidden(
-              noAmountError(),
-              headers: {
-                HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
-              },
-            );
-          }
-
-          try {
-            await blockchainService.initiateTransfer(
-              senderid: user.id,
-              recipientid: recipientid,
-              amount: amount,
-            );
-
-            return Response.ok(
-              json.encode({
-                'data': {
-                  'message': 'Transaction Pending',
-                  'balance': '${user.balance - amount}',
-                  'transaction': json.decode(payload),
-                }
-              }),
-              headers: {
-                HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
-              },
-            );
-          } on PendingTransactionException catch (e) {
-            return Response.forbidden(
-              (json.encode({
-                'data': {'message': '${e.toString()}'}
-              })),
-              headers: {
-                HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
-              },
-            );
-          }
+          return Response.ok(
+            json.encode({
+              'data': {
+                'message': 'Transaction Pending',
+                'balance': '${user.balance - amount}',
+                'transaction': json.decode(payload),
+              }
+            }),
+            headers: {
+              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+            },
+          );
         } catch (e) {
-          print(e);
-
           return Response.forbidden(
             json.encode({
               'data': {'message': '${e.toString()}'}
@@ -107,80 +91,6 @@ class BlockChainApi {
         }
       }),
     );
-
-    // router.post('/recharge', (Request request) async {
-    //   final authDetails = request.context['authDetails'] as JWT;
-    //   final user = await _accountService.findAccount(
-    //     id: authDetails.subject.toString(),
-    //   );
-    //   final payload = await request.readAsString();
-    //   final userData = json.decode(payload);
-
-    //   final transID = userData['transID'];
-    //   // final id = userData['id'];
-    //   var rechargeResult;
-
-    //   var regExpPayload = RegExp(
-    //     r'^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$',
-    //     caseSensitive: false,
-    //     multiLine: false,
-    //   );
-
-    //   bool isTransID(String transID) {
-    //     return transID.contains(
-    //       regExpPayload,
-    //     );
-    //   }
-
-    //   if (transID == null || transID == '' || !isTransID(transID)) {
-    //     //Todo: Input Validation Errors
-    //     return Response(
-    //       HttpStatus.badRequest,
-    //       body: json.encode({
-    //         'data': {'message': 'Please provide a valid TransID'}
-    //       }),
-    //       headers: {
-    //         HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
-    //       },
-    //     );
-    //   }
-
-    //   if (user.id.isEmpty || user.id == '') {
-    //     return Response(
-    //       HttpStatus.badRequest,
-    //       body: json.encode({
-    //         'data': {'message': 'Please provide a valid id'}
-    //       }),
-    //       headers: {
-    //         HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
-    //       },
-    //     );
-    //   }
-
-    //   try {
-    //     rechargeResult = await blockchainService.recharge(
-    //       recipient: user.id,
-    //       transID: transID,
-    //     );
-    //   } catch (e) {
-    //     print(e);
-    //     return Response.ok(
-    //       json.encode({
-    //         'data': {'message': '${e.toString()}'}
-    //       }),
-    //       headers: {
-    //         HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
-    //       },
-    //     );
-    //   }
-
-    //   return Response.ok(
-    //     json.encode({'data': rechargeResult}),
-    //     headers: {
-    //       HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
-    //     },
-    //   );
-    // });
 
     router.get(
       '/pending',

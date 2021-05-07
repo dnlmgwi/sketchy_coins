@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:sketchy_coins/packages.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 
@@ -14,6 +13,8 @@ void main(List<String> arguments) async {
     secret: Env.secret,
   );
 
+  await tokenService.start();
+
   final databaseService = DatabaseService();
   final authService = AuthService(
     databaseService: databaseService,
@@ -27,61 +28,74 @@ void main(List<String> arguments) async {
 
   Future<void> processPendingPayments() async {
     print('payments?');
-    if (miner.blockchain.pendingTansactions.isNotEmpty) {
-      await miner.mine();
+    if (miner.blockchain.pendingTansactions.isEmpty) {
+      throw NoPendingTransactionException();
+    } else if (miner.blockchain.pendingTansactions.isNotEmpty) {
+      try {
+        await miner.mine();
+      } catch (e) {
+        rethrow;
+      }
     }
   }
 
   Future<void> getUnclaimedDeposits() async {
-    var response = await DatabaseService.client
-        .from('rechargeNotifications')
-        .select()
-        .match({
-          'claimed': false,
-        })
-        .execute()
-        .onError(
-          (error, stackTrace) => throw Exception(error),
-        );
+    try {
+      var response = await DatabaseService.client
+          .from('rechargeNotifications')
+          .select()
+          .match({
+            'claimed': false,
+          })
+          .execute()
+          .onError(
+            (error, stackTrace) => throw Exception(error),
+          );
 
-    if ((response.data as List).isNotEmpty) {
-      print('Found something');
-      for (var item in response.data as List) {
-        await miner.blockchain.pendingDepositsTansactions
-            .add(RechargeNotification.fromJson(item));
+      if (response.data == null) {
+        throw Exception();
+      } else {
+        if ((response.data as List).isNotEmpty) {
+          print('Found something');
+          for (var item in response.data as List) {
+            await miner.blockchain.pendingDepositsTansactions
+                .add(RechargeNotification.fromJson(item));
+          }
+        }
       }
+    } catch (e) {
+      rethrow;
     }
 
     print('nothing here ');
   }
 
-  // Timer.periodic(Duration(minutes: Random().nextInt(50)), (timer) async {
-  //   //if both lists are empty fetch more
-  //   if (miner.blockchain.pendingDepositsTansactions.isEmpty) {
-  //     //Get Unclaimed Deposits.
-  //     print('Get Unclaimed Deposits.');
-  //     await getUnclaimedDeposits();
-  //   }
+  Timer.periodic(Duration(seconds: 60), (timer) async {
+    //if both lists are empty fetch more
+    if (miner.blockchain.pendingDepositsTansactions.isEmpty) {
+      //Get Unclaimed Deposits.
+      print('Get Unclaimed Deposits.');
+      await getUnclaimedDeposits().onError((error, stackTrace) =>
+          print('Error: $error Stacktrace: $stackTrace'));
+    }
 
-  //   if (miner.blockchain.pendingDepositsTansactions.isNotEmpty) {
-  //     // Process The Items and Delete Them from List
-  //     print('Process The Items and Delete Them from List');
-  //     await blockchainService.initiateRecharge(
-  //       data: miner.blockchain.pendingDepositsTansactions,
-  //     );
-  //   }
-  //   //Wait for Next Batch.
-  // });
+    if (miner.blockchain.pendingDepositsTansactions.isNotEmpty) {
+      // Process The Items and Delete Them from List
+      print('Process The Items and Delete Them from List');
+      await blockchainService.initiateRecharge(
+        data: miner.blockchain.pendingDepositsTansactions,
+      );
+    }
+    //Wait for Next Batch.
+  });
 
-  // Timer.periodic(Duration(seconds: Random().nextInt(100)), (timer) async {
-  //   try {
-  //     await processPendingPayments();
-  //   } catch (e) {
-  //     print(e.toString());
-  //   }
-  // });
-
-  await tokenService.start();
+  Timer.periodic(Duration(seconds: 30), (timer) async {
+    try {
+      await processPendingPayments();
+    } catch (e) {
+      print(e.toString());
+    }
+  });
 
   var app = Router();
 

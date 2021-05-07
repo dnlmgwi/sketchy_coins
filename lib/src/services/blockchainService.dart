@@ -26,23 +26,36 @@ class BlockchainService {
           .limit(1)
           .order('timestamp', ascending: false)
           .execute();
-      ;
 
-      await processPayments().onError((error, stackTrace) =>
-          throw Exception(' Error: $error StackTrace: $stackTrace'));
+      var currentTransactions = pendingTansactions.values.toList();
+
+      await processPayments()
+          .onError((error, stackTrace) =>
+              throw Exception(' Error: $error StackTrace: $stackTrace'))
+          .then(
+            (_) => DatabaseService.client
+                .from('blockchain')
+                .insert(
+                  [
+                    Block(
+                      index: Block.fromJson(prevBlock.data[0]).index! + 1,
+                      timestamp: DateTime.now().millisecondsSinceEpoch,
+                      proof: proof,
+                      prevHash: previousHash,
+                      transactions: List.from(
+                        currentTransactions,
+                      ),
+                    ).toJson()
+                  ],
+                )
+                .execute()
+                .then((_) => currentTransactions.clear()),
+          )
+          .onError(
+            (error, stackTrace) =>
+                throw Exception(' Error: $error StackTrace: $stackTrace'),
+          );
       //Successfully Mined
-
-      await DatabaseService.client.from('blockchain').insert(
-        [
-          Block(
-            index: Block.fromJson(prevBlock.data[0]).index! + 1,
-            timestamp: DateTime.now().millisecondsSinceEpoch,
-            proof: proof,
-            prevHash: previousHash,
-            transactions: List.from(pendingTansactions.values.toList()),
-          ).toJson()
-        ],
-      ).execute();
 
       if (prevBlock.error != null) {
         throw prevBlock.error!.message;
@@ -53,10 +66,11 @@ class BlockchainService {
           .select()
           .limit(1)
           .order('timestamp', ascending: false)
-          .execute()
-          .whenComplete(
-            () => pendingTansactions.clear(),
-          );
+          .execute();
+      // .whenComplete(
+      //   //When This Future Completes Clear the Pending List.
+      //   () => pendingTansactions.clear(),
+      // );
 
       return Block.fromJson(latestBlock.data[0]);
     } on PostgrestError catch (e) {
@@ -78,8 +92,7 @@ class BlockchainService {
       if (DateTime.fromMillisecondsSinceEpoch(
               Block.fromJson(response.data[0]).timestamp)
           .isBefore(DateTime.now())) {
-        for (var transaction
-            in pendingTansactions.values.toList(growable: true)) {
+        for (var transaction in pendingTansactions.values) {
           switch (transaction.transType) {
             case 0:
               await withdrawProcess(transaction);
@@ -94,7 +107,9 @@ class BlockchainService {
           }
           await DatabaseService.client
               .from('transactions')
-              .insert([transaction.toJson()]).execute();
+              .insert([transaction.toJson()])
+              .execute()
+              .then((_) => transaction.delete());
         }
       }
       if (response.error != null) {
@@ -287,18 +302,15 @@ class BlockchainService {
       //Check if TransID and Amount match the recieved notification.
       print('Total Items: ${data.values.length}');
 
-      data.values.forEach((item) async {
+      for (var item in data.values) {
         await accountService
             .findRecipientAccount(phoneNumber: item.phoneNumber)
             .then((account) => addToPendingDeposit(
-                  item.transID,
-                  account.id!,
-                  extractAmount(item),
-                )
-                    .then((_) => changeClaimToTrue(item.transID))
-                    .then((_) => changeAccountStatusToProcessing(account.id!))
-                    .then((_) => item.delete()));
-      });
+                    item.transID, account.id!, extractAmount(item))
+                .then((_) => changeClaimToTrue(item.transID))
+                .then((_) => changeAccountStatusToProcessing(account.id!))
+                .then((_) => item.delete()));
+      }
     } catch (e) {
       rethrow;
     }
@@ -312,12 +324,13 @@ class BlockchainService {
     required String recipientid,
     required double amount,
   }) async {
+    if (senderid == recipientid) {
+      //Prevents User from Sending Points To Self Compounding Account Balance.
+      throw SelfTransferException();
+    }
+
     if (await recipientValidation(recipientid)) {
       //Check if the sender & recipient are in the system
-      if (senderid == recipientid) {
-        //Prevents User from Sending Points To Self Compounding Account Balance.
-        throw SelfTransferException();
-      }
       await checkAccountBalance(
           value: amount,
           account: await accountService.findAccount(

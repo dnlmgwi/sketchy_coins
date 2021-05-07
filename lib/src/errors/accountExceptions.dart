@@ -99,6 +99,34 @@ class InvalidInputException implements Exception {
   }
 }
 
+class InvalidUserIDException implements Exception {
+  ///This Exception is thrown when there is an invalid Input Entered in the DB
+  late String _message;
+
+  InvalidUserIDException([String message = 'Please provide a valid User ID']) {
+    _message = message;
+  }
+
+  @override
+  String toString() {
+    return _message;
+  }
+}
+
+class InvalidAmountException implements Exception {
+  ///This Exception is thrown when there is an invalid Input Entered in the DB
+  late String _message;
+
+  InvalidAmountException([String message = 'Please provide a valid Amount']) {
+    _message = message;
+  }
+
+  @override
+  String toString() {
+    return _message;
+  }
+}
+
 class InsufficientFundsException implements Exception {
   ///This Exception is thrown when there is Insufficient Funds in the account
   late String _message;
