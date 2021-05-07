@@ -9,7 +9,7 @@ abstract class IAccount {
 
   late String salt;
 
-  late String address;
+  // late String address;
 
   late String status;
 

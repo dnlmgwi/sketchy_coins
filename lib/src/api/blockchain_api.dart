@@ -28,16 +28,16 @@ class BlockChainApi {
         try {
           final authDetails = request.context['authDetails'] as JWT;
           final user = await _accountService.findAccount(
-            address: authDetails.subject.toString(),
+            id: authDetails.subject.toString(),
           );
           final payload = await request.readAsString();
           final data = json.decode(payload);
 
-          var recipientAddress = data['recipient'];
+          var recipientid = data['recipient'];
 
           var amount = double.parse(data['amount'].toString());
 
-          if (noSenderCheck(user.address)) {
+          if (noSenderCheck(user.id)) {
             return Response.forbidden(
               noSenderError(),
               headers: {
@@ -46,7 +46,7 @@ class BlockChainApi {
             );
           }
 
-          if (noRecipientCheck(recipientAddress)) {
+          if (noRecipientCheck(recipientid)) {
             return Response.forbidden(
               noRecipientError(),
               headers: {
@@ -66,8 +66,8 @@ class BlockChainApi {
 
           try {
             await blockchainService.initiateTransfer(
-              senderAddress: user.address,
-              recipientAddress: recipientAddress,
+              senderid: user.id,
+              recipientid: recipientid,
               amount: amount,
             );
 
@@ -111,13 +111,13 @@ class BlockChainApi {
     // router.post('/recharge', (Request request) async {
     //   final authDetails = request.context['authDetails'] as JWT;
     //   final user = await _accountService.findAccount(
-    //     address: authDetails.subject.toString(),
+    //     id: authDetails.subject.toString(),
     //   );
     //   final payload = await request.readAsString();
     //   final userData = json.decode(payload);
 
     //   final transID = userData['transID'];
-    //   // final address = userData['address'];
+    //   // final id = userData['id'];
     //   var rechargeResult;
 
     //   var regExpPayload = RegExp(
@@ -145,11 +145,11 @@ class BlockChainApi {
     //     );
     //   }
 
-    //   if (user.address.isEmpty || user.address == '') {
+    //   if (user.id.isEmpty || user.id == '') {
     //     return Response(
     //       HttpStatus.badRequest,
     //       body: json.encode({
-    //         'data': {'message': 'Please provide a valid Address'}
+    //         'data': {'message': 'Please provide a valid id'}
     //       }),
     //       headers: {
     //         HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
@@ -159,7 +159,7 @@ class BlockChainApi {
 
     //   try {
     //     rechargeResult = await blockchainService.recharge(
-    //       recipient: user.address,
+    //       recipient: user.id,
     //       transID: transID,
     //     );
     //   } catch (e) {
@@ -211,7 +211,7 @@ class BlockChainApi {
   String noSenderError() {
     return json.encode({
       'data': {
-        'message': 'Please Provide Sender Address',
+        'message': 'Please Provide Sender id',
       }
     });
   }
@@ -219,7 +219,7 @@ class BlockChainApi {
   String noRecipientError() {
     return json.encode({
       'data': {
-        'message': 'Please Provide Recipient Address',
+        'message': 'Please Provide Recipient id',
       }
     });
   }
@@ -241,5 +241,5 @@ class BlockChainApi {
 
   bool noRecipientCheck(String data) => data == '' || data.isEmpty;
 
-  bool noSenderCheck(String data) => data == '' || data.isEmpty;
+  bool noSenderCheck(String? data) => data == '' || data!.isEmpty;
 }

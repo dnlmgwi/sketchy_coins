@@ -4,7 +4,7 @@ part 'transAccount.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class TransAccount {
-  String address;
+  late String? id;
 
   String phoneNumber;
 
@@ -12,9 +12,9 @@ class TransAccount {
 
   double balance;
 
-  String get getAddress => address;
+  String get getid => id!;
 
-  set setAddress(String address) => this.address = address;
+  set setid(String id) => this.id = id;
 
   String get getPhoneNumber => phoneNumber;
 
@@ -31,7 +31,7 @@ class TransAccount {
   TransAccount({
     required this.status,
     required this.phoneNumber,
-    required this.address,
+    required this.id,
     required this.balance,
   });
 

@@ -22,9 +22,6 @@ class Account extends IAccount {
   String salt;
 
   @override
-  String address;
-
-  @override
   String status;
 
   @override
@@ -53,9 +50,9 @@ class Account extends IAccount {
 
   set setSalt(salt) => this.salt = salt;
 
-  String get getAddress => address;
+  // String get getid => id;
 
-  set setAddress(address) => this.address = address;
+  // set setAddress(address) => this.address = address;
 
   String get getStatus => status;
 
@@ -76,7 +73,7 @@ class Account extends IAccount {
     required this.phoneNumber,
     required this.salt,
     required this.status,
-    required this.address,
+    // required this.address,
     required this.balance,
     required this.joinedDate,
   });

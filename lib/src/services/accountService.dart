@@ -5,14 +5,14 @@ class AccountService {
   DatabaseService databaseService;
   AccountService({required this.databaseService});
 
-  Future<TransAccount> findAccount({required String address}) async {
+  Future<TransAccount> findAccount({required String id}) async {
     var response = await DatabaseService.client
         .from('accounts')
         .select(
-          'status, balance, address, phoneNumber',
+          'status, balance, id, phoneNumber',
         )
         .match({
-          'address': address,
+          'id': id,
         })
         .execute()
         .onError(
@@ -28,11 +28,12 @@ class AccountService {
     return TransAccount.fromJson(response.data[0]);
   }
 
-  Future<TransAccount> findDepositAccount({required String phoneNumber}) async {
+  Future<TransAccount> findRecipientAccount(
+      {required String phoneNumber}) async {
     var response = await DatabaseService.client
         .from('accounts')
         .select(
-          'status, balance, address, phoneNumber',
+          'status, balance, id, phoneNumber',
         )
         .match({
           'phoneNumber': phoneNumber,

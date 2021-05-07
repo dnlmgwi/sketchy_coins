@@ -141,6 +141,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.0"
+  clock:
+    dependency: transitive
+    description:
+      name: clock
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.0"
   code_builder:
     dependency: transitive
     description:
@@ -169,13 +176,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.2"
-  cron:
-    dependency: "direct main"
-    description:
-      name: cron
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.3.0"
   crypto:
     dependency: "direct main"
     description:
@@ -288,13 +288,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.0"
-  hotreloader:
-    dependency: transitive
-    description:
-      name: hotreloader
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "3.0.1"
   http:
     dependency: transitive
     description:
@@ -323,6 +316,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.0"
+  intl:
+    dependency: transitive
+    description:
+      name: intl
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.17.0"
   io:
     dependency: transitive
     description:
@@ -358,6 +358,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.1"
+  mailer:
+    dependency: "direct main"
+    description:
+      name: mailer
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "5.0.0"
   matcher:
     dependency: transitive
     description:
@@ -470,13 +477,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0"
-  session_jar:
-    dependency: "direct main"
-    description:
-      name: session_jar
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.0.4"
   shelf:
     dependency: transitive
     description:
@@ -484,13 +484,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.1"
-  shelf_hotreload:
-    dependency: "direct main"
-    description:
-      name: shelf_hotreload
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.0.2"
   shelf_packages_handler:
     dependency: transitive
     description:
@@ -513,7 +506,7 @@ packages:
     source: hosted
     version: "1.0.0"
   shelf_web_socket:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: shelf_web_socket
       url: "https://pub.dartlang.org"
@@ -561,13 +554,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.10.0"
-  steel_crypt:
-    dependency: "direct main"
-    description:
-      name: steel_crypt
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "3.0.0+1"
   storage_client:
     dependency: transitive
     description:

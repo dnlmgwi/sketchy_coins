@@ -19,9 +19,8 @@ export 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 export 'package:redis_dart/redis_dart.dart';
 export 'package:validators/validators.dart';
 export 'package:postgrest/postgrest.dart';
-export 'package:cron/cron.dart';
-export 'package:session_jar/session_jar.dart';
-
+export 'package:mailer/mailer.dart';
+export 'package:mailer/smtp_server.dart';
 
 //Config File
 export './src/config.dart';
@@ -49,7 +48,6 @@ export './src/Models/mineResult/mineResult.dart';
 export './src/Models/1.transactionRecord/transactionRecord.dart';
 export './src/Models/2.rechargeNotification/rechargeNotification.dart';
 export './src/Models/tokenPair/tokenPair.dart';
-export './src/Models/location/location.dart';
 export './src/Models/account/transAccount.dart';
 export './src/Models/account/i_account.dart';
 

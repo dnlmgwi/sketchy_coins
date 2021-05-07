@@ -15,8 +15,9 @@ void main(List<String> arguments) async {
   );
 
   final databaseService = DatabaseService();
-
-  final authService = AuthService(databaseService: databaseService);
+  final authService = AuthService(
+    databaseService: databaseService,
+  );
 
   final blockchainService = BlockchainService(
     databaseService: databaseService,
@@ -54,36 +55,31 @@ void main(List<String> arguments) async {
     print('nothing here ');
   }
 
-  final cron = Cron();
+  // Timer.periodic(Duration(minutes: Random().nextInt(50)), (timer) async {
+  //   //if both lists are empty fetch more
+  //   if (miner.blockchain.pendingDepositsTansactions.isEmpty) {
+  //     //Get Unclaimed Deposits.
+  //     print('Get Unclaimed Deposits.');
+  //     await getUnclaimedDeposits();
+  //   }
 
-  var cronDepositString = '*/6 * * * * *';
-  var cronPaymentString = '*/6 * * * * *';
+  //   if (miner.blockchain.pendingDepositsTansactions.isNotEmpty) {
+  //     // Process The Items and Delete Them from List
+  //     print('Process The Items and Delete Them from List');
+  //     await blockchainService.initiateRecharge(
+  //       data: miner.blockchain.pendingDepositsTansactions,
+  //     );
+  //   }
+  //   //Wait for Next Batch.
+  // });
 
-  cron.schedule(Schedule.parse(cronDepositString), () async {
-    //if both lists are empty fetch more
-    if (miner.blockchain.pendingDepositsTansactions.isEmpty) {
-      //Get Unclaimed Deposits.
-      print('Get Unclaimed Deposits.');
-      await getUnclaimedDeposits();
-    }
-
-    if (miner.blockchain.pendingDepositsTansactions.isNotEmpty) {
-      // Process The Items and Delete Them from List
-      print('Process The Items and Delete Them from List');
-      await blockchainService.initiateRecharge(
-        data: miner.blockchain.pendingDepositsTansactions,
-      );
-    }
-    //Wait for Next Batch.
-  });
-
-  cron.schedule(Schedule.parse(cronPaymentString), () async {
-    try {
-      await processPendingPayments();
-    } catch (e) {
-      print(e.toString());
-    }
-  });
+  // Timer.periodic(Duration(seconds: Random().nextInt(100)), (timer) async {
+  //   try {
+  //     await processPendingPayments();
+  //   } catch (e) {
+  //     print(e.toString());
+  //   }
+  // });
 
   await tokenService.start();
 

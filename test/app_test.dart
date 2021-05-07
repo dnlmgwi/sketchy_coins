@@ -74,10 +74,10 @@
 //       () {
 //         var account = authService.findAccount(
 //             accounts: authService.accountList,
-//             address:
+//             id:
 //                 'a23f0faec57e4219d83c4b67b5cea0f185718dbd4a1eb6d744e1e1bc69fd8a4e');
 //         expect(account.toJson(), {
-//           'address':
+//           'id':
 //               'a23f0faec57e4219d83c4b67b5cea0f185718dbd4a1eb6d744e1e1bc69fd8a4e',
 //           'status': 'normal',
 //           'balance': 10000.0
@@ -91,7 +91,7 @@
 //         try {
 //           var account = authService.findAccount(
 //               accounts: authService.accountList,
-//               address: 'bcb7a14f8-0eb3-4ec7-9399-975b89ba65a8');
+//               id: 'bcb7a14f8-0eb3-4ec7-9399-975b89ba65a8');
 //           expect(account, account.toString());
 //         } on AccountNotFoundException catch (e) {
 //           print('Error: ${e.toString()}');
@@ -104,12 +104,12 @@
 //       () {
 //         var account;
 //         print(
-//             'Before: ${authService.findAccount(accounts: authService.accountList, address: 'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d').toJson()}');
+//             'Before: ${authService.findAccount(accounts: authService.accountList, id: 'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d').toJson()}');
 //         expect(
 //             account = authService.deposit(
 //                 account: authService.findAccount(
 //                     accounts: authService.accountList,
-//                     address:
+//                     id:
 //                         'a23f0faec57e4219d83c4b67b5cea0f185718dbd4a1eb6d744e1e1bc69fd8a4e'),
 //                 value: 1000000),
 //             account);
@@ -126,13 +126,13 @@
 //               authService.withdraw(
 //                   account: authService.findAccount(
 //                       accounts: authService.accountList,
-//                       address:
+//                       id:
 //                           'a23f0faec57e4219d83c4b67b5cea0f185718dbd4a1eb6d744e1e1bc69fd8a4e'),
 //                   value: 0.3),
 //               authService
 //                   .findAccount(
 //                       accounts: authService.accountList,
-//                       address:
+//                       id:
 //                           'a23f0faec57e4219d83c4b67b5cea0f185718dbd4a1eb6d744e1e1bc69fd8a4e')
 //                   .balance);
 //         } on InsufficientFundsException catch (e) {
@@ -150,7 +150,7 @@
 //           expect(
 //               authService.findAccount(
 //                   accounts: authService.accountList,
-//                   address: 'ncb7a14f8-0eb3-4ec7-9399-975b89ba65a8'),
+//                   id: 'ncb7a14f8-0eb3-4ec7-9399-975b89ba65a8'),
 //               AccountNotFoundException().toString());
 //         } on AccountNotFoundException catch (e) {
 //           print(e.toString());
@@ -168,7 +168,7 @@
 //               account = authService.withdraw(
 //                   account: authService.findAccount(
 //                       accounts: authService.accountList,
-//                       address:
+//                       id:
 //                           'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d'),
 //                   value: 19),
 //               account);
@@ -189,7 +189,7 @@
 //             account = authService.withdraw(
 //                 account: authService.findAccount(
 //                     accounts: authService.accountList,
-//                     address:
+//                     id:
 //                         'd421137d32509aec97b1505027b45499f320f57a812afa9b9fae61f073d64c7d'),
 //                 value: 100),
 //             account);
