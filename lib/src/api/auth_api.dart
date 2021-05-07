@@ -15,7 +15,9 @@ class AuthApi {
   Router get router {
     final router = Router();
 
-    final _authService = AuthService(databaseService: databaseService);
+    final _authService = AuthService(
+      databaseService: databaseService,
+    );
 
     router.post(
       '/register',
@@ -132,15 +134,15 @@ class AuthApi {
 
           final userData = json.decode(payload);
 
-          final address = userData['address'];
+          final id = userData['id'];
           final password = userData['password'];
 
-          if (address == null || address == '') {
+          if (id == null || id == '') {
             //Todo: Input Validation Errors
             return Response(
               HttpStatus.badRequest,
               body: json.encode({
-                'data': {'message': 'Please provide an address'}
+                'data': {'message': 'Please provide an id'}
               }),
               headers: {
                 HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
@@ -148,7 +150,7 @@ class AuthApi {
             );
           }
 
-          if (password == null || address == '') {
+          if (password == null || password == '') {
             //Todo: Input Validation Errors
             return Response(
               HttpStatus.badRequest,
@@ -163,7 +165,7 @@ class AuthApi {
 
           final token = await _authService.login(
             password: password,
-            address: address,
+            id: id,
             tokenService: tokenService,
           );
 

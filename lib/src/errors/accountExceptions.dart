@@ -75,8 +75,7 @@ class IncorrectInputException implements Exception {
   ///This Exception is thrown when there is an excisting account in the DB
   late String _message;
 
-  IncorrectInputException(
-      [String message = 'Incorrect User Address or Password']) {
+  IncorrectInputException([String message = 'Incorrect User id or Password']) {
     _message = message;
   }
 
@@ -91,6 +90,34 @@ class InvalidInputException implements Exception {
   late String _message;
 
   InvalidInputException([String message = 'Please provide a valid Input']) {
+    _message = message;
+  }
+
+  @override
+  String toString() {
+    return _message;
+  }
+}
+
+class InvalidUserIDException implements Exception {
+  ///This Exception is thrown when there is an invalid Input Entered in the DB
+  late String _message;
+
+  InvalidUserIDException([String message = 'Please provide a valid User ID']) {
+    _message = message;
+  }
+
+  @override
+  String toString() {
+    return _message;
+  }
+}
+
+class InvalidAmountException implements Exception {
+  ///This Exception is thrown when there is an invalid Input Entered in the DB
+  late String _message;
+
+  InvalidAmountException([String message = 'Please provide a valid Amount']) {
     _message = message;
   }
 

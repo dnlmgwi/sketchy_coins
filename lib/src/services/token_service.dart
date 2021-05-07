@@ -4,6 +4,7 @@ class TokenService {
   TokenService({
     required this.secret,
   });
+  
   final String secret;
   late RedisClient client;
 

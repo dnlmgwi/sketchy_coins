@@ -35,7 +35,7 @@ packages:
       name: async
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.6.0"
+    version: "2.6.1"
   bazel_worker:
     dependency: transitive
     description:
@@ -176,13 +176,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.2"
-  crdt:
-    dependency: "direct main"
-    description:
-      name: crdt
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "4.0.1"
   crypto:
     dependency: "direct main"
     description:
@@ -253,13 +246,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.0"
-  geodesy:
-    dependency: "direct main"
-    description:
-      name: geodesy
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.4.0-nullsafety.0"
   glob:
     dependency: transitive
     description:
@@ -267,6 +253,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.1"
+  gotrue:
+    dependency: transitive
+    description:
+      name: gotrue
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.1-dev.11"
   graphs:
     dependency: transitive
     description:
@@ -301,7 +294,7 @@ packages:
       name: http
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.13.2"
+    version: "0.13.3"
   http_methods:
     dependency: transitive
     description:
@@ -358,13 +351,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.1.1"
-  latlong2:
-    dependency: transitive
-    description:
-      name: latlong2
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.8.0"
   logging:
     dependency: transitive
     description:
@@ -372,6 +358,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.1"
+  mailer:
+    dependency: "direct main"
+    description:
+      name: mailer
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "5.0.0"
   matcher:
     dependency: transitive
     description:
@@ -463,6 +456,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0"
+  realtime_client:
+    dependency: transitive
+    description:
+      name: realtime_client
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.8"
   redis_dart:
     dependency: "direct main"
     description:
@@ -506,7 +506,7 @@ packages:
     source: hosted
     version: "1.0.0"
   shelf_web_socket:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: shelf_web_socket
       url: "https://pub.dartlang.org"
@@ -554,13 +554,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.10.0"
-  steel_crypt:
-    dependency: "direct main"
+  storage_client:
+    dependency: transitive
     description:
-      name: steel_crypt
+      name: storage_client
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.0+1"
+    version: "0.0.1-dev.1"
   stream_channel:
     dependency: transitive
     description:
@@ -582,6 +582,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.0"
+  supabase:
+    dependency: "direct main"
+    description:
+      name: supabase
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.1-dev.14"
   term_glyph:
     dependency: transitive
     description:
@@ -658,7 +665,7 @@ packages:
       name: web_socket_channel
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.0"
+    version: "2.1.0"
   webkit_inspection_protocol:
     dependency: transitive
     description:

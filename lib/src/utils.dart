@@ -1,5 +1,5 @@
 import 'package:sketchy_coins/packages.dart';
-import 'package:steel_crypt/steel_crypt.dart';
+// import 'package:steel_crypt/steel_crypt.dart';
 
 Middleware handleCors() {
   const corsHeaders = {'Access-Control-Allow-Origin': '*'};
@@ -29,17 +29,17 @@ String hashPassword({required String password, required String salt}) {
   return digest.toString();
 }
 
-String userAddressAlgo({
-  required String phoneNumber,
-}) {
-  var keyGen = CryptKey();
-  var key32 = keyGen.genFortuna(len: 32);
-  var iv16 = keyGen.genDart(len: 16);
-  var aes = AesCrypt(key: key32, padding: PaddingAES.none);
-  var crypted = aes.gcm.encrypt(inp: phoneNumber, iv: iv16);
+// String userAddressAlgo({
+//   required String phoneNumber,
+// }) {
+//   var keyGen = CryptKey();
+//   var key32 = keyGen.genFortuna(len: 32);
+//   var iv16 = keyGen.genDart(len: 16);
+//   var aes = AesCrypt(key: key32, padding: PaddingAES.none);
+//   var crypted = aes.gcm.encrypt(inp: phoneNumber, iv: iv16);
 
-  return crypted;
-}
+//   return crypted;
+// }
 
 String generateJWT(
     {required String? subject,

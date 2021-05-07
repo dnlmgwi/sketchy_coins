@@ -1,17 +1,18 @@
 import 'package:sketchy_coins/packages.dart';
+import 'package:sketchy_coins/src/Models/account/transAccount.dart';
 
 class AccountService {
   DatabaseService databaseService;
   AccountService({required this.databaseService});
 
-  Future<Account> findAccount({required String address}) async {
-    var response = await databaseService.client
+  Future<TransAccount> findAccount({required String id}) async {
+    var response = await DatabaseService.client
         .from('accounts')
         .select(
-          'id,email,phoneNumber,password, salt,status,balance,joinedDate, address',
+          'status, balance, id, phoneNumber',
         )
         .match({
-          'address': address,
+          'id': id,
         })
         .execute()
         .onError(
@@ -24,19 +25,19 @@ class AccountService {
       throw AccountNotFoundException();
     }
 
-    return Account.fromJson(response.data[0]);
+    return TransAccount.fromJson(response.data[0]);
   }
 
-  Future<List> findAccounts({
-    required String recipient,
-    required String sender,
-  }) async {
-    var response = await databaseService.client
+  Future<TransAccount> findRecipientAccount(
+      {required String phoneNumber}) async {
+    var response = await DatabaseService.client
         .from('accounts')
         .select(
-          'address',
+          'status, balance, id, phoneNumber',
         )
-        .in_('address', ['$sender', '$recipient'])
+        .match({
+          'phoneNumber': phoneNumber,
+        })
         .execute()
         .onError(
           (error, stackTrace) => throw Exception(error),
@@ -48,85 +49,6 @@ class AccountService {
       throw AccountNotFoundException();
     }
 
-    return result;
-  }
-
-  Future editAccountBalance({
-    required Account account,
-    required double value,
-    required int transactionType,
-  }) async {
-    try {
-      var operation = transactionType;
-
-      if (operation == 0) {
-        try {
-          return await withdraw(account: account, value: value);
-        } on InsufficientFundsException catch (e) {
-          print(e.toString());
-          //Rethrow the Exception as it will be caught in API Call.
-          rethrow;
-        }
-      } else if (operation == 1) {
-        return await deposit(account: account, value: value);
-      }
-    } on AccountNotFoundException catch (e) {
-      print(e.toString());
-      rethrow;
-    }
-    return account.balance;
-  }
-
-  Future<void> deposit({
-    required double value,
-    required Account account,
-  }) async {
-    try {
-      await databaseService.client
-          .from('accounts')
-          .update({'balance': account.balance + value})
-          .eq('address', account.address)
-          .execute();
-    } catch (e) {
-      throw Exception(e);
-    }
-  }
-
-  Future<void> withdraw({
-    required double value,
-    required Account account,
-  }) async {
-    try {
-      if (value > account.balance) {
-        throw InsufficientFundsException();
-      } else if (value < double.parse(Env.minTransactionAmount)) {
-        throw InvalidInputException();
-      }
-
-      await databaseService.client
-          .from('accounts')
-          .update({'balance': account.balance - value})
-          .eq('address', account.address)
-          .execute();
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  double checkAccountBalance({
-    required double value,
-    required Account account,
-  }) {
-    try {
-      if (value > account.balance) {
-        throw InsufficientFundsException();
-      } else if (value < double.parse(Env.minTransactionAmount)) {
-        throw InvalidInputException();
-      }
-    } catch (e) {
-      rethrow;
-    }
-
-    return account.balance;
+    return TransAccount.fromJson(response.data[0]);
   }
 }

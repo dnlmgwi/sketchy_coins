@@ -29,7 +29,6 @@ class TransactionRecord extends HiveObject {
     required this.timestamp,
     required this.transID,
     required this.transType,
-    // required this.location,
   });
 
   factory TransactionRecord.fromJson(Map<String, dynamic> json) =>

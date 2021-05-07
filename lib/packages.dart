@@ -19,6 +19,8 @@ export 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 export 'package:redis_dart/redis_dart.dart';
 export 'package:validators/validators.dart';
 export 'package:postgrest/postgrest.dart';
+export 'package:mailer/mailer.dart';
+export 'package:mailer/smtp_server.dart';
 
 //Config File
 export './src/config.dart';
@@ -40,12 +42,14 @@ export './src/services/accountService.dart';
 export 'package:sketchy_coins/src/services/databaseService.dart';
 
 //Models
-export './src/Models/account/account.dart';
+export 'src/Models/account/account.dart';
 export './src/Models/block/block.dart';
 export './src/Models/mineResult/mineResult.dart';
 export './src/Models/1.transactionRecord/transactionRecord.dart';
+export './src/Models/2.rechargeNotification/rechargeNotification.dart';
 export './src/Models/tokenPair/tokenPair.dart';
-export './src/Models/location/location.dart';
+export './src/Models/account/transAccount.dart';
+export './src/Models/account/i_account.dart';
 
 //Exceptions
 export './src/errors/accountExceptions.dart';

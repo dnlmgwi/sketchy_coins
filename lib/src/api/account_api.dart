@@ -1,19 +1,17 @@
 import 'package:sketchy_coins/packages.dart';
 
 class AccountApi {
+  AuthService authService;
   DatabaseService databaseService;
 
   AccountApi({
     required this.databaseService,
+    required this.authService,
   });
 
   Handler get router {
     final router = Router();
     final handler = Pipeline().addMiddleware(checkAuth()).addHandler(router);
-
-    final _accountService = AccountService(
-      databaseService: databaseService,
-    );
 
     router.get(
       '/account',
@@ -21,8 +19,8 @@ class AccountApi {
         Request request,
       ) async {
         final authDetails = request.context['authDetails'] as JWT;
-        final user = await _accountService.findAccount(
-          address: authDetails.subject.toString(),
+        final user = await authService.findAccount(
+          id: authDetails.subject.toString(),
         );
         try {
           return Response.ok(

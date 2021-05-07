@@ -7,14 +7,14 @@ class AuthService {
     required this.databaseService,
   });
 
-  Future<Account> findAccount({required String address}) async {
-    var response = await databaseService.client
+  Future<Account> findAccount({required String id}) async {
+    var response = await DatabaseService.client
         .from('accounts')
         .select(
-          'id,email,phoneNumber,password,address, balance, salt',
+          'id,email,phoneNumber,password,id, balance, salt, status,joinedDate',
         )
         .match({
-          'address': address,
+          'id': id,
         })
         .execute()
         .onError(
@@ -35,7 +35,7 @@ class AuthService {
     required String phoneNumber,
   }) async {
     try {
-      var response = await databaseService.client
+      var response = await DatabaseService.client
           .from('accounts')
           .select('email,phoneNumber')
           .or(
@@ -89,9 +89,9 @@ class AuthService {
       salt: salt,
     );
 
-    final address = userAddressAlgo(
-      phoneNumber: phoneNumber,
-    );
+    // final id = useridAlgo(
+    //   phoneNumber: phoneNumber,
+    // );
 
     try {
       var response;
@@ -100,11 +100,11 @@ class AuthService {
         phoneNumber: phoneNumber,
       );
       if (!isDuplicate) {
-        response = await databaseService.client.from('accounts').insert(
+        response = await DatabaseService.client.from('accounts').insert(
           [
             Account(
               email: email,
-              address: address,
+              // id: id,
               phoneNumber: phoneNumber,
               password: hashpassword,
               salt: salt,
@@ -129,7 +129,7 @@ class AuthService {
 
   Future<TokenPair> login({
     required String password,
-    required String address,
+    required String id,
     required TokenService tokenService,
   }) async {
     Account user;
@@ -137,19 +137,19 @@ class AuthService {
 
     try {
       user = await findAccount(
-        address: address,
+        id: id,
       );
 
       final hashpassword = hashPassword(
         password: password,
-        salt: user.salt!,
+        salt: user.salt,
       );
 
       if (hashpassword != user.password) {
         throw IncorrectInputException();
       }
 
-      tokenPair = await tokenService.createTokenPair(userId: user.address);
+      tokenPair = await tokenService.createTokenPair(userId: user.id);
     } catch (e) {
       rethrow;
     }
