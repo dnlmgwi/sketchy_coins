@@ -9,7 +9,7 @@ class AccountService {
     var response = await DatabaseService.client
         .from('accounts')
         .select(
-          'status, balance, id, phoneNumber',
+          'status, balance, id, phoneNumber, lastTrans',
         )
         .match({
           'id': id,
@@ -33,7 +33,7 @@ class AccountService {
     var response = await DatabaseService.client
         .from('accounts')
         .select(
-          'status, balance, id, phoneNumber',
+          'status, balance, id, phoneNumber, lastTrans',
         )
         .match({
           'phoneNumber': phoneNumber,

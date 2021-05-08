@@ -6,6 +6,7 @@ export './src/utils.dart';
 export 'dart:io';
 export 'dart:convert';
 export 'dart:math';
+export 'dart:core';
 
 //imported Packages
 export 'package:hive/hive.dart';
@@ -19,8 +20,6 @@ export 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 export 'package:redis_dart/redis_dart.dart';
 export 'package:validators/validators.dart';
 export 'package:postgrest/postgrest.dart';
-export 'package:mailer/mailer.dart';
-export 'package:mailer/smtp_server.dart';
 
 //Config File
 export './src/config.dart';

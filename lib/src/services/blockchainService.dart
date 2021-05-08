@@ -89,6 +89,7 @@ class BlockchainService {
           .order('timestamp', ascending: false)
           .execute();
 
+      // if (response.data == null) {}
       if (DateTime.fromMillisecondsSinceEpoch(
               Block.fromJson(response.data[0]).timestamp)
           .isBefore(DateTime.now())) {
@@ -241,12 +242,17 @@ class BlockchainService {
     try {
       await DatabaseService.client
           .from('accounts')
-          .update({'balance': senderAccount.balance - value})
+          .update({
+            'balance': senderAccount.balance - value,
+          })
           .eq('id', senderAccount.id)
           .execute()
-          .whenComplete(() => DatabaseService.client
+          .then((_) => DatabaseService.client
               .from('accounts')
-              .update({'balance': recipientAccount.balance + value})
+              .update({
+                'balance': recipientAccount.balance + value,
+                'lastTrans': DateTime.now().millisecondsSinceEpoch
+              })
               .eq('id', recipientAccount.id)
               .execute());
     } catch (e) {
@@ -267,7 +273,9 @@ class BlockchainService {
       } else {
         await DatabaseService.client
             .from('accounts')
-            .update({'balance': account.balance - value})
+            .update({
+              'balance': account.balance - value,
+            })
             .eq('id', account.id)
             .execute();
       }
@@ -428,26 +436,38 @@ class BlockchainService {
   ) async {
     //Validates the reciepeinet of the reward has an account the system
     bool accountValid;
-    var recipientAccount = await accountService.findAccount(
-      id: recipient,
-    );
 
-    if (recipientAccount.id!.isNotEmpty) {
-      //if the Account Server return an account it is a valid account
-      accountValid = true;
-    } else {
-      //the Accout is not Valid
-      accountValid = false;
+    try {
+      var recipientAccount = await accountService.findAccount(
+        id: recipient,
+      );
+
+      //TODO: If Recent Transaction was made throw please wait x minutes
+
+      if (recipientAccount.id!.isNotEmpty) {
+        //if the Account Server return an account it is a valid account
+        accountValid = true;
+      } else {
+        //the Accout is not Valid
+        accountValid = false;
+      }
+
+      return accountValid;
+    } on RecentTransException catch (e) {
+      throw '$e';
+    } catch (e) {
+      rethrow;
     }
-
-    return accountValid;
   }
 
   Future<void> changeAccountStatusToProcessing(String id) async {
     //Changes the Users Account Status to processing.
     await DatabaseService.client
         .from('accounts')
-        .update({'status': 'processing'})
+        .update({
+          'status': 'processing',
+          'lastTrans': DateTime.now().millisecondsSinceEpoch
+        })
         .eq('id', id)
         .execute();
   }

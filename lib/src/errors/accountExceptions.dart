@@ -113,6 +113,20 @@ class InvalidUserIDException implements Exception {
   }
 }
 
+class RecentTransException implements Exception {
+  ///This Exception is thrown when there is an invalid Input Entered in the DB
+  late String _message;
+
+  RecentTransException([String message = 'You made a recent transaction: ']) {
+    _message = message;
+  }
+
+  @override
+  String toString() {
+    return _message;
+  }
+}
+
 class InvalidAmountException implements Exception {
   ///This Exception is thrown when there is an invalid Input Entered in the DB
   late String _message;

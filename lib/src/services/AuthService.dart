@@ -10,9 +10,7 @@ class AuthService {
   Future<Account> findAccount({required String id}) async {
     var response = await DatabaseService.client
         .from('accounts')
-        .select(
-          'id,email,phoneNumber,password,id, balance, salt, status,joinedDate',
-        )
+        .select()
         .match({
           'id': id,
         })

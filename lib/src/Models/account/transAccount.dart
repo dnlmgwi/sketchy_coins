@@ -12,6 +12,8 @@ class TransAccount {
 
   double balance;
 
+  int? lastTrans;
+
   String get getid => id!;
 
   set setid(String id) => this.id = id;
@@ -28,11 +30,16 @@ class TransAccount {
 
   set setBalance(balance) => this.balance = balance;
 
+  int? get getLastTrans => lastTrans;
+
+  set setLastTrans(lastTrans) => this.lastTrans = lastTrans;
+
   TransAccount({
     required this.status,
     required this.phoneNumber,
     required this.id,
     required this.balance,
+    required this.lastTrans,
   });
 
   factory TransAccount.fromJson(Map<String, dynamic> json) =>

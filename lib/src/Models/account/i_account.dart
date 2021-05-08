@@ -17,6 +17,8 @@ abstract class IAccount {
 
   late int joinedDate;
 
+  late int? lastTrans;
+
   IAccount();
 
   Map<String, dynamic> toJson();
