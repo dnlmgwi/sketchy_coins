@@ -34,7 +34,7 @@ class Env {
   static const subject = 'P23';
   static const maxAge = '5';
   static const typ = 'authnresponse';
-  //Value
+  //Values
   static const rewardValue = '50.00';
   static const minTransactionAmount = '10.00';
   static const difficulty = '0000';

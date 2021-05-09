@@ -7,7 +7,6 @@ class BlockchainService {
   BlockchainService({required this.databaseService});
 
   var accountService = AccountService(databaseService: DatabaseService());
-  var blockChainValidity = BlockChainValidationService();
 
   var pendingTansactions = Hive.box<TransactionRecord>('transactions');
   var pendingDepositsTansactions =
@@ -127,7 +126,7 @@ class BlockchainService {
 
   Future<void> depositProcess(TransactionRecord element) async {
     try {
-      var foundAccount = await accountService.findAccount(
+      var foundAccount = await accountService.findAccountDetails(
         id: element.recipient,
       );
 
@@ -143,7 +142,8 @@ class BlockchainService {
 
   Future<void> withdrawProcess(TransactionRecord element) async {
     try {
-      var foundAccount = await accountService.findAccount(id: element.sender);
+      var foundAccount =
+          await accountService.findAccountDetails(id: element.sender);
 
       await editAccountBalance(
           senderAccount: foundAccount,
@@ -157,11 +157,11 @@ class BlockchainService {
 
   Future<void> transferProcess(TransactionRecord element) async {
     try {
-      var recipientAccount = await accountService.findAccount(
+      var recipientAccount = await accountService.findAccountDetails(
         id: element.recipient,
       );
 
-      var senderAccount = await accountService.findAccount(
+      var senderAccount = await accountService.findAccountDetails(
         id: element.sender,
       );
 
@@ -264,7 +264,7 @@ class BlockchainService {
     required double value,
     required TransAccount account,
   }) async {
-    //TODO: External Provider Needed
+    //TODO: External Provider Withdraw Provider Needed
     try {
       if (value > account.balance) {
         throw InsufficientFundsException();
@@ -312,7 +312,7 @@ class BlockchainService {
 
       for (var item in data.values) {
         await accountService
-            .findRecipientAccount(phoneNumber: item.phoneNumber)
+            .findRecipientDepositAccount(phoneNumber: item.phoneNumber)
             .then((account) => addToPendingDeposit(
                     item.transID, account.id!, extractAmount(item))
                 .then((_) => changeClaimToTrue(item.transID))
@@ -341,7 +341,7 @@ class BlockchainService {
       //Check if the sender & recipient are in the system
       await checkAccountBalance(
           value: amount,
-          account: await accountService.findAccount(
+          account: await accountService.findAccountDetails(
             id: senderid!,
           ));
 
@@ -410,7 +410,7 @@ class BlockchainService {
   }
 
   Future<bool> accountStatusCheck(String? sender) async {
-    var foundAccount = await accountService.findAccount(
+    var foundAccount = await accountService.findAccountDetails(
       id: sender!,
     );
     return foundAccount.status == 'normal';
@@ -418,7 +418,7 @@ class BlockchainService {
 
   Future<bool> accountPaymentValidation(String sender) async {
     bool accountValid;
-    var foundAccount = await accountService.findAccount(
+    var foundAccount = await accountService.findAccountDetails(
       id: sender,
     );
 
@@ -438,7 +438,7 @@ class BlockchainService {
     bool accountValid;
 
     try {
-      var recipientAccount = await accountService.findAccount(
+      var recipientAccount = await accountService.findAccountDetails(
         id: recipient,
       );
 
@@ -537,7 +537,7 @@ class BlockchainService {
     var response = await DatabaseService.client
         .from('blockchain')
         .select()
-        .limit(1)
+        .limit(1) //TODO Get The Whole Blockchain
         .order('timestamp', ascending: false)
         .execute();
 

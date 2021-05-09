@@ -27,7 +27,7 @@ class BlockChainApi {
       ) async {
         try {
           final authDetails = request.context['authDetails'] as JWT;
-          final user = await _accountService.findAccount(
+          final user = await _accountService.findAccountDetails(
             id: authDetails.subject.toString(),
           );
           final payload = await request.readAsString();

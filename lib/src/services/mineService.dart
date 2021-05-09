@@ -26,7 +26,7 @@ class MineServices {
       prevHash,
     );
 
-    var validblock = blockChainValidity.isValidNewBlock(
+    var validblock = BlockChainValidationService.isNewBlockValid(
       blockchain: blockchain,
       newBlock: block,
       previousBlock: lastBlock,

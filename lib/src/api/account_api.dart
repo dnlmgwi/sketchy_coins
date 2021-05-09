@@ -19,7 +19,7 @@ class AccountApi {
         Request request,
       ) async {
         final authDetails = request.context['authDetails'] as JWT;
-        final user = await authService.findAccount(
+        final user = await AuthValidationService.findAccount(
           id: authDetails.subject.toString(),
         );
         try {

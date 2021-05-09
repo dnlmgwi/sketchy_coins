@@ -9,8 +9,6 @@ abstract class IAccount {
 
   late String salt;
 
-  // late String address;
-
   late String status;
 
   late double balance;
