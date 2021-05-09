@@ -9,15 +9,13 @@ abstract class IAccount {
 
   late String salt;
 
-  // late String address;
-
   late String status;
 
   late double balance;
 
   late int joinedDate;
 
-  IAccount();
+  late int? lastTrans;
 
   Map<String, dynamic> toJson();
 }

@@ -6,11 +6,7 @@ class MineServices {
 
   MineServices({required this.blockchain});
 
-  Future mine(
-      //{
-      // required String recipient,
-      //}
-      ) async {
+  Future mine() async {
     if (blockchain.pendingTransactions.isEmpty) {
       throw NoPendingTransactionException();
     }
@@ -26,7 +22,7 @@ class MineServices {
       prevHash,
     );
 
-    var validblock = blockChainValidity.isValidNewBlock(
+    var validblock = BlockChainValidationService.isNewBlockValid(
       blockchain: blockchain,
       newBlock: block,
       previousBlock: lastBlock,

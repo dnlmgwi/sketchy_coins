@@ -1,42 +1,32 @@
 import 'package:sketchy_coins/packages.dart';
 
 class Env {
-  //Server Side
-  static final envPort = Platform.environment['PORT'];
-  static const localPort = '8080';
-  static String port = envPort ?? localPort;
-  static var hostName = '0.0.0.0';
+  /// Server Side
+  static final port = env['PORT'];
+  static final hostName = env['HOST_NAME'];
 
-  //Reward System Address
-  static final envSystemAddress = Platform.environment['SYSTEM_ADDRESS'];
-  static const localSystemAddress = 'Testing-Admin';
-  static String systemAddress = envSystemAddress ?? localSystemAddress;
+  /// API System Address
+  static final systemAddress = env['SYSTEM_ADDRESS'];
 
-  //Database
-  // static const postgresqlUrl = _Env.postgresqlUrl;
-  //Cache
-  static final envRedisPort = Platform.environment['REDIS_PORT'];
-  static const localRedisPort = '12758';
-  static String redisPort = envRedisPort ?? localRedisPort;
+  /// Redis Cache
+  static final redisPort = env['REDIS_PORT'];
+  static final redisHostname = env['REDIS_HOSTNAME'];
+  static final redisPassword = env['REDIS_PASSWORD'];
 
-  static final envRedisHostname = Platform.environment['REDIS_HOSTNAME'];
-  static const localRedisHostname =
-      'redis-12758.c261.us-east-1-4.ec2.cloud.redislabs.com';
-  static String redisHostname = envRedisHostname ?? localRedisHostname;
+  ///Database
+  static final supabaseUrl = env['SUPABASE_URL'];
+  static final supabaseKey = env['SUPABASE_KEY'];
 
-  static final envRedisPassword = Platform.environment['REDIS_PASSWORD'];
-  static const localRedisPassword = '3ZaHRetFEWnSeVOlaj31njpYb93FpiVA';
-  static String redisPassword = envRedisPassword ?? localRedisPassword;
+  ///JWT AuthValues
+  static final secret = env['SECRET'];
+  static final issuer = env['ISSUER'];
+  static final subject = env['SUBJECT'];
+  static final maxAge = env['MAX_AGE'];
+  static final typ = env['TYP'];
 
-  //JWT AuthValues
-  static const secret = '95EEC74B0E486EF';
-  static const issuer = 'danielmgawi.com';
-  static const subject = 'P23';
-  static const maxAge = '5';
-  static const typ = 'authnresponse';
-  //Value
-  static const rewardValue = '50.00';
-  static const minTransactionAmount = '10.00';
-  static const difficulty = '0000';
-  static const newAccountBalance = '1000.00';
+  ///Api Economy
+  static final rewardValue = env['REWARD_VALUE'];
+  static final minTransactionAmount = env['MIN_TRANSACTION_AMOUNT'];
+  static final difficulty = env['DIFFICULTY'];
+  static final newAccountBalance = env['NEW_ACCOUNT_BALANCE'];
 }

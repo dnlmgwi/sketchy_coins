@@ -30,6 +30,9 @@ class Account extends IAccount {
   @override
   int joinedDate;
 
+  @override
+  late int? lastTrans;
+
   String? get getId => id;
 
   set setId(id) => this.id = id;
@@ -66,6 +69,10 @@ class Account extends IAccount {
 
   set setJoinedDate(joinedDate) => this.joinedDate = joinedDate;
 
+  int? get getLastTrans => lastTrans;
+
+  set setLastTrans(lastTrans) => this.lastTrans = lastTrans;
+
   Account({
     this.id,
     required this.email,
@@ -73,9 +80,9 @@ class Account extends IAccount {
     required this.phoneNumber,
     required this.salt,
     required this.status,
-    // required this.address,
     required this.balance,
     required this.joinedDate,
+    this.lastTrans,
   });
 
   factory Account.fromJson(Map<String, dynamic> json) =>

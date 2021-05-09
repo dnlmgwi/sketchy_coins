@@ -29,24 +29,14 @@ String hashPassword({required String password, required String salt}) {
   return digest.toString();
 }
 
-// String userAddressAlgo({
-//   required String phoneNumber,
-// }) {
-//   var keyGen = CryptKey();
-//   var key32 = keyGen.genFortuna(len: 32);
-//   var iv16 = keyGen.genDart(len: 16);
-//   var aes = AesCrypt(key: key32, padding: PaddingAES.none);
-//   var crypted = aes.gcm.encrypt(inp: phoneNumber, iv: iv16);
-
-//   return crypted;
-// }
-
 String generateJWT(
     {required String? subject,
     required String issuer,
     required String secret,
     String? jwtId,
-    Duration expiry = const Duration(minutes: 20)}) {
+    Duration expiry = const Duration(
+      minutes: 20,
+    )}) {
   // Create a json web token
   final jwt = JWT(
     {
@@ -66,10 +56,11 @@ dynamic verifyJWT({required String token, required String secret}) {
   try {
     final jwt = JWT.verify(token, SecretKey(secret));
     return jwt;
-  } on JWTExpiredError {
+  } on JWTExpiredError catch (e) {
+    print('JWTExpiredError ${e.message}');
     rethrow;
   } on JWTError catch (e) {
-    print(e.message);
+    print('JWTError $e');
     rethrow;
   }
 }
@@ -87,6 +78,7 @@ Middleware handleAuth({required String secret}) {
           jwt = verifyJWT(token: token, secret: secret);
         } catch (e) {
           print('Handler Auth Error: ${e.toString()}');
+          //Todo Notify Auth Error
         }
       }
 

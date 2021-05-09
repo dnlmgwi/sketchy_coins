@@ -1,15 +1,15 @@
 import 'package:sketchy_coins/packages.dart';
-import 'package:sketchy_coins/src/Models/account/transAccount.dart';
 
-class AccountService {
+class AccountService implements IAccountService {
   DatabaseService databaseService;
   AccountService({required this.databaseService});
 
-  Future<TransAccount> findAccount({required String id}) async {
+  @override
+  Future<TransAccount> findAccountDetails({required String id}) async {
     var response = await DatabaseService.client
         .from('accounts')
         .select(
-          'status, balance, id, phoneNumber',
+          'status, balance, id, phoneNumber, lastTrans',
         )
         .match({
           'id': id,
@@ -28,12 +28,13 @@ class AccountService {
     return TransAccount.fromJson(response.data[0]);
   }
 
-  Future<TransAccount> findRecipientAccount(
+  @override
+  Future<TransAccount> findRecipientDepositAccount(
       {required String phoneNumber}) async {
     var response = await DatabaseService.client
         .from('accounts')
         .select(
-          'status, balance, id, phoneNumber',
+          'status, balance, id, phoneNumber, lastTrans',
         )
         .match({
           'phoneNumber': phoneNumber,

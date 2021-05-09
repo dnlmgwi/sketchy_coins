@@ -1,4 +1,5 @@
 import 'package:sketchy_coins/packages.dart';
+import 'package:sketchy_coins/src/api/auth/validation/validation.dart';
 import 'package:sketchy_coins/src/services/databaseService.dart';
 
 class AuthApi {
@@ -32,7 +33,7 @@ class AuthApi {
           final password = userData['password'];
           final phoneNumber = userData['phoneNumber'];
 
-          if (email == null || email == '' || !isEmail(email)) {
+          if (AuthApiValidation.emailCheck(email)) {
             //Todo: Input Validation Errors
             return Response(
               HttpStatus.badRequest,
@@ -45,25 +46,7 @@ class AuthApi {
             );
           }
 
-          //Strong Password
-          ///               # assert that
-          /// (?=^.{8,}$)    # there are at least 8 characters
-          /// (              # and
-          /// (?=.*\d)       # there is at least a digit
-          /// |              # or
-          /// (?=.*\W+)      # there is one or more "non word" characters (\W is equivalent to [^a-zA-Z0-9_])
-          /// )              # and
-          /// (?![.\n])      # there is no . or newline and
-          /// (?=.*[A-Z])    # there is at least an upper case letter and
-          /// (?=.*[a-z]).*$ # there is at least a lower case letter
-          /// .*$            # in a string of any characters
-
-          var isPasswordRegExp = RegExp(
-              r'(?=^.{8,}$)(?=.*\d)(?=.*[!@#$%^&*]+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$');
-
-          if (password == null ||
-              password == '' ||
-              !isPasswordRegExp.hasMatch(password)) {
+          if (AuthApiValidation.passwordCheck(password)) {
             //Todo: Input Validation Errors
             return Response(
               HttpStatus.badRequest,
@@ -78,12 +61,7 @@ class AuthApi {
             );
           }
 
-          var isphoneNumberRegEx = RegExp(
-              r'^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$');
-
-          if (phoneNumber == null ||
-              phoneNumber == '' ||
-              !isphoneNumberRegEx.hasMatch(phoneNumber)) {
+          if (AuthApiValidation.phoneNumberCheck(phoneNumber)) {
             //Todo: Input Validation Errors
             return Response(
               HttpStatus.badRequest,
@@ -97,14 +75,24 @@ class AuthApi {
           }
 
           await _authService.register(
-            email: email,
-            password: password,
-            phoneNumber: phoneNumber,
-          );
+              email: email, password: password, phoneNumber: phoneNumber);
 
           return Response.ok(
             json.encode({
               'data': {'message': 'Account Created'}
+            }),
+            headers: {
+              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+            },
+          );
+        } on FormatException catch (e) {
+          print('FormatException ${e.source} ${e.message}');
+          return Response(
+            HttpStatus.badRequest,
+            body: json.encode({
+              'data': {
+                'message': 'Provide a valid Request refer to documentation'
+              }
             }),
             headers: {
               HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
@@ -175,6 +163,19 @@ class AuthApi {
               HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
             },
           );
+        } on FormatException catch (e) {
+          print('FormatException ${e.source} ${e.message}');
+          return Response(
+            HttpStatus.badRequest,
+            body: json.encode({
+              'data': {
+                'message': 'Provide a valid Request refer to documentation'
+              }
+            }),
+            headers: {
+              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+            },
+          );
         } catch (e) {
           return Response(
             HttpStatus.badRequest,
@@ -192,7 +193,6 @@ class AuthApi {
     router.post('/logout', (Request req) async {
       final auth = req.context['authDetails'];
 
-      //print('Auth Details: ${(auth as JWT).jwtId}');
       if (auth == null) {
         return Response.forbidden(
           json.encode({
@@ -241,7 +241,21 @@ class AuthApi {
           token: payloadMap['refreshToken'],
           secret: secret,
         );
+      } on FormatException catch (e) {
+        print('FormatException ${e.source} ${e.message}');
+        return Response(
+          HttpStatus.badRequest,
+          body: json.encode({
+            'data': {
+              'message': 'Provide a valid Request refer to documentation'
+            }
+          }),
+          headers: {
+            HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+          },
+        );
       } catch (e) {
+        //TODO Handle VerifyJWT Error
         print(e.toString());
         return Response(
           HttpStatus.badRequest,
