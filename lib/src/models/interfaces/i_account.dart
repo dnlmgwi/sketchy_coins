@@ -17,7 +17,5 @@ abstract class IAccount {
 
   late int? lastTrans;
 
-  IAccount();
-
   Map<String, dynamic> toJson();
 }

@@ -1,22 +1,18 @@
 import 'package:sketchy_coins/packages.dart';
 
 class TokenService {
-  TokenService({
-    required this.secret,
-  });
-  
-  final String secret;
   late RedisClient client;
 
   final String _prefix = 'token';
-  final refreshTokenExpiry = Duration(days: 7); //TODO: 7 Days is best practice?
+  final refreshTokenExpiry =
+      Duration(days: 7); //TODO: 7 Days is best practice? Add To Env
 
   Future<void> start() async {
     try {
       client = await RedisClient.connect(
-        Env.redisHostname,
+        Env.redisHostname!,
         int.parse(
-          Env.redisPort,
+          Env.redisPort!,
         ),
       );
     } catch (e) {
@@ -29,15 +25,15 @@ class TokenService {
 
     final token = generateJWT(
         subject: userId,
-        issuer: Env.hostName,
-        secret: secret,
+        issuer: Env.hostName!,
+        secret: Env.secret!,
         jwtId: tokenId,
         expiry: Duration(minutes: 15));
 
     final refreshToken = generateJWT(
       subject: userId,
-      issuer: Env.hostName,
-      secret: secret,
+      issuer: Env.hostName!,
+      secret: Env.secret!,
       jwtId: Uuid().v4(),
       expiry: refreshTokenExpiry,
     );

@@ -41,36 +41,6 @@ class TransIDClaimedException implements Exception {
   }
 }
 
-class AccountDuplicationFoundException implements Exception {
-  ///This Exception is thrown when there is an excisting account in the DB
-  late String _message;
-
-  AccountDuplicationFoundException(
-      [String message = 'Please, login Instead.']) {
-    _message = message;
-  }
-
-  @override
-  String toString() {
-    return _message;
-  }
-}
-
-class RegisteredCredentialsException implements Exception {
-  ///This Exception is thrown when there is an excisting account in the DB
-  late String _message;
-
-  RegisteredCredentialsException(
-      [String message = 'These Details are Registered, Login instead']) {
-    _message = message;
-  }
-
-  @override
-  String toString() {
-    return _message;
-  }
-}
-
 class IncorrectInputException implements Exception {
   ///This Exception is thrown when there is an excisting account in the DB
   late String _message;
@@ -103,7 +73,8 @@ class InvalidUserIDException implements Exception {
   ///This Exception is thrown when there is an invalid Input Entered in the DB
   late String _message;
 
-  InvalidUserIDException([String message = 'Please provide a valid User ID']) {
+  InvalidUserIDException(
+      [String message = 'Please provide the id key {id: uuid}']) {
     _message = message;
   }
 
@@ -128,10 +99,11 @@ class RecentTransException implements Exception {
 }
 
 class InvalidAmountException implements Exception {
-  ///This Exception is thrown when there is an invalid Input Entered in the DB
+  ///This Exception is thrown when there is an invalid Input Entered in the request
   late String _message;
 
-  InvalidAmountException([String message = 'Please provide a valid Amount']) {
+  InvalidAmountException(
+      [String message = 'Please provide the amount key {amount: value}']) {
     _message = message;
   }
 
@@ -191,21 +163,6 @@ class NoPendingTransactionException implements Exception {
   late String _message;
 
   NoPendingTransactionException([String message = 'Nothing to Mine']) {
-    _message = message;
-  }
-
-  @override
-  String toString() {
-    return _message;
-  }
-}
-
-class UnauthorisedException implements Exception {
-  ///This Exception is thrown when there is an excisting account in the DB
-  late String _message;
-
-  UnauthorisedException(
-      [String message = 'Not authorised to perform this request']) {
     _message = message;
   }
 

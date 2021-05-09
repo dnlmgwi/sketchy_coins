@@ -37,7 +37,7 @@ class AuthService implements IAuthService {
               password: hashpassword,
               salt: salt,
               status: 'normal',
-              balance: double.parse(Env.newAccountBalance),
+              balance: double.parse(Env.newAccountBalance!),
               joinedDate: DateTime.now().millisecondsSinceEpoch,
             ).toJson()
           ],
@@ -47,7 +47,7 @@ class AuthService implements IAuthService {
       if (response.error != null) {
         throw response.error!.message;
       }
-      print('Created Account: ${response.data.toString()}');
+
       return response.data; //TODO Should it return this data?
 
     } on PostgrestError catch (e) {

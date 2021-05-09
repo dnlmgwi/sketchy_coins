@@ -1,4 +1,5 @@
 import 'package:sketchy_coins/packages.dart';
+import 'package:sketchy_coins/src/services/walletServices.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -11,19 +12,20 @@ void main() async {
   await Hive.openBox<RechargeNotification>('rechargeNotifications');
   await Hive.openBox<TransactionRecord>('transactions');
 
-  final tokenService = TokenService(
-    secret: Env.secret,
-  );
+  final tokenService = TokenService();
 
   await tokenService.start();
 
   final databaseService = DatabaseService();
+  final walletService = WalletService();
+
   final authService = AuthService(
     databaseService: databaseService,
   );
 
   final blockchainService = BlockchainService(
     databaseService: databaseService,
+    walletService: walletService,
   );
 
   var miner = MineServices(blockchain: blockchainService);

@@ -6,42 +6,6 @@
 //   Router get router {
 //     final router = Router();
 
-//     router.post(
-//       '/upload',
-//       ((
-//         Request request,
-//       ) async {
-//         final payload = await request.readAsString();
-
-//         try {
-//           //TODO:
-
-//           return Response.ok(
-//             json.encode({
-//               'data': {
-//                 'message': 'Transaction Complete',
-//                 'transaction': json.decode(payload),
-//               }
-//             }),
-//             headers: {
-//               HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
-//             },
-//           );
-//         } catch (e) {
-//           print(e);
-
-//           return Response.forbidden(
-//             json.encode({
-//               'data': {'message': '${e.toString()}'}
-//             }),
-//             headers: {
-//               HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
-//             },
-//           );
-//         }
-//       }),
-//     );
-
 //     router.get('/download', (
 //       Request request,
 //     ) async {

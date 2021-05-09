@@ -3,9 +3,9 @@
     "version": "2.0.13",
     "width": 2000,
     "height": 2000,
-    "scrollTop": -106,
-    "scrollLeft": -97,
-    "zoomLevel": 0.9,
+    "scrollTop": -73,
+    "scrollLeft": -10,
+    "zoomLevel": 1,
     "show": {
       "tableComment": true,
       "columnComment": true,
@@ -47,7 +47,7 @@
           {
             "name": "id",
             "comment": "",
-            "dataType": "uuid",
+            "dataType": "",
             "default": "",
             "option": {
               "autoIncrement": false,
@@ -279,7 +279,7 @@
           "active": false,
           "left": 85,
           "top": 81,
-          "zIndex": 12,
+          "zIndex": 3,
           "widthName": 60,
           "widthComment": 88
         },
@@ -287,7 +287,7 @@
       },
       {
         "name": "transactions",
-        "comment": "",
+        "comment": "Transactions that have been processed",
         "columns": [
           {
             "name": "transID",
@@ -430,7 +430,7 @@
           {
             "name": "account_id",
             "comment": "",
-            "dataType": "uuid",
+            "dataType": "",
             "default": "",
             "option": {
               "autoIncrement": false,
@@ -451,7 +451,7 @@
             "id": "b0219b82-c4f8-478a-8288-fb88000a27d8"
           },
           {
-            "name": "block_index",
+            "name": "fk_block_index",
             "comment": "",
             "dataType": "int4",
             "default": "",
@@ -466,7 +466,7 @@
               "pk": false,
               "fk": true,
               "pfk": false,
-              "widthName": 73,
+              "widthName": 90,
               "widthComment": 60,
               "widthDataType": 60,
               "widthDefault": 60
@@ -475,22 +475,22 @@
           }
         ],
         "ui": {
-          "active": false,
+          "active": true,
           "left": 49.99999999999995,
           "top": 486.33333333333263,
-          "zIndex": 3,
+          "zIndex": 46,
           "widthName": 77,
-          "widthComment": 60
+          "widthComment": 120
         },
         "id": "134c5a6f-b805-4135-b8e1-6b02b1b8c3dc"
       },
       {
         "name": "blockchain",
-        "comment": "",
+        "comment": "Blockchain of transactions ",
         "columns": [
           {
             "name": "index",
-            "comment": "",
+            "comment": "Block Index",
             "dataType": "int4",
             "default": "",
             "option": {
@@ -505,7 +505,7 @@
               "fk": false,
               "pfk": false,
               "widthName": 60,
-              "widthComment": 60,
+              "widthComment": 73,
               "widthDataType": 60,
               "widthDefault": 60
             },
@@ -513,14 +513,14 @@
           },
           {
             "name": "proof",
-            "comment": "",
+            "comment": "Block Proof",
             "dataType": "int8",
             "default": "",
             "option": {
               "autoIncrement": false,
               "primaryKey": false,
               "unique": false,
-              "notNull": false
+              "notNull": true
             },
             "ui": {
               "active": false,
@@ -528,7 +528,7 @@
               "fk": false,
               "pfk": false,
               "widthName": 60,
-              "widthComment": 60,
+              "widthComment": 72,
               "widthDataType": 60,
               "widthDefault": 60
             },
@@ -536,14 +536,14 @@
           },
           {
             "name": "prevHash",
-            "comment": "",
+            "comment": "previous Block Hash",
             "dataType": "text",
             "default": "",
             "option": {
               "autoIncrement": false,
               "primaryKey": false,
               "unique": false,
-              "notNull": false
+              "notNull": true
             },
             "ui": {
               "active": false,
@@ -551,7 +551,7 @@
               "fk": false,
               "pfk": false,
               "widthName": 60,
-              "widthComment": 60,
+              "widthComment": 120,
               "widthDataType": 60,
               "widthDefault": 60
             },
@@ -559,8 +559,31 @@
           },
           {
             "name": "timestamp",
-            "comment": "",
+            "comment": "Block Timestamp",
             "dataType": "int8",
+            "default": "",
+            "option": {
+              "autoIncrement": false,
+              "primaryKey": false,
+              "unique": false,
+              "notNull": true
+            },
+            "ui": {
+              "active": false,
+              "pk": false,
+              "fk": false,
+              "pfk": false,
+              "widthName": 68,
+              "widthComment": 107,
+              "widthDataType": 60,
+              "widthDefault": 60
+            },
+            "id": "02e0efc7-e065-4681-a5c3-b32faa8defce"
+          },
+          {
+            "name": "transactions",
+            "comment": "json of Transactions in Block",
+            "dataType": "jsonb",
             "default": "",
             "option": {
               "autoIncrement": false,
@@ -573,21 +596,21 @@
               "pk": false,
               "fk": false,
               "pfk": false,
-              "widthName": 68,
-              "widthComment": 60,
+              "widthName": 77,
+              "widthComment": 120,
               "widthDataType": 60,
               "widthDefault": 60
             },
-            "id": "02e0efc7-e065-4681-a5c3-b32faa8defce"
+            "id": "3b365ae2-3336-4b17-9289-d3de34426bfd"
           }
         ],
         "ui": {
           "active": false,
           "left": 592.555555555555,
           "top": 655.3333333333338,
-          "zIndex": 1,
+          "zIndex": 40,
           "widthName": 67,
-          "widthComment": 60
+          "widthComment": 120
         },
         "id": "14770c72-5c58-4e7b-adfd-765ef20b19df"
       }
@@ -617,7 +640,7 @@
           "columnIds": [
             "b0219b82-c4f8-478a-8288-fb88000a27d8"
           ],
-          "x": 253.49999999999994,
+          "x": 261.99999999999994,
           "y": 486.33333333333263,
           "direction": "top"
         },
@@ -633,7 +656,7 @@
             "a3b52f64-797a-4671-b253-4fda062d8670"
           ],
           "x": 592.555555555555,
-          "y": 730.8333333333338,
+          "y": 741.0833333333338,
           "direction": "left"
         },
         "end": {
@@ -641,7 +664,7 @@
           "columnIds": [
             "8e2c622e-e0ef-4f89-8c2e-7273adf37fee"
           ],
-          "x": 456.99999999999994,
+          "x": 473.99999999999994,
           "y": 602.8333333333326,
           "direction": "right"
         },

@@ -1,14 +1,14 @@
 import 'package:sketchy_coins/packages.dart';
 
-class BaseApi {
+class StatusApi {
   Router get router {
     final router = Router();
 
     router.get('/status', (Request request) {
       final data = {
-        'message': 'Welcome to P23',
+        'message': 'Welcome to Perrow API',
         'status': 'Testing',
-        'version': '0.3.2-alpha',
+        'version': '0.3.4-alpha',
       };
       return Response.ok(
         json.encode(data),

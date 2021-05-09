@@ -6,11 +6,7 @@ class MineServices {
 
   MineServices({required this.blockchain});
 
-  Future mine(
-      //{
-      // required String recipient,
-      //}
-      ) async {
+  Future mine() async {
     if (blockchain.pendingTransactions.isEmpty) {
       throw NoPendingTransactionException();
     }

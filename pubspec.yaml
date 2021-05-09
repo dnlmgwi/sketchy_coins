@@ -1,6 +1,6 @@
 name: sketchy_coins
 description: A Blockchain Transaction Server.
-version: 0.3.2
+version: 0.3.4
 homepage: https://www.example.com
 
 environment:
@@ -20,6 +20,7 @@ dependencies:
   postgrest: ^0.1.0
   timeago: ^3.0.2
   supabase: ^0.0.1-dev.14
+  dotenv: ^3.0.0-nullsafety.0
 
 dev_dependencies:
   pedantic: ^1.11.0

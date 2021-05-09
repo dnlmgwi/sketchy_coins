@@ -11,6 +11,7 @@ export 'dart:math';
 /// imported Packages
 export 'package:crypto/crypto.dart';
 export 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
+export 'package:dotenv/dotenv.dart';
 export 'package:hex/hex.dart';
 export 'package:hive/hive.dart';
 export 'package:json_annotation/json_annotation.dart';
@@ -22,13 +23,13 @@ export 'package:uuid/uuid.dart';
 export 'package:validators/validators.dart';
 
 /// Config File
-export './src/config.dart';
+export 'src/config.dart';
 
 /// Api Endpoints
-export './src/api/account_api.dart';
-export './src/api/auth_api.dart';
-export './src/api/base_api.dart';
-export './src/api/blockchain_api.dart';
+export 'src/api/account/account_api.dart';
+export 'src/api/auth/auth_api.dart';
+export 'src/api/status/status_api.dart';
+export 'src/api/blockchain/blockchain_api.dart';
 
 //Validation Services
 export './src/services/validation/AuthValidationService.dart';
@@ -36,16 +37,18 @@ export './src/services/validation/blockchainValidationService.dart';
 
 /// Services
 export './src/services/accountService.dart';
-export './src/services/accountService.dart';
-export './src/services/AuthService.dart';
+export 'src/services/authService.dart';
+export './src/services/automatedTasks.dart';
 export './src/services/blockchainService.dart';
 export './src/services/databaseService.dart';
 export './src/services/mineService.dart';
 export './src/services/token_service.dart';
+export './src/services/walletServices.dart';
 
 ///Service Interfaces
 export './src/services/interfaces/i_AccountService.dart';
 export './src/services/interfaces/i_AuthService.dart';
+export './src/services/interfaces/i_WalletService.dart';
 
 /// Models
 export './src/Models/1.transactionRecord/transactionRecord.dart';
@@ -56,9 +59,16 @@ export './src/Models/block/block.dart';
 export './src/Models/mineResult/mineResult.dart';
 export './src/Models/tokenPair/tokenPair.dart';
 
+//Blockchain Api
+export './src/api/blockchain/validation/responses.dart';
+export './src/api/blockchain/validation/validation.dart';
+
+//Account Api
+export './src/api/account/account_api.dart';
+
 /// Model Interfaces
 export './src/Models/interfaces/i_account.dart';
 
 /// Exceptions
 export './src/errors/accountExceptions.dart';
-export './src/errors/authException.dart';
+export 'src/errors/authExceptions.dart';

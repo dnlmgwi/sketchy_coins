@@ -1,12 +1,15 @@
 import 'package:sketchy_coins/packages.dart';
+import 'package:sketchy_coins/src/models/transferRequest/transferRequest.dart';
 
 class BlockChainApi {
   BlockchainService blockchainService;
   DatabaseService databaseService;
+  WalletService walletService;
 
   BlockChainApi({
     required this.blockchainService,
     required this.databaseService,
+    required this.walletService,
   });
 
   Handler get router {
@@ -18,7 +21,6 @@ class BlockChainApi {
     );
 
     var miner = MineServices(blockchain: blockchainService);
-    var blockChainValidity = BlockChainValidationService();
 
     router.post(
       '/transfer',
@@ -30,49 +32,58 @@ class BlockChainApi {
           final user = await _accountService.findAccountDetails(
             id: authDetails.subject.toString(),
           );
-          final payload = await request.readAsString();
-          final data = json.decode(payload);
 
-          var recipientid = data['id'];
-          var amount = data['amount'];
+          var data = TransferRequest.fromJson(
+              json.decode(await request.readAsString()));
 
-          if (recipientid == null) {
-            //If Body Doesn't container id key
-            throw InvalidUserIDException();
-          } else if (amount == null) {
-            throw InvalidAmountException();
-          } else {
-            if (noRecipientCheck(recipientid) || !isUUID(recipientid)) {
-              return Response.forbidden(
-                noRecipientError(),
-                headers: {
-                  HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
-                },
-              );
-            }
+          BlockChainApiValidation.nullInputValidation(
+            recipientid: data.id,
+            amount: data.amount,
+          );
 
-            if (noAmountCheck(amount)) {
-              return Response.forbidden(
-                noAmountError(),
-                headers: {
-                  HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
-                },
-              );
-            }
+          if (BlockChainApiValidation.recipientCheck(data.id!) ||
+              !isUUID(data.id)) {
+            return Response.forbidden(
+              BlockChainApiResponses.recipientError(),
+              headers: {
+                HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+              },
+            );
           }
 
-          await blockchainService.initiateTransfer(
+          if (BlockChainApiValidation.amountCheck(data.amount!)) {
+            return Response.forbidden(
+              BlockChainApiResponses.amountError(),
+              headers: {
+                HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+              },
+            );
+          }
+
+          await walletService.initiateTransfer(
             senderid: user.id,
-            recipientid: recipientid,
-            amount: amount,
+            recipientid: data.id!,
+            amount: data.amount!,
           );
 
           return Response.ok(
             json.encode({
               'data': {
                 'message': 'Transaction Pending',
-                'balance': '${user.balance - amount}',
-                'transaction': json.decode(payload),
+                'balance': '${user.balance - data.amount!}',
+                'transaction': data.toJson(),
+              }
+            }),
+            headers: {
+              HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+            },
+          );
+        } on FormatException catch (e) {
+          return Response(
+            HttpStatus.badRequest,
+            body: json.encode({
+              'data': {
+                'message': 'Provide a valid Request refer to documentation'
               }
             }),
             headers: {
@@ -95,7 +106,7 @@ class BlockChainApi {
     router.get(
       '/pending',
       (Request request) async {
-        if (blockChainValidity.isBlockChainValid(
+        if (BlockChainValidationService.isBlockChainValid(
             chain: await miner.blockchain.getBlockchain(),
             blockchain: blockchainService)) {
           return Response.ok(
@@ -117,39 +128,4 @@ class BlockChainApi {
 
     return handler;
   }
-
-  String noSenderError() {
-    return json.encode({
-      'data': {
-        'message': 'Please Provide Sender id',
-      }
-    });
-  }
-
-  String noRecipientError() {
-    return json.encode({
-      'data': {
-        'message': 'Please Provide Recipient id',
-      }
-    });
-  }
-
-  String noAmountError() {
-    return json.encode({
-      'data': {
-        'message':
-            'Please include valid amount Greater Than P${Env.minTransactionAmount}',
-      }
-    });
-  }
-
-  bool noAmountCheck(double data) =>
-      data <
-      double.parse(
-        Env.minTransactionAmount,
-      );
-
-  bool noRecipientCheck(String data) => data == '' || data.isEmpty;
-
-  bool noSenderCheck(String? data) => data == '' || data!.isEmpty;
 }
