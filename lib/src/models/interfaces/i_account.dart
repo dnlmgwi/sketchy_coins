@@ -1,21 +1,25 @@
 abstract class IAccount {
-  late String? id;
-
-  late String email;
+  String? id;
 
   late String password;
 
   late String phoneNumber;
 
+  late int? locationId;
+
   late String salt;
 
   late String status;
 
-  late double balance;
+  late int balance;
 
   late int joinedDate;
 
-  late int? lastTrans;
+  int? lastTrans;
+
+  late String gender;
+
+  late int age;
 
   Map<String, dynamic> toJson();
 }

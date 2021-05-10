@@ -19,19 +19,21 @@ class AuthValidationService {
       throw AccountNotFoundException();
     }
 
+    print(response.data[0]);
+
     return Account.fromJson(response.data[0]);
   }
 
   static Future findDuplicateAccountCredentials({
-    required String email,
     required String phoneNumber,
   }) async {
     try {
       var response = await DatabaseService.client
           .from('accounts')
-          .select('email,phoneNumber')
-          .or(
-            'email.eq.$email, phoneNumber.eq.$phoneNumber',
+          .select('phone_number')
+          .eq(
+            'phone_number',
+            '$phoneNumber',
           )
           .execute()
           .onError(
@@ -55,7 +57,6 @@ class AuthValidationService {
   }
 
   static Future<bool> isDuplicatedAccount({
-    required String email,
     required String phoneNumber,
   }) async {
     var duplicateAccount = false;
@@ -63,7 +64,6 @@ class AuthValidationService {
       //TODO Refactor this Method
       //If an exception is thrown return true
       await findDuplicateAccountCredentials(
-        email: email,
         phoneNumber: phoneNumber,
       );
     } catch (e) {

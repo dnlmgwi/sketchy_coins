@@ -26,19 +26,15 @@ class AuthApi {
         Request request,
       ) async {
         try {
-          final payload = await request.readAsString();
-          final userData = json.decode(payload);
+          var data = RegisterRequest.fromJson(
+              json.decode(await request.readAsString()));
 
-          final email = userData['email'];
-          final password = userData['password'];
-          final phoneNumber = userData['phoneNumber'];
-
-          if (AuthApiValidation.emailCheck(email)) {
+          if (AuthApiValidation.ageCheck(data.age)) {
             //Todo: Input Validation Errors
             return Response(
               HttpStatus.badRequest,
               body: json.encode({
-                'data': {'message': 'Please provide a valid email'}
+                'data': {'message': 'Please provide your age'}
               }),
               headers: {
                 HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
@@ -46,7 +42,20 @@ class AuthApi {
             );
           }
 
-          if (AuthApiValidation.passwordCheck(password)) {
+          if (AuthApiValidation.genderCheck(data.gender)) {
+            //Todo: Input Validation Errors
+            return Response(
+              HttpStatus.badRequest,
+              body: json.encode({
+                'data': {'message': 'Please provide your gender'}
+              }),
+              headers: {
+                HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+              },
+            );
+          }
+
+          if (AuthApiValidation.passwordCheck(data.password)) {
             //Todo: Input Validation Errors
             return Response(
               HttpStatus.badRequest,
@@ -61,7 +70,7 @@ class AuthApi {
             );
           }
 
-          if (AuthApiValidation.phoneNumberCheck(phoneNumber)) {
+          if (AuthApiValidation.phoneNumberCheck(data.phoneNumber)) {
             //Todo: Input Validation Errors
             return Response(
               HttpStatus.badRequest,
@@ -75,7 +84,11 @@ class AuthApi {
           }
 
           await _authService.register(
-              email: email, password: password, phoneNumber: phoneNumber);
+            gender: data.gender!,
+            password: data.password!,
+            phoneNumber: data.phoneNumber!,
+            age: data.age!,
+          );
 
           return Response.ok(
             json.encode({

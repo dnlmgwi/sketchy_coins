@@ -15,7 +15,10 @@ void main(List<String> arguments) async {
   await tokenService.start();
 
   final databaseService = DatabaseService();
-  final walletService = WalletService();
+
+  final accountService = AccountService(databaseService: databaseService);
+
+  final walletService = WalletService(accountService: accountService);
 
   final authService = AuthService(
     databaseService: databaseService,
@@ -67,7 +70,6 @@ void main(List<String> arguments) async {
     BlockChainApi(
       databaseService: databaseService,
       blockchainService: blockchainService,
-      walletService: walletService,
     ).router,
   );
 
@@ -76,6 +78,7 @@ void main(List<String> arguments) async {
     AccountApi(
       authService: authService,
       databaseService: databaseService,
+      walletService: walletService,
     ).router,
   );
 
