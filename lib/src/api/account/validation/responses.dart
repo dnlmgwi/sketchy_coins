@@ -1,6 +1,6 @@
 import 'package:sketchy_coins/packages.dart';
 
-class BlockChainApiResponses {
+class AccountApiResponses {
   //No Recipient Provided
   static String recipientError() {
     return json.encode({

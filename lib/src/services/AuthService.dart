@@ -10,7 +10,8 @@ class AuthService implements IAuthService {
   @override
   Future register({
     required String password,
-    required String email,
+    required String gender,
+    required int age,
     required String phoneNumber,
   }) async {
     final salt = generateSalt();
@@ -23,30 +24,37 @@ class AuthService implements IAuthService {
     try {
       var response;
       var isDuplicate = await AuthValidationService.isDuplicatedAccount(
-        email: email,
         phoneNumber: phoneNumber,
       );
 
       if (!isDuplicate) {
-        response = await DatabaseService.client.from('accounts').insert(
-          [
-            Account(
-              email: email,
-              // id: id,
+        response = await DatabaseService.client
+            .from('accounts')
+            .insert(Account(
+              id: Uuid().v4(),
+              age: age,
+              gender: gender,
               phoneNumber: phoneNumber,
               password: hashpassword,
               salt: salt,
               status: 'normal',
-              balance: double.parse(Env.newAccountBalance!),
+              balance: int.parse(Env.newAccountBalance!),
               joinedDate: DateTime.now().millisecondsSinceEpoch,
-            ).toJson()
-          ],
-        ).execute(); //TODO Handle Error
+            ).toJson())
+            .execute()
+            .catchError(
+          (error, stackTrace) {
+            print('$error $stackTrace');
+            throw Exception('$error $stackTrace');
+          },
+        ); //TODO Handle Error
       }
 
       if (response.error != null) {
-        throw response.error!.message;
+        throw Exception(response.error!.message);
       }
+
+      print(response.data); //TODO Notify User Once Account Is Created
 
       return response.data; //TODO Should it return this data?
 

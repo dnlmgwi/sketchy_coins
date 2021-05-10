@@ -5,23 +5,24 @@ part 'rechargeNotification.g.dart';
 @JsonSerializable()
 class RechargeNotification extends HiveObject {
   @HiveField(1)
+  @JsonKey(name: 'trans_id')
   String transID;
 
   @HiveField(2)
+  @JsonKey(name: 'phone_number')
   String phoneNumber;
 
   @HiveField(3)
-  String amount;
+  double amount;
 
   @HiveField(4)
   int timestamp;
 
-  RechargeNotification({
-    required this.phoneNumber,
-    required this.amount,
-    required this.transID,
-    required this.timestamp
-  });
+  RechargeNotification(
+      {required this.phoneNumber,
+      required this.amount,
+      required this.transID,
+      required this.timestamp});
 
   factory RechargeNotification.fromJson(Map<String, dynamic> json) =>
       _$RechargeNotificationFromJson(json);

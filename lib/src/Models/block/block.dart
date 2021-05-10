@@ -12,12 +12,14 @@ class Block implements IBlock {
   int timestamp;
 
   @override
-  List? transactions;
+  @JsonKey(name: 'block_transactions')
+  List? blockTransactions;
 
   @override
   int proof;
 
   @override
+  @JsonKey(name: 'prev_hash')
   late String? prevHash;
 
   Block({
@@ -25,7 +27,7 @@ class Block implements IBlock {
     required this.timestamp,
     required this.proof,
     required this.prevHash,
-    required this.transactions,
+    required this.blockTransactions,
   });
 
   factory Block.fromJson(Map<String, dynamic> json) => _$BlockFromJson(json);

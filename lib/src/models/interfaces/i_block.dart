@@ -5,7 +5,7 @@ abstract class IBlock {
 
   late int timestamp;
 
-  late List? transactions;
+  late List? blockTransactions;
 
   late int proof;
 

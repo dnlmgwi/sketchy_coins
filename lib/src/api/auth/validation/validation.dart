@@ -10,6 +10,9 @@ class AuthApiValidation {
         !isphoneNumberRegEx.hasMatch(phoneNumber);
   }
 
+  /// Is Valid gender Provided
+  static bool ageCheck(age) => age == null || age == '';
+
   //Is Strong Password Provided
   static bool passwordCheck(password) {
     //Strong Password
@@ -32,6 +35,6 @@ class AuthApiValidation {
         !isPasswordRegExp.hasMatch(password);
   }
 
-  /// Is Valid Email Provided
-  static bool emailCheck(email) => email == null || email == '' || !isEmail(email);
+  /// Is Valid gender Provided
+  static bool genderCheck(gender) => gender == null || gender == '';
 }

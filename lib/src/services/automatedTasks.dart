@@ -8,35 +8,38 @@ class AutomatedTasks {
 
   AutomatedTasks({required this.miner, required this.walletService});
 
+  //Todo Use Websockets
+
   Future startAutomatedTasks() async {
-    Timer.periodic(Duration(minutes: 1), (timer) async {
+    Timer.periodic(Duration(seconds: 60), (timer) async {
       //if both lists are empty fetch more
       try {
         if (walletService.pendingDepositsTansactions.isEmpty) {
           //Get Unclaimed Deposits.
           print('Get Unclaimed Deposits.');
-          await _getUnclaimedDeposits().onError((error, stackTrace) =>
-              print('Error: $error Stacktrace: $stackTrace'));
+
+          await _getUnclaimedDeposits()
+              .onError((error, stackTrace) =>
+                  print('Error: $error Stacktrace: $stackTrace'))
+              .then((_) {
+            timer.cancel();
+            _processPendingPayments().onError(
+              (error, stackTrace) => startAutomatedTasks(),
+            );
+          });
         }
 
         if (walletService.pendingDepositsTansactions.isNotEmpty) {
           // Process The Items and Delete Them from List
           print('Process The Items and Delete Them from List');
-          await walletService.initiateTopUp(
-            data: walletService.pendingDepositsTansactions,
-          );
+          await walletService
+              .initiateTopUp(
+                data: walletService.pendingDepositsTansactions,
+              )
+              .then((_) => timer.cancel());
         }
       } catch (e) {
         print(e); //TODO Notify External Provider
-      }
-      //Wait for Next Batch.
-    });
-
-    Timer.periodic(Duration(minutes: 1), (timer) async {
-      try {
-        await _processPendingPayments();
-      } catch (e) {
-        print(e.toString());
       }
     });
   }
@@ -47,7 +50,7 @@ class AutomatedTasks {
       throw NoPendingTransactionException();
     } else if (walletService.pendingTansactions.isNotEmpty) {
       try {
-        await miner.mine();
+        await miner.mine().then((_) => startAutomatedTasks());
       } catch (e) {
         rethrow;
       }
@@ -57,7 +60,7 @@ class AutomatedTasks {
   Future<void> _getUnclaimedDeposits() async {
     try {
       var response = await DatabaseService.client
-          .from('rechargeNotifications')
+          .from('recharge_notifications')
           .select()
           .match({
             'claimed': false,
@@ -68,7 +71,8 @@ class AutomatedTasks {
           );
 
       if (response.data == null) {
-        throw Exception();
+        print('No Items Found');
+        // throw Exception('No Items Found');
       } else {
         if ((response.data as List).isNotEmpty) {
           print('Found something');

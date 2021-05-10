@@ -13,11 +13,12 @@ class MineServices {
 
     var lastBlock = await blockchain.lastBlock;
     var lastProof = lastBlock.proof;
-    var proof = blockchain.proofOfWork(lastProof);
+    var proof = await blockchain.proofOfWork(lastProof);
 
     // Forge the new Block by adding it to the chain
     var prevHash = blockchain.hash(lastBlock);
     var block = await blockchain.newBlock(
+      lastBlock,
       proof,
       prevHash,
     );
@@ -31,8 +32,8 @@ class MineServices {
     return MineResult(
       message: 'New Block Forged',
       validBlock: validblock,
-      blockIndex: block.index,
-      transactions: block.transactions,
+      index: block.index,
+      transactions: block.blockTransactions,
       proof: proof,
       prevHash: prevHash,
     );

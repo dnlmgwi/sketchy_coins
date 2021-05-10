@@ -1,24 +1,21 @@
 import 'package:sketchy_coins/packages.dart';
 
 class WalletService implements IWalletService {
-  var accountService = AccountService(databaseService: DatabaseService());
+  AccountService accountService;
+
+  WalletService({required this.accountService});
+
   var pendingTansactions = Hive.box<TransactionRecord>('transactions');
   var pendingDepositsTansactions =
       Hive.box<RechargeNotification>('rechargeNotifications');
 
   @override
-  Future<void> processPayments() async {
+  Future<void> processPayments(Block prevBlock) async {
     try {
-      var response = await DatabaseService.client
-          .from('blockchain')
-          .select()
-          .limit(1)
-          .order('timestamp', ascending: false)
-          .execute();
-
-      // if (response.data == null) {}
-      if (DateTime.fromMillisecondsSinceEpoch(
-              Block.fromJson(response.data[0]).timestamp)
+      if (prevBlock.toJson().isEmpty) {
+        print('Fatal Error');
+      }
+      if (DateTime.fromMillisecondsSinceEpoch(prevBlock.timestamp)
           .isBefore(DateTime.now())) {
         for (var transaction in pendingTansactions.values) {
           switch (transaction.transType) {
@@ -35,16 +32,22 @@ class WalletService implements IWalletService {
           }
           await DatabaseService.client
               .from('transactions')
-              .insert([transaction.toJson()])
+              .insert(TransactionRecord(
+                sender: transaction.sender,
+                recipient: transaction.recipient,
+                amount: transaction.amount,
+                timestamp: transaction.timestamp,
+                transId: transaction.transId,
+                transType: transaction.transType,
+                index: prevBlock.index! + 1,
+              ).toJson())
               .execute()
-              .then((_) => transaction.delete());
+              .then((_) {
+            transaction.delete();
+            print('Transaction Upload: ${_.toJson()}');
+          });
         }
       }
-      if (response.error != null) {
-        throw response.error!.message;
-      }
-
-      return response.data;
     } on PostgrestError catch (e) {
       print(e.code);
       print(e.message);
@@ -117,7 +120,7 @@ class WalletService implements IWalletService {
   Future editAccountBalance({
     required TransAccount senderAccount,
     TransAccount? recipientAccount,
-    required double value,
+    required int value,
     required int transactionType,
   }) async {
     try {
@@ -151,7 +154,7 @@ class WalletService implements IWalletService {
 
   @override
   Future<TransAccount> deposit({
-    required double value,
+    required int value,
     required TransAccount account,
   }) async {
     PostgrestResponse response;
@@ -169,7 +172,7 @@ class WalletService implements IWalletService {
 
   @override
   Future<void> transfer({
-    required double value,
+    required int value,
     required TransAccount senderAccount,
     required TransAccount recipientAccount,
   }) async {
@@ -185,7 +188,7 @@ class WalletService implements IWalletService {
               .from('accounts')
               .update({
                 'balance': recipientAccount.balance + value,
-                'lastTrans': DateTime.now().millisecondsSinceEpoch
+                'last_trans': DateTime.now().millisecondsSinceEpoch
               })
               .eq('id', recipientAccount.id)
               .execute());
@@ -196,14 +199,14 @@ class WalletService implements IWalletService {
 
   @override
   Future<void> withdraw({
-    required double value,
+    required int value,
     required TransAccount account,
   }) async {
     //TODO: External Provider Withdraw Provider Needed
     try {
       if (value > account.balance) {
         throw InsufficientFundsException();
-      } else if (value < double.parse(Env.minTransactionAmount!)) {
+      } else if (value < int.parse(Env.minTransactionAmount!)) {
         throw InvalidInputException();
       } else {
         await DatabaseService.client
@@ -220,15 +223,15 @@ class WalletService implements IWalletService {
   }
 
   @override
-  Future<double> checkAccountBalance({
-    required double value,
+  Future<void> checkAccountBalance({
+    required int value,
     required TransAccount account,
   }) async {
     try {
       if (await accountStatusCheck(account.id!)) {
         if (value > account.balance) {
           throw InsufficientFundsException();
-        } else if (value < double.parse(Env.minTransactionAmount!)) {
+        } else if (value < int.parse(Env.minTransactionAmount!)) {
           throw InvalidInputException();
         }
       } else {
@@ -238,11 +241,11 @@ class WalletService implements IWalletService {
       rethrow;
     }
 
-    return account.balance;
+    // return account.balance;
   }
 
   @override
-  Future initiateTopUp({required Box<RechargeNotification> data}) async {
+  Future<void> initiateTopUp({required Box<RechargeNotification> data}) async {
     try {
       //Check if TransID and Amount match the recieved notification.
       print('Total Items: ${data.values.length}');
@@ -251,7 +254,7 @@ class WalletService implements IWalletService {
         await accountService
             .findRecipientDepositAccount(phoneNumber: item.phoneNumber)
             .then((account) => addToPendingDeposit(
-                    item.transID, account.id!, extractAmount(item))
+                    item.transID, account.id!, extractMKAmount(item))
                 .then((_) => changeClaimToTrue(item.transID))
                 .then((_) => changeAccountStatusToProcessing(account.id!))
                 .then((_) => item.delete()));
@@ -262,14 +265,14 @@ class WalletService implements IWalletService {
   }
 
   @override
-  double extractAmount(RechargeNotification item) =>
-      double.parse(item.amount.toString().split('MK').last);
+  int extractMKAmount(RechargeNotification item) =>
+      int.parse(item.amount.toString().split('MK').last);
 
   @override
   Future<void> initiateTransfer({
     required String? senderid,
     required String recipientid,
-    required double amount,
+    required int amount,
   }) async {
     if (senderid == recipientid) {
       //Prevents User from Sending Points To Self Compounding Account Balance.
@@ -304,7 +307,7 @@ class WalletService implements IWalletService {
 
   @override
   Future addToPendingDeposit(
-      String sender, String recipient, double amount) async {
+      String sender, String recipient, int amount) async {
     /// Edit User Account Balance
     /// String id - User P23 id
     /// String value - Transaction Value
@@ -314,14 +317,13 @@ class WalletService implements IWalletService {
       recipient: recipient,
       amount: amount,
       timestamp: DateTime.now().millisecondsSinceEpoch,
-      transID: Uuid().v4(),
+      transId: Uuid().v4(),
       transType: 1,
     ));
   }
 
   @override
-  void addToPendingWithDraw(
-      String sender, String recipient, double amount) async {
+  void addToPendingWithDraw(String sender, String recipient, int amount) async {
     /// Edit User Account Balance
     /// String id - User P23 id
     /// String value - Transaction Value
@@ -331,14 +333,13 @@ class WalletService implements IWalletService {
       recipient: recipient,
       amount: amount,
       timestamp: DateTime.now().millisecondsSinceEpoch,
-      transID: Uuid().v4(),
+      transId: Uuid().v4(),
       transType: 0,
     ));
   }
 
   @override
-  void addToPendingTransfer(
-      String sender, String recipient, double amount) async {
+  void addToPendingTransfer(String sender, String recipient, int amount) async {
     //Allows users to transfer points between each other
     /// String transactionType - 0: Withdraw, 1: Deposit, 2: Transfer
     await pendingTansactions.add(TransactionRecord(
@@ -346,33 +347,17 @@ class WalletService implements IWalletService {
       recipient: recipient,
       amount: amount,
       timestamp: DateTime.now().millisecondsSinceEpoch,
-      transID: Uuid().v4(),
+      transId: Uuid().v4(),
       transType: 2, //TODO: Change 0 and 1 to Deposit and Withdaw;
     ));
   }
 
   @override
-  Future<bool> accountStatusCheck(String? sender) async {
-    var foundAccount = await accountService.findAccountDetails(
-      id: sender!,
-    );
-    return foundAccount.status == 'normal';
-  }
-
-  @override
-  Future<bool> accountPaymentValidation(String sender) async {
-    bool accountValid;
+  Future<bool> accountStatusCheck(String sender) async {
     var foundAccount = await accountService.findAccountDetails(
       id: sender,
     );
-
-    if (foundAccount.id!.isNotEmpty) {
-      accountValid = true;
-    } else {
-      accountValid = false;
-    }
-
-    return accountValid;
+    return foundAccount.status == 'normal';
   }
 
   @override
@@ -412,7 +397,7 @@ class WalletService implements IWalletService {
         .from('accounts')
         .update({
           'status': 'processing',
-          'lastTrans': DateTime.now().millisecondsSinceEpoch
+          'last_trans': DateTime.now().millisecondsSinceEpoch
         })
         .eq('id', id)
         .execute();
@@ -421,9 +406,9 @@ class WalletService implements IWalletService {
   @override
   Future<void> changeClaimToTrue(String transID) async {
     await DatabaseService.client
-        .from('rechargeNotifications')
+        .from('recharge_notifications')
         .update({'claimed': true})
-        .eq('transID', transID)
+        .eq('trans_id', transID)
         .execute();
   }
 

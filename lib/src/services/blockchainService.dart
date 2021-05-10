@@ -11,45 +11,37 @@ class BlockchainService {
     required this.walletService,
   });
 
-  Future<Block> newBlock(int proof, String previousHash) async {
-    var prevBlock;
+  Future<Block> newBlock(
+      Block prevBlock, int proof, String previousHash) async {
     if (previousHash.isEmpty) {
-      hash(Block.fromJson(prevBlock.data));
+      hash(prevBlock);
     }
 
     try {
-      prevBlock = await DatabaseService.client
-          .from('blockchain')
-          .select()
-          .limit(1)
-          .order('timestamp', ascending: false)
-          .execute();
-
       var currentTransactions =
           walletService.pendingTansactions.values.toList();
 
       await walletService
-          .processPayments()
-          .onError((error, stackTrace) =>
-              throw Exception(' Error: $error StackTrace: $stackTrace'))
+          .processPayments(prevBlock)
           .then(
-            (_) => DatabaseService.client
+            (value) => DatabaseService.client
                 .from('blockchain')
                 .insert(
-                  [
-                    Block(
-                      index: Block.fromJson(prevBlock.data[0]).index! + 1,
-                      timestamp: DateTime.now().millisecondsSinceEpoch,
-                      proof: proof,
-                      prevHash: previousHash,
-                      transactions: List.from(
-                        currentTransactions,
-                      ),
-                    ).toJson()
-                  ],
+                  Block(
+                    index: prevBlock.index! + 1,
+                    timestamp: DateTime.now().millisecondsSinceEpoch,
+                    proof: proof,
+                    prevHash: previousHash,
+                    blockTransactions: List.from(
+                      currentTransactions,
+                    ),
+                  ).toJson(),
                 )
                 .execute()
-                .then((_) => currentTransactions.clear()),
+                .then((_) => currentTransactions.clear())
+                .onError(
+                  (error, stackTrace) => throw Exception('$error $stackTrace'),
+                ), //TODO Stacktace
           )
           .onError(
             (error, stackTrace) =>
@@ -57,16 +49,15 @@ class BlockchainService {
           );
       //Successfully Mined
 
-      if (prevBlock.error != null) {
-        throw prevBlock.error!.message;
-      }
-
       var latestBlock = await DatabaseService.client
           .from('blockchain')
           .select()
           .limit(1)
           .order('timestamp', ascending: false)
-          .execute(); //TODO on Error Handle Exceptions
+          .execute()
+          .onError(
+            (error, stackTrace) => throw Exception('$error $stackTrace'),
+          ); //TODO on Error Handle Exceptions
 
       return Block.fromJson(latestBlock.data[0]);
     } on PostgrestError catch (e) {
@@ -83,7 +74,10 @@ class BlockchainService {
           .select()
           .limit(1)
           .order('timestamp', ascending: false)
-          .execute();
+          .execute()
+          .onError(
+            (error, stackTrace) => throw Exception('$error $stackTrace'),
+          ); //TODO Stacktace
     } catch (e, trace) {
       print('lastBlock ${e.toString()} ${trace.toString()}');
       rethrow;
@@ -103,7 +97,7 @@ class BlockchainService {
     return HEX.encode(converted);
   }
 
-  int proofOfWork(int? lastProof) {
+  Future<int> proofOfWork(int? lastProof) async {
     var proof = 0;
     while (!validProof(lastProof, proof)) {
       proof++;

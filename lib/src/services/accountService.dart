@@ -9,7 +9,7 @@ class AccountService implements IAccountService {
     var response = await DatabaseService.client
         .from('accounts')
         .select(
-          'status, balance, id, phoneNumber, lastTrans',
+          'status, balance, id, phone_number, last_trans',
         )
         .match({
           'id': id,
@@ -34,14 +34,14 @@ class AccountService implements IAccountService {
     var response = await DatabaseService.client
         .from('accounts')
         .select(
-          'status, balance, id, phoneNumber, lastTrans',
+          'status, balance, id, phone_number, last_trans',
         )
         .match({
           'phoneNumber': phoneNumber,
         })
         .execute()
         .onError(
-          (error, stackTrace) => throw Exception(error),
+          (error, stackTrace) => throw Exception('$error $stackTrace'),
         );
 
     var result = response.data as List;

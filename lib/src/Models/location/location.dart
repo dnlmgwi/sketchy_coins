@@ -3,13 +3,16 @@ part 'location.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class Location {
-  int address;
+  int? id;
 
-  int lat;
+  String address;
 
-  int lng;
+  double lat;
+
+  double lng;
 
   Location({
+    this.id,
     required this.address,
     required this.lat,
     required this.lng,
