@@ -22,9 +22,9 @@ void main() async {
     walletService: walletService,
   );
 
-  final authService = AuthService();
+  // final authService = AuthService();
 
-  var miner = MineServices(blockchain: blockchainService);
+  // var miner = MineServices(blockchain: blockchainService);
 
   group('Wallet Service', () {
     test('Check If Account Status == Normal', () async {
