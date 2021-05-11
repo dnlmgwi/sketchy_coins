@@ -33,10 +33,6 @@ class Account extends IAccount {
   int joinedDate;
 
   @override
-  @JsonKey(name: 'fk_location_id')
-  int? locationId;
-
-  @override
   int age;
 
   @override
@@ -94,7 +90,6 @@ class Account extends IAccount {
     required this.joinedDate,
     required this.age,
     this.lastTrans,
-    this.locationId,
   });
 
   factory Account.fromJson(Map<String, dynamic> json) =>

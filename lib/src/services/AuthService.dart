@@ -1,12 +1,6 @@
 import 'package:sketchy_coins/packages.dart';
 
 class AuthService implements IAuthService {
-  DatabaseService databaseService;
-
-  AuthService({
-    required this.databaseService,
-  });
-
   @override
   Future register({
     required String password,
@@ -29,7 +23,7 @@ class AuthService implements IAuthService {
 
       if (!isDuplicate) {
         response = await DatabaseService.client
-            .from('accounts')
+            .from('beneficiary_accounts')
             .insert(Account(
               id: Uuid().v4(),
               age: age,

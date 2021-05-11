@@ -2,11 +2,9 @@ import 'package:sketchy_coins/packages.dart';
 
 class BlockChainApi {
   BlockchainService blockchainService;
-  DatabaseService databaseService;
 
   BlockChainApi({
     required this.blockchainService,
-    required this.databaseService,
   });
 
   Handler get router {

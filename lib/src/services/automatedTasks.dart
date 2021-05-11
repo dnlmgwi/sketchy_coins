@@ -1,47 +1,32 @@
 import 'dart:async';
 
+import 'package:sentry/sentry.dart';
 import 'package:sketchy_coins/packages.dart';
+import 'package:supabase/supabase.dart';
 
 class AutomatedTasks {
   WalletService walletService;
   MineServices miner;
 
-  AutomatedTasks({required this.miner, required this.walletService});
+  AutomatedTasks({
+    required this.miner,
+    required this.walletService,
+  });
+
+  // realtime
+  final subscription1 = DatabaseService.sbClient
+      .from('beneficiary_accounts')
+      .on(SupabaseEventTypes.all, (x) async {
+    print('on countries.delete: ${x.table} ${x.eventType} ${x.oldRecord}');
+  }).subscribe((String event, {String? errorMsg}) {
+    print('event: $event error: $errorMsg');
+  });
 
   //Todo Use Websockets
-
-  Future startAutomatedTasks() async {
-    Timer.periodic(Duration(seconds: 60), (timer) async {
-      //if both lists are empty fetch more
-      try {
-        if (walletService.pendingDepositsTansactions.isEmpty) {
-          //Get Unclaimed Deposits.
-          print('Get Unclaimed Deposits.');
-
-          await _getUnclaimedDeposits()
-              .onError((error, stackTrace) =>
-                  print('Error: $error Stacktrace: $stackTrace'))
-              .then((_) {
-            timer.cancel();
-            _processPendingPayments().onError(
-              (error, stackTrace) => startAutomatedTasks(),
-            );
-          });
-        }
-
-        if (walletService.pendingDepositsTansactions.isNotEmpty) {
-          // Process The Items and Delete Them from List
-          print('Process The Items and Delete Them from List');
-          await walletService
-              .initiateTopUp(
-                data: walletService.pendingDepositsTansactions,
-              )
-              .then((_) => timer.cancel());
-        }
-      } catch (e) {
-        print(e); //TODO Notify External Provider
-      }
-    });
+  Future<void> startAutomatedTasks() async {
+    await Future.delayed(Duration(minutes: 10))
+        .then((value) => // remember to remove subscription
+            DatabaseService.sbClient.removeSubscription(subscription1));
   }
 
   Future<void> _processPendingPayments() async {
@@ -50,9 +35,12 @@ class AutomatedTasks {
       throw NoPendingTransactionException();
     } else if (walletService.pendingTansactions.isNotEmpty) {
       try {
-        await miner.mine().then((_) => startAutomatedTasks());
-      } catch (e) {
-        rethrow;
+        await miner.mine().then((_) => DatabaseService.sbClient);
+      } catch (exception, stackTrace) {
+        await Sentry.captureException(
+          exception,
+          stackTrace: stackTrace,
+        );
       }
     }
   }
@@ -67,12 +55,17 @@ class AutomatedTasks {
           })
           .execute()
           .onError(
-            (error, stackTrace) => throw Exception(error),
+            (exception, stackTrace) async {
+              await Sentry.captureException(
+                exception,
+                stackTrace: stackTrace,
+              );
+              throw Exception(exception);
+            },
           );
 
       if (response.data == null) {
-        print('No Items Found');
-        // throw Exception('No Items Found');
+        DatabaseService.sbClient;
       } else {
         if ((response.data as List).isNotEmpty) {
           print('Found something');
@@ -82,10 +75,12 @@ class AutomatedTasks {
           }
         }
       }
-    } catch (e) {
+    } catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
       rethrow;
     }
-
-    print('nothing here ');
   }
 }

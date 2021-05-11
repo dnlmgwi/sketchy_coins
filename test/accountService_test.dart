@@ -16,18 +16,14 @@ void main() async {
   final tokenService = TokenService();
 
   await tokenService.start();
-
-  final databaseService = DatabaseService();
-  final accountService = AccountService(databaseService: databaseService);
+  
+  final accountService = AccountService();
   final walletService = WalletService(accountService: accountService);
   final blockchainService = BlockchainService(
-    databaseService: databaseService,
     walletService: walletService,
   );
 
-  final authService = AuthService(
-    databaseService: databaseService,
-  );
+  final authService = AuthService();
 
   var miner = MineServices(blockchain: blockchainService);
 

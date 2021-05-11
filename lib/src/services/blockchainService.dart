@@ -3,11 +3,9 @@ import 'package:sketchy_coins/packages.dart';
 import 'package:sketchy_coins/src/services/walletServices.dart';
 
 class BlockchainService {
-  DatabaseService databaseService;
   WalletService walletService;
 
   BlockchainService({
-    required this.databaseService,
     required this.walletService,
   });
 

@@ -2,11 +2,10 @@ import 'package:sketchy_coins/packages.dart';
 
 class AccountApi {
   AuthService authService;
-  DatabaseService databaseService;
+
   WalletService walletService;
 
   AccountApi({
-    required this.databaseService,
     required this.authService,
     required this.walletService,
   });
@@ -15,9 +14,7 @@ class AccountApi {
     final router = Router();
     final handler = Pipeline().addMiddleware(checkAuth()).addHandler(router);
 
-    final _accountService = AccountService(
-      databaseService: databaseService,
-    );
+    final _accountService = AccountService();
 
     router.get(
       '/user',

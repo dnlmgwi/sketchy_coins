@@ -3,7 +3,7 @@ import 'package:sketchy_coins/packages.dart';
 class AuthValidationService {
   static Future<Account> findAccount({required String id}) async {
     var response = await DatabaseService.client
-        .from('accounts')
+        .from('beneficiary_accounts')
         .select()
         .match({
           'id': id,
@@ -29,7 +29,7 @@ class AuthValidationService {
   }) async {
     try {
       var response = await DatabaseService.client
-          .from('accounts')
+          .from('beneficiary_accounts')
           .select('phone_number')
           .eq(
             'phone_number',
