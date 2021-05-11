@@ -38,7 +38,7 @@ class WalletService implements IWalletService {
                   timestamp: transaction.timestamp,
                   transId: transaction.transId,
                   transType: transaction.transType,
-                  blockId: id, //TODO Fetch UUID
+                  blockId: id,
                 ).toJson()) //TODO on Error Return Account to Normal
                 .execute()
                 .then((value) async {
