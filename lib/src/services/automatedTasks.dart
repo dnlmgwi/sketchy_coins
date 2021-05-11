@@ -1,59 +1,50 @@
 import 'dart:async';
 
+import 'package:sentry/sentry.dart';
 import 'package:sketchy_coins/packages.dart';
+import 'package:throttling/throttling.dart';
 
 class AutomatedTasks {
   WalletService walletService;
   MineServices miner;
 
-  AutomatedTasks({required this.miner, required this.walletService});
+  AutomatedTasks({
+    required this.miner,
+    required this.walletService,
+  });
 
-  //Todo Use Websockets
+  /// Use Websockets Done! Listerning to Internal Stream
+  Future<void> startAutomatedTasks() async {
+    var transStream = walletService.pendingTransactions.watch();
+    var depositStream = walletService.pendingDepositsTansactions.watch();
+    transStream.listen((event) async {
+      final deb = Debouncing(duration: const Duration(seconds: 30));
+      await deb.debounce(() async {
+        if (walletService.pendingTransactions.isNotEmpty) {
+          await _processPendingPayments();
+        }
+      });
+    });
 
-  Future startAutomatedTasks() async {
-    Timer.periodic(Duration(seconds: 60), (timer) async {
-      //if both lists are empty fetch more
-      try {
+    depositStream.listen((event) async {
+      final deb = Debouncing(duration: const Duration(seconds: 5));
+      await deb.debounce(() async {
         if (walletService.pendingDepositsTansactions.isEmpty) {
-          //Get Unclaimed Deposits.
-          print('Get Unclaimed Deposits.');
-
-          await _getUnclaimedDeposits()
-              .onError((error, stackTrace) =>
-                  print('Error: $error Stacktrace: $stackTrace'))
-              .then((_) {
-            timer.cancel();
-            _processPendingPayments().onError(
-              (error, stackTrace) => startAutomatedTasks(),
-            );
-          });
+          await _getUnclaimedDeposits();
         }
-
-        if (walletService.pendingDepositsTansactions.isNotEmpty) {
-          // Process The Items and Delete Them from List
-          print('Process The Items and Delete Them from List');
-          await walletService
-              .initiateTopUp(
-                data: walletService.pendingDepositsTansactions,
-              )
-              .then((_) => timer.cancel());
-        }
-      } catch (e) {
-        print(e); //TODO Notify External Provider
-      }
+      });
     });
   }
 
   Future<void> _processPendingPayments() async {
     print('payments?');
-    if (walletService.pendingTansactions.isEmpty) {
-      throw NoPendingTransactionException();
-    } else if (walletService.pendingTansactions.isNotEmpty) {
-      try {
-        await miner.mine().then((_) => startAutomatedTasks());
-      } catch (e) {
-        rethrow;
-      }
+    try {
+      await miner.mine();
+    } catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
   }
 
@@ -67,12 +58,17 @@ class AutomatedTasks {
           })
           .execute()
           .onError(
-            (error, stackTrace) => throw Exception(error),
+            (exception, stackTrace) async {
+              await Sentry.captureException(
+                exception,
+                stackTrace: stackTrace,
+              );
+              throw Exception(exception);
+            },
           );
 
       if (response.data == null) {
-        print('No Items Found');
-        // throw Exception('No Items Found');
+        //TODO Review
       } else {
         if ((response.data as List).isNotEmpty) {
           print('Found something');
@@ -82,10 +78,12 @@ class AutomatedTasks {
           }
         }
       }
-    } catch (e) {
+    } catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
       rethrow;
     }
-
-    print('nothing here ');
   }
 }

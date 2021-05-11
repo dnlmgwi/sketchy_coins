@@ -25,7 +25,8 @@ class TransactionRecord extends HiveObject {
   int transType;
 
   @HiveField(7)
-  late int? index;
+  @JsonKey(name: 'block_id')
+  late String? blockId;
 
   TransactionRecord({
     required this.sender,
@@ -34,7 +35,7 @@ class TransactionRecord extends HiveObject {
     required this.timestamp,
     required this.transId,
     required this.transType,
-    this.index,
+    this.blockId,
   });
 
   factory TransactionRecord.fromJson(Map<String, dynamic> json) =>

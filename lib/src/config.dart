@@ -5,6 +5,8 @@ class Env {
   static final port = env['PORT'];
   static final hostName = env['HOST_NAME'];
 
+  static final sentry = env['SENTRY'];
+
   /// API System Address
   static final systemAddress = env['SYSTEM_ADDRESS'];
 

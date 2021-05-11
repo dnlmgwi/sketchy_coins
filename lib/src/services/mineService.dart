@@ -8,7 +8,8 @@ class MineServices {
 
   Future mine() async {
     if (blockchain.pendingTransactions.isEmpty) {
-      throw NoPendingTransactionException();
+      // throw NoPendingTransactionException();
+      //IGNORE
     }
 
     var lastBlock = await blockchain.lastBlock;

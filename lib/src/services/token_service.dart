@@ -66,6 +66,6 @@ class TokenService {
   }
 
   Future<void> removeRefreshToken(String? id) async {
-    await client.expire('$_prefix: $id', Duration(seconds: -1));
+    await client.expire('$_prefix: $id', Duration(seconds: 0));
   }
 }

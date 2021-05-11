@@ -1,31 +1,44 @@
+import 'package:pedantic/pedantic.dart';
 import 'package:sketchy_coins/packages.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
+import 'package:sketchy_coins/src/api/offlineSync_api.dart';
+import 'package:sketchy_coins/src/api/stats/stats_api.dart';
+import 'package:sketchy_coins/src/services/statisticsService/statisticsService.dart';
+import 'package:sentry/sentry.dart';
 
 void main(List<String> arguments) async {
+  ///Env
   load();
-  Hive.init('./storage');
+  await Sentry.init(
+    (options) {
+      options.dsn = Env.sentry;
+    },
+    appRunner: initApp, // Init your App.
+  );
+}
 
+void initApp() async {
+  ///Hive
+  Hive.init('./storage');
   Hive.registerAdapter(TransactionRecordAdapter());
   Hive.registerAdapter(RechargeNotificationAdapter());
   await Hive.openBox<TransactionRecord>('transactions');
   await Hive.openBox<RechargeNotification>('rechargeNotifications');
+  var offlineScans = await HiveCrdt.open('./offlineScans', Env.systemAddress!);
+  var offlineTransactions =
+      await HiveCrdt.open('./offlineTransactions', Env.systemAddress!);
 
   /// Start Redis Token Service
   final tokenService = TokenService();
   await tokenService.start();
 
-  final databaseService = DatabaseService();
-
-  final accountService = AccountService(databaseService: databaseService);
+  final accountService = AccountService();
 
   final walletService = WalletService(accountService: accountService);
 
-  final authService = AuthService(
-    databaseService: databaseService,
-  );
+  final authService = AuthService();
 
   final blockchainService = BlockchainService(
-    databaseService: databaseService,
     walletService: walletService,
   );
 
@@ -37,8 +50,9 @@ void main(List<String> arguments) async {
     miner: miner,
     walletService: walletService,
   );
-
-  await automatedTasks.startAutomatedTasks();
+  final statsService = StatisticsService();
+  //Automated Tasks
+  unawaited(automatedTasks.startAutomatedTasks());
 
   /// Shelf Router
   var app = Router();
@@ -57,18 +71,29 @@ void main(List<String> arguments) async {
   );
 
   app.mount(
+    '/v1/stats/',
+    StatsApi(statsService: statsService).router,
+  );
+
+  app.mount(
+    '/v1/sync/',
+    OfflineSyncApi(
+      offlineScans: offlineScans,
+      offlineTransactions: offlineTransactions,
+    ).router,
+  );
+
+  app.mount(
     '/v1/auth/',
     AuthApi(
       secret: Env.secret!,
       tokenService: tokenService,
-      databaseService: databaseService,
     ).router,
   );
 
   app.mount(
     '/v1/blockchain/',
     BlockChainApi(
-      databaseService: databaseService,
       blockchainService: blockchainService,
     ).router,
   );
@@ -77,7 +102,6 @@ void main(List<String> arguments) async {
     '/v1/account/',
     AccountApi(
       authService: authService,
-      databaseService: databaseService,
       walletService: walletService,
     ).router,
   );

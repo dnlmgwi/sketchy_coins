@@ -1,24 +1,19 @@
 import 'package:sketchy_coins/packages.dart';
 import 'package:sketchy_coins/src/api/auth/validation/validation.dart';
-import 'package:sketchy_coins/src/services/databaseService.dart';
 
 class AuthApi {
   String secret;
   TokenService tokenService;
-  DatabaseService databaseService;
 
   AuthApi({
     required this.secret,
     required this.tokenService,
-    required this.databaseService,
   });
 
   Router get router {
     final router = Router();
 
-    final _authService = AuthService(
-      databaseService: databaseService,
-    );
+    final _authService = AuthService();
 
     router.post(
       '/register',

@@ -1,3 +1,4 @@
+import 'package:sentry/sentry.dart';
 import 'package:sketchy_coins/packages.dart';
 
 class WalletService implements IWalletService {
@@ -5,19 +6,16 @@ class WalletService implements IWalletService {
 
   WalletService({required this.accountService});
 
-  var pendingTansactions = Hive.box<TransactionRecord>('transactions');
+  var pendingTransactions = Hive.box<TransactionRecord>('transactions');
   var pendingDepositsTansactions =
       Hive.box<RechargeNotification>('rechargeNotifications');
 
   @override
-  Future<void> processPayments(Block prevBlock) async {
+  Future<void> processPayments(Block prevBlock, String id) async {
     try {
-      if (prevBlock.toJson().isEmpty) {
-        print('Fatal Error');
-      }
       if (DateTime.fromMillisecondsSinceEpoch(prevBlock.timestamp)
           .isBefore(DateTime.now())) {
-        for (var transaction in pendingTansactions.values) {
+        for (var transaction in pendingTransactions.values) {
           switch (transaction.transType) {
             case 0:
               await withdrawProcess(transaction);
@@ -30,28 +28,49 @@ class WalletService implements IWalletService {
               await transferProcess(transaction);
               break;
           }
-          await DatabaseService.client
-              .from('transactions')
-              .insert(TransactionRecord(
-                sender: transaction.sender,
-                recipient: transaction.recipient,
-                amount: transaction.amount,
-                timestamp: transaction.timestamp,
-                transId: transaction.transId,
-                transType: transaction.transType,
-                index: prevBlock.index! + 1,
-              ).toJson())
-              .execute()
-              .then((_) {
-            transaction.delete();
-            print('Transaction Upload: ${_.toJson()}');
-          });
+          try {
+            await DatabaseService.client
+                .from('transactions')
+                .insert(TransactionRecord(
+                  sender: transaction.sender,
+                  recipient: transaction.recipient,
+                  amount: transaction.amount,
+                  timestamp: transaction.timestamp,
+                  transId: transaction.transId,
+                  transType: transaction.transType,
+                  blockId: id, //TODO Fetch UUID
+                ).toJson()) //TODO on Error Return Account to Normal
+                .execute()
+                .then((value) async {
+              if (value.error != null) {
+                throw Exception(value.error!.message);
+              } //TODO Notify Users
+
+              print('Processed Transactions: ${value.data}');
+            }).whenComplete(
+              () => transaction.delete(),
+            );
+          } catch (exception, stackTrace) {
+            await Sentry.captureException(
+              exception,
+              stackTrace: stackTrace,
+              hint: transaction.toJson(),
+            );
+          }
         }
       }
-    } on PostgrestError catch (e) {
-      print(e.code);
-      print(e.message);
+    } on PostgrestError catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+        hint: stackTrace,
+      );
       rethrow;
+    } catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
   }
 
@@ -160,10 +179,10 @@ class WalletService implements IWalletService {
     PostgrestResponse response;
     try {
       response = await DatabaseService.client
-          .from('accounts')
+          .from('beneficiary_accounts') //TODO TABLE NAME
           .update({'balance': account.balance + value})
           .eq('id', account.id)
-          .execute();
+          .execute(); //TODO Error Handling
       return TransAccount.fromJson(response.data[0]);
     } catch (e) {
       throw Exception(e);
@@ -178,20 +197,20 @@ class WalletService implements IWalletService {
   }) async {
     try {
       await DatabaseService.client
-          .from('accounts')
+          .from('beneficiary_accounts')
           .update({
             'balance': senderAccount.balance - value,
           })
           .eq('id', senderAccount.id)
-          .execute()
+          .execute() //TODO Error Handling
           .then((_) => DatabaseService.client
-              .from('accounts')
+              .from('beneficiary_accounts')
               .update({
                 'balance': recipientAccount.balance + value,
                 'last_trans': DateTime.now().millisecondsSinceEpoch
               })
               .eq('id', recipientAccount.id)
-              .execute());
+              .execute()); //TODO Error Handing
     } catch (e) {
       throw Exception(e);
     }
@@ -210,14 +229,18 @@ class WalletService implements IWalletService {
         throw InvalidInputException();
       } else {
         await DatabaseService.client
-            .from('accounts')
+            .from('beneficiary_accounts')
             .update({
               'balance': account.balance - value,
             })
             .eq('id', account.id)
             .execute();
       }
-    } catch (e) {
+    } catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
       rethrow;
     }
   }
@@ -312,7 +335,7 @@ class WalletService implements IWalletService {
     /// String id - User P23 id
     /// String value - Transaction Value
     /// String transactionType - 0: Withdraw, 1: Deposit
-    await pendingTansactions.add(TransactionRecord(
+    await pendingTransactions.add(TransactionRecord(
       sender: sender,
       recipient: recipient,
       amount: amount,
@@ -328,7 +351,7 @@ class WalletService implements IWalletService {
     /// String id - User P23 id
     /// String value - Transaction Value
     /// String transactionType - 0: Withdraw, 1: Deposit
-    await pendingTansactions.add(TransactionRecord(
+    await pendingTransactions.add(TransactionRecord(
       sender: sender,
       recipient: recipient,
       amount: amount,
@@ -342,7 +365,7 @@ class WalletService implements IWalletService {
   void addToPendingTransfer(String sender, String recipient, int amount) async {
     //Allows users to transfer points between each other
     /// String transactionType - 0: Withdraw, 1: Deposit, 2: Transfer
-    await pendingTansactions.add(TransactionRecord(
+    await pendingTransactions.add(TransactionRecord(
       sender: sender,
       recipient: recipient,
       amount: amount,
@@ -393,14 +416,21 @@ class WalletService implements IWalletService {
   @override
   Future<void> changeAccountStatusToProcessing(String id) async {
     //Changes the Users Account Status to processing.
-    await DatabaseService.client
-        .from('accounts')
-        .update({
-          'status': 'processing',
-          'last_trans': DateTime.now().millisecondsSinceEpoch
-        })
-        .eq('id', id)
-        .execute();
+    try {
+      await DatabaseService.client
+          .from('beneficiary_accounts')
+          .update({
+            'status': 'processing',
+            'last_trans': DateTime.now().millisecondsSinceEpoch
+          })
+          .eq('id', id)
+          .execute();
+    } catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
   }
 
   @override
@@ -409,16 +439,23 @@ class WalletService implements IWalletService {
         .from('recharge_notifications')
         .update({'claimed': true})
         .eq('trans_id', transID)
-        .execute();
+        .execute(); //TODOD Error Handling
   }
 
   @override
   Future<void> changeAccountStatusNormal(String? id) async {
     //Changes the Users Account Status to normal.
-    await DatabaseService.client
-        .from('accounts')
-        .update({'status': 'normal'})
-        .eq('id', id)
-        .execute();
+    try {
+      await DatabaseService.client
+          .from('beneficiary_accounts')
+          .update({'status': 'normal'})
+          .eq('id', id)
+          .execute();
+    } catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
+    }
   }
 }

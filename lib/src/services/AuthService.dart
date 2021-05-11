@@ -1,12 +1,7 @@
+import 'package:sentry/sentry.dart';
 import 'package:sketchy_coins/packages.dart';
 
 class AuthService implements IAuthService {
-  DatabaseService databaseService;
-
-  AuthService({
-    required this.databaseService,
-  });
-
   @override
   Future register({
     required String password,
@@ -29,7 +24,7 @@ class AuthService implements IAuthService {
 
       if (!isDuplicate) {
         response = await DatabaseService.client
-            .from('accounts')
+            .from('beneficiary_accounts')
             .insert(Account(
               id: Uuid().v4(),
               age: age,
@@ -43,11 +38,13 @@ class AuthService implements IAuthService {
             ).toJson())
             .execute()
             .catchError(
-          (error, stackTrace) {
-            print('$error $stackTrace');
-            throw Exception('$error $stackTrace');
+          (exception, stackTrace) async {
+            await Sentry.captureException(
+              exception,
+              stackTrace: stackTrace,
+            );
           },
-        ); //TODO Handle Error
+        ); //TODO Muliple Fails Alert People In Area.
       }
 
       if (response.error != null) {
@@ -58,9 +55,12 @@ class AuthService implements IAuthService {
 
       return response.data; //TODO Should it return this data?
 
-    } on PostgrestError catch (e) {
-      print(e.code);
-      print(e.message);
+    } on PostgrestError catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+        hint: stackTrace,
+      );
       rethrow;
     } catch (e) {
       rethrow;
