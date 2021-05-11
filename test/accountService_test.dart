@@ -2,7 +2,6 @@ import 'package:sketchy_coins/packages.dart';
 import 'package:sketchy_coins/src/services/walletServices.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
-import 'package:timeago/timeago.dart' as timeago;
 
 void main() async {
   load();

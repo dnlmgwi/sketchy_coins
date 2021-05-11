@@ -50,13 +50,13 @@ class AuthApi {
             );
           }
 
-          if (AuthApiValidation.passwordCheck(data.password)) {
+          if (AuthApiValidation.pinCheck(data.pin)) {
             //Todo: Input Validation Errors
             return Response(
               HttpStatus.badRequest,
               body: json.encode({
                 'data': {
-                  'message': InvalidPasswordException().toString(),
+                  'message': InvalidPinException().toString(),
                 }
               }),
               headers: {
@@ -80,7 +80,7 @@ class AuthApi {
 
           await _authService.register(
             gender: data.gender!,
-            password: data.password!,
+            pin: data.pin!,
             phoneNumber: data.phoneNumber!,
             age: data.age!,
           );
@@ -131,7 +131,7 @@ class AuthApi {
           final userData = json.decode(payload);
 
           final id = userData['id'];
-          final password = userData['password'];
+          final pin = userData['pin'];
 
           if (id == null || id == '') {
             //Todo: Input Validation Errors
@@ -146,12 +146,12 @@ class AuthApi {
             );
           }
 
-          if (password == null || password == '') {
+          if (pin == null || pin == '') {
             //Todo: Input Validation Errors
             return Response(
               HttpStatus.badRequest,
               body: json.encode({
-                'data': {'message': 'Please provide a password'}
+                'data': {'message': 'Please provide a pin'}
               }),
               headers: {
                 HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
@@ -160,7 +160,7 @@ class AuthApi {
           }
 
           final token = await _authService.login(
-            password: password,
+            pin: pin,
             id: id,
             tokenService: tokenService,
           );

@@ -4,15 +4,15 @@ import 'package:sketchy_coins/packages.dart';
 class AuthService implements IAuthService {
   @override
   Future register({
-    required String password,
+    required String pin,
     required String gender,
     required int age,
     required String phoneNumber,
   }) async {
     final salt = generateSalt();
 
-    final hashpassword = hashPassword(
-      password: password,
+    final hashpin = hashPin(
+      pin: pin,
       salt: salt,
     );
 
@@ -30,7 +30,7 @@ class AuthService implements IAuthService {
               age: age,
               gender: gender,
               phoneNumber: phoneNumber,
-              password: hashpassword,
+              pin: hashpin,
               salt: salt,
               status: 'normal',
               balance: int.parse(Env.newAccountBalance!),
@@ -69,7 +69,7 @@ class AuthService implements IAuthService {
 
   @override
   Future<TokenPair> login({
-    required String password,
+    required String pin,
     required String id,
     required TokenService tokenService,
   }) async {
@@ -81,12 +81,12 @@ class AuthService implements IAuthService {
         id: id,
       );
 
-      final hashpassword = hashPassword(
-        password: password,
+      final hashpin = hashPin(
+        pin: pin,
         salt: user.salt,
       );
 
-      if (hashpassword != user.password) {
+      if (hashpin != user.pin) {
         throw IncorrectInputException();
       }
 

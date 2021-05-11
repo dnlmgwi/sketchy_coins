@@ -1,3 +1,4 @@
+import 'package:sentry/sentry.dart';
 import 'package:sketchy_coins/packages.dart';
 
 class TokenService {
@@ -15,9 +16,14 @@ class TokenService {
           Env.redisPort!,
         ),
       );
-    } catch (e) {
+    } catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
       rethrow;
     }
+    ;
   }
 
   Future<TokenPair> createTokenPair({required String? userId}) async {

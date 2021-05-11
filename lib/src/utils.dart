@@ -20,9 +20,9 @@ String generateSalt([int length = 32]) {
   return base64.encode(saltbytes);
 }
 
-String hashPassword({required String password, required String salt}) {
+String hashPin({required String pin, required String salt}) {
   final codec = Utf8Codec();
-  final key = codec.encode(password);
+  final key = codec.encode(pin);
   final saltbytes = codec.encode(salt);
   final hmac = Hmac(sha256, key);
   final digest = hmac.convert(saltbytes);

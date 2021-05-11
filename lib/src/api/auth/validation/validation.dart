@@ -13,26 +13,11 @@ class AuthApiValidation {
   /// Is Valid gender Provided
   static bool ageCheck(age) => age == null || age == '';
 
-  //Is Strong Password Provided
-  static bool passwordCheck(password) {
-    //Strong Password
-    ///               # assert that
-    /// (?=^.{8,}$)    # there are at least 8 characters
-    /// (              # and
-    /// (?=.*\d)       # there is at least a digit
-    /// |              # or
-    /// (?=.*\W+)      # there is one or more "non word" characters (\W is equivalent to [^a-zA-Z0-9_])
-    /// )              # and
-    /// (?![.\n])      # there is no . or newline and
-    /// (?=.*[A-Z])    # there is at least an upper case letter and
-    /// (?=.*[a-z]).*$ # there is at least a lower case letter
-    /// .*$            # in a string of any characters
-
-    var isPasswordRegExp = RegExp(
-        r'(?=^.{8,}$)(?=.*\d)(?=.*[!@#$%^&*]+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$');
-    return password == null ||
-        password == '' ||
-        !isPasswordRegExp.hasMatch(password);
+  //Is Strong Pin Provided
+  static bool pinCheck(pin) {
+    //4/6 Digit Pin
+    var isPINRegExp = RegExp(r'^\d{4}$|^\d{6}$');
+    return pin == null || pin == '' || !isPINRegExp.hasMatch(pin);
   }
 
   /// Is Valid gender Provided

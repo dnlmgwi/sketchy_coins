@@ -1,5 +1,4 @@
 import 'package:sketchy_coins/packages.dart';
-import 'package:realtime_client/realtime_client.dart';
 import 'package:supabase/supabase.dart';
 
 class DatabaseService {

@@ -91,7 +91,7 @@
             "id": "550f430f-65ba-41bd-b94f-0483e2248b69"
           },
           {
-            "name": "password",
+            "name": "pin",
             "comment": "",
             "dataType": "text",
             "default": "",
@@ -106,7 +106,7 @@
               "pk": false,
               "fk": false,
               "pfk": false,
-              "widthName": 61,
+              "widthName": 60,
               "widthComment": 60,
               "widthDataType": 60,
               "widthDefault": 60
@@ -299,10 +299,10 @@
           }
         ],
         "ui": {
-          "active": false,
+          "active": true,
           "left": 563.2222222222226,
           "top": 201.7777777777779,
-          "zIndex": 10,
+          "zIndex": 8,
           "widthName": 129,
           "widthComment": 120
         },
@@ -478,7 +478,7 @@
           "active": false,
           "left": 47.88888888888868,
           "top": 377.99999999999966,
-          "zIndex": 4,
+          "zIndex": 3,
           "widthName": 77,
           "widthComment": 120
         },
@@ -631,7 +631,7 @@
           "active": false,
           "left": 561.4444444444449,
           "top": 520.8888888888915,
-          "zIndex": 5,
+          "zIndex": 4,
           "widthName": 67,
           "widthComment": 120
         },
@@ -891,7 +891,7 @@
           "active": false,
           "left": 37.44444444444478,
           "top": 621.000000000001,
-          "zIndex": 3,
+          "zIndex": 2,
           "widthName": 134,
           "widthComment": 60
         },
