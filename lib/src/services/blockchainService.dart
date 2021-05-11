@@ -20,14 +20,17 @@ class BlockchainService {
       var blockTransactions =
           List.of(walletService.pendingTransactions.values.toList());
 
+      var id = Uuid().v4();
+
       await walletService
-          .processPayments(prevBlock)
+          .processPayments(prevBlock, id)
           .then(
-            (value) => DatabaseService.client
+            (_) => DatabaseService.client
                 .from('blockchain')
                 .insert(
                   Block(
-                    index: prevBlock.index! + 1,
+                    id: id,
+                    index: prevBlock.index! + 1, //DO NOT TOUCH
                     timestamp: DateTime.now().millisecondsSinceEpoch,
                     proof: proof,
                     prevHash: previousHash,

@@ -46,7 +46,7 @@ void main() async {
           timestamp: 1111,
           transType: 0,
           transId: Uuid().v4(),
-          index: 1,
+          blockId: '',
         ).toJson()
       ]).execute();
       // print(response.toJson());

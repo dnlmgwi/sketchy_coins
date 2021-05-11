@@ -11,7 +11,7 @@ class BlockChainValidationService {
       return true;
     }
 
-    if (firstBlock.prevHash!.isNotEmpty) {
+    if (firstBlock.prevHash.isNotEmpty) {
       return true;
     }
 
@@ -34,7 +34,7 @@ class BlockChainValidationService {
         return true;
       }
 
-      if (newBlock.prevHash!.isNotEmpty ||
+      if (newBlock.prevHash.isNotEmpty ||
           newBlock.prevHash == blockchain!.hash(previousBlock)) {
         return true;
       }

@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:sentry/sentry.dart';
 import 'package:sketchy_coins/packages.dart';
-import 'package:supabase/supabase.dart';
 import 'package:throttling/throttling.dart';
 
 class AutomatedTasks {

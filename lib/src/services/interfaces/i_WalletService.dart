@@ -1,7 +1,7 @@
 import 'package:sketchy_coins/packages.dart';
 
 abstract class IWalletService {
-  Future<void> processPayments(Block element);
+  Future<void> processPayments(Block element, String id);
   Future<void> depositProcess(TransactionRecord element);
   Future<void> withdrawProcess(TransactionRecord element);
   Future<void> transferProcess(TransactionRecord element);

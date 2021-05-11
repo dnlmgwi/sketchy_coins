@@ -11,11 +11,8 @@ class WalletService implements IWalletService {
       Hive.box<RechargeNotification>('rechargeNotifications');
 
   @override
-  Future<void> processPayments(Block prevBlock) async {
+  Future<void> processPayments(Block prevBlock, String id) async {
     try {
-      if (prevBlock.toJson().isEmpty) {
-        print('Fatal Error');
-      }
       if (DateTime.fromMillisecondsSinceEpoch(prevBlock.timestamp)
           .isBefore(DateTime.now())) {
         for (var transaction in pendingTransactions.values) {
@@ -41,7 +38,7 @@ class WalletService implements IWalletService {
                   timestamp: transaction.timestamp,
                   transId: transaction.transId,
                   transType: transaction.transType,
-                  index: prevBlock.index! + 1,
+                  blockId: id, //TODO Fetch UUID
                 ).toJson()) //TODO on Error Return Account to Normal
                 .execute()
                 .then((value) async {
