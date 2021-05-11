@@ -1,8 +1,9 @@
-class InvalidPasswordException implements Exception {
+class InvalidPinException implements Exception {
   ///This Exception is thrown when there is an invalid Input Entered in the DB
   late String _message;
 
-  InvalidPasswordException([String message = 'Please provide a valid Input']) {
+  InvalidPinException(
+      [String message = 'Please provide a valid PIN Code 4/6 Digits Long']) {
     _message = message;
   }
 

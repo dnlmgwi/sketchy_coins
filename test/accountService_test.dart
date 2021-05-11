@@ -2,7 +2,6 @@ import 'package:sketchy_coins/packages.dart';
 import 'package:sketchy_coins/src/services/walletServices.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
-import 'package:timeago/timeago.dart' as timeago;
 
 void main() async {
   load();
@@ -16,18 +15,14 @@ void main() async {
   final tokenService = TokenService();
 
   await tokenService.start();
-
-  final databaseService = DatabaseService();
-  final accountService = AccountService(databaseService: databaseService);
+  
+  final accountService = AccountService();
   final walletService = WalletService(accountService: accountService);
   final blockchainService = BlockchainService(
-    databaseService: databaseService,
     walletService: walletService,
   );
 
-  final authService = AuthService(
-    databaseService: databaseService,
-  );
+  final authService = AuthService();
 
   var miner = MineServices(blockchain: blockchainService);
 
@@ -50,10 +45,10 @@ void main() async {
           timestamp: 1111,
           transType: 0,
           transId: Uuid().v4(),
-          index: 1,
+          blockId: '',
         ).toJson()
       ]).execute();
-      print(response.toJson());
+      // print(response.toJson());
       expect(
         response.data,
         {

@@ -1,7 +1,7 @@
 abstract class IAccount {
   String? id;
 
-  late String password;
+  late String pin;
 
   late String phoneNumber;
 

@@ -1,6 +1,8 @@
 import 'package:sketchy_coins/packages.dart';
 
 abstract class IBlock {
+  late String id;
+
   late int? index;
 
   late int timestamp;

@@ -1,44 +1,46 @@
 import 'package:crypto/crypto.dart' as crypto;
+import 'package:sentry/sentry.dart';
 import 'package:sketchy_coins/packages.dart';
 import 'package:sketchy_coins/src/services/walletServices.dart';
 
 class BlockchainService {
-  DatabaseService databaseService;
   WalletService walletService;
 
   BlockchainService({
-    required this.databaseService,
     required this.walletService,
   });
 
   Future<Block> newBlock(
       Block prevBlock, int proof, String previousHash) async {
     if (previousHash.isEmpty) {
-      hash(prevBlock);
+      previousHash = hash(prevBlock);
     }
 
     try {
-      var currentTransactions =
-          walletService.pendingTansactions.values.toList();
+      var blockTransactions =
+          List.of(walletService.pendingTransactions.values.toList());
+
+      var id = Uuid().v4();
 
       await walletService
-          .processPayments(prevBlock)
+          .processPayments(prevBlock, id)
           .then(
-            (value) => DatabaseService.client
+            (_) => DatabaseService.client
                 .from('blockchain')
                 .insert(
                   Block(
-                    index: prevBlock.index! + 1,
+                    id: id,
+                    index: prevBlock.index! + 1, //DO NOT TOUCH
                     timestamp: DateTime.now().millisecondsSinceEpoch,
                     proof: proof,
                     prevHash: previousHash,
-                    blockTransactions: List.from(
-                      currentTransactions,
-                    ),
+                    blockTransactions: blockTransactions,
                   ).toJson(),
                 )
                 .execute()
-                .then((_) => currentTransactions.clear())
+                .then(
+                  (value) => blockTransactions.clear(),
+                )
                 .onError(
                   (error, stackTrace) => throw Exception('$error $stackTrace'),
                 ), //TODO Stacktace
@@ -60,8 +62,12 @@ class BlockchainService {
           ); //TODO on Error Handle Exceptions
 
       return Block.fromJson(latestBlock.data[0]);
-    } on PostgrestError catch (e) {
-      print('PostgrestError ${e.code} ${e.message}');
+    } on PostgrestError catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+        hint: stackTrace,
+      );
       rethrow;
     }
   }
@@ -87,7 +93,7 @@ class BlockchainService {
   }
 
   List<TransactionRecord> get pendingTransactions {
-    return walletService.pendingTansactions.values.toList();
+    return walletService.pendingTransactions.values.toList();
   }
 
   String hash(Block block) {
@@ -119,7 +125,7 @@ class BlockchainService {
         .select()
         // .limit(1) //TODO Get The Whole Blockchain
         .order('index', ascending: true)
-        .execute();
+        .execute(); //TODO Error Handling
 
     var chain = response.data as List;
     chain.forEach((element) {
@@ -131,7 +137,7 @@ class BlockchainService {
 
   String getPendingTransactions() {
     var jsonChain = [];
-    walletService.pendingTansactions.values.forEach((element) {
+    walletService.pendingTransactions.values.forEach((element) {
       jsonChain.add(element.toJson());
     });
     json.encode(jsonChain);

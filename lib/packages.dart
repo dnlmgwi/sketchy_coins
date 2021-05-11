@@ -14,6 +14,7 @@ export 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 export 'package:dotenv/dotenv.dart';
 export 'package:hex/hex.dart';
 export 'package:hive/hive.dart';
+export 'package:hive_crdt/hive_crdt.dart';
 export 'package:json_annotation/json_annotation.dart';
 export 'package:postgrest/postgrest.dart';
 export 'package:redis_dart/redis_dart.dart';

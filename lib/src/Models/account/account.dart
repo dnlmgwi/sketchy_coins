@@ -13,7 +13,7 @@ class Account extends IAccount {
   String gender;
 
   @override
-  String password;
+  String pin;
 
   @override
   @JsonKey(name: 'phone_number')
@@ -33,10 +33,6 @@ class Account extends IAccount {
   int joinedDate;
 
   @override
-  @JsonKey(name: 'fk_location_id')
-  int? locationId;
-
-  @override
   int age;
 
   @override
@@ -47,9 +43,9 @@ class Account extends IAccount {
 
   set setId(id) => this.id = id;
 
-  String get getPassword => password;
+  String get getPin => pin;
 
-  set setPassword(password) => this.password = password;
+  set setPin(pin) => this.pin = pin;
 
   String get getPhoneNumber => phoneNumber;
 
@@ -86,7 +82,7 @@ class Account extends IAccount {
   Account({
     this.id,
     required this.gender,
-    required this.password,
+    required this.pin,
     required this.phoneNumber,
     required this.salt,
     required this.status,
@@ -94,7 +90,6 @@ class Account extends IAccount {
     required this.joinedDate,
     required this.age,
     this.lastTrans,
-    this.locationId,
   });
 
   factory Account.fromJson(Map<String, dynamic> json) =>

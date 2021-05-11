@@ -120,6 +120,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "8.0.6"
+  calc:
+    dependency: "direct main"
+    description:
+      name: calc
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.2.1"
   charcode:
     dependency: transitive
     description:
@@ -141,6 +148,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.0"
+  clock:
+    dependency: transitive
+    description:
+      name: clock
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.0"
   code_builder:
     dependency: transitive
     description:
@@ -169,6 +183,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.2"
+  crdt:
+    dependency: transitive
+    description:
+      name: crdt
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.0.1"
   crypto:
     dependency: "direct main"
     description:
@@ -239,6 +260,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.0"
+  geodesy:
+    dependency: "direct main"
+    description:
+      name: geodesy
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.0-nullsafety.0"
   glob:
     dependency: transitive
     description:
@@ -274,6 +302,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.4"
+  hive_crdt:
+    dependency: "direct main"
+    description:
+      name: hive_crdt
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.0"
   hive_generator:
     dependency: "direct main"
     description:
@@ -309,6 +344,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.0"
+  intl:
+    dependency: transitive
+    description:
+      name: intl
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.17.0"
   io:
     dependency: transitive
     description:
@@ -337,6 +379,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.1.1"
+  latlong2:
+    dependency: transitive
+    description:
+      name: latlong2
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.8.0"
   logging:
     dependency: transitive
     description:
@@ -436,7 +485,7 @@ packages:
     source: hosted
     version: "1.0.0"
   realtime_client:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: realtime_client
       url: "https://pub.dartlang.org"
@@ -456,6 +505,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0"
+  sentry:
+    dependency: "direct main"
+    description:
+      name: sentry
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "5.0.0"
   shelf:
     dependency: transitive
     description:
@@ -596,6 +652,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.23"
+  throttling:
+    dependency: "direct main"
+    description:
+      name: throttling
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0"
   timeago:
     dependency: "direct main"
     description:

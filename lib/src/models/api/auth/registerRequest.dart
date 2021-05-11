@@ -8,7 +8,7 @@ part 'registerRequest.g.dart';
 class RegisterRequest {
   late final int? age;
   late final String? gender;
-  late final String? password;
+  late final String? pin;
   late final String? phoneNumber;
 
   String? get getGender => gender;
@@ -19,9 +19,9 @@ class RegisterRequest {
 
   set setAge(age) => this.age = age;
 
-  String? get getPassword => password;
+  String? get getPin => pin;
 
-  set setPassword(password) => this.password = password;
+  set setPin(pin) => this.pin = pin;
 
   String? get getPhoneNumber => phoneNumber;
 
@@ -30,7 +30,7 @@ class RegisterRequest {
   RegisterRequest({
     required this.age,
     required this.gender,
-    required this.password,
+    required this.pin,
     required this.phoneNumber,
   });
 

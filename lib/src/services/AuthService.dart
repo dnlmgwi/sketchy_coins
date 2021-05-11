@@ -1,23 +1,18 @@
+import 'package:sentry/sentry.dart';
 import 'package:sketchy_coins/packages.dart';
 
 class AuthService implements IAuthService {
-  DatabaseService databaseService;
-
-  AuthService({
-    required this.databaseService,
-  });
-
   @override
   Future register({
-    required String password,
+    required String pin,
     required String gender,
     required int age,
     required String phoneNumber,
   }) async {
     final salt = generateSalt();
 
-    final hashpassword = hashPassword(
-      password: password,
+    final hashpin = hashPin(
+      pin: pin,
       salt: salt,
     );
 
@@ -29,13 +24,13 @@ class AuthService implements IAuthService {
 
       if (!isDuplicate) {
         response = await DatabaseService.client
-            .from('accounts')
+            .from('beneficiary_accounts')
             .insert(Account(
               id: Uuid().v4(),
               age: age,
               gender: gender,
               phoneNumber: phoneNumber,
-              password: hashpassword,
+              pin: hashpin,
               salt: salt,
               status: 'normal',
               balance: int.parse(Env.newAccountBalance!),
@@ -43,11 +38,13 @@ class AuthService implements IAuthService {
             ).toJson())
             .execute()
             .catchError(
-          (error, stackTrace) {
-            print('$error $stackTrace');
-            throw Exception('$error $stackTrace');
+          (exception, stackTrace) async {
+            await Sentry.captureException(
+              exception,
+              stackTrace: stackTrace,
+            );
           },
-        ); //TODO Handle Error
+        ); //TODO Muliple Fails Alert People In Area.
       }
 
       if (response.error != null) {
@@ -58,9 +55,12 @@ class AuthService implements IAuthService {
 
       return response.data; //TODO Should it return this data?
 
-    } on PostgrestError catch (e) {
-      print(e.code);
-      print(e.message);
+    } on PostgrestError catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+        hint: stackTrace,
+      );
       rethrow;
     } catch (e) {
       rethrow;
@@ -69,7 +69,7 @@ class AuthService implements IAuthService {
 
   @override
   Future<TokenPair> login({
-    required String password,
+    required String pin,
     required String id,
     required TokenService tokenService,
   }) async {
@@ -81,12 +81,12 @@ class AuthService implements IAuthService {
         id: id,
       );
 
-      final hashpassword = hashPassword(
-        password: password,
+      final hashpin = hashPin(
+        pin: pin,
         salt: user.salt,
       );
 
-      if (hashpassword != user.password) {
+      if (hashpin != user.pin) {
         throw IncorrectInputException();
       }
 
