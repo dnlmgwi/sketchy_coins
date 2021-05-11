@@ -7,15 +7,16 @@ part 'account.g.dart';
 @JsonSerializable(explicitToJson: true)
 class Account extends IAccount {
   @override
-  late String? id;
+  String? id;
 
   @override
-  String email;
+  String gender;
 
   @override
-  String password;
+  String pin;
 
   @override
+  @JsonKey(name: 'phone_number')
   String phoneNumber;
 
   @override
@@ -25,25 +26,26 @@ class Account extends IAccount {
   String status;
 
   @override
-  double balance;
+  int balance;
 
   @override
+  @JsonKey(name: 'joined_date')
   int joinedDate;
 
   @override
+  int age;
+
+  @override
+  @JsonKey(name: 'last_trans')
   late int? lastTrans;
 
   String? get getId => id;
 
   set setId(id) => this.id = id;
 
-  String get getEmail => email;
+  String get getPin => pin;
 
-  set setEmail(email) => this.email = email;
-
-  String get getPassword => password;
-
-  set setPassword(password) => this.password = password;
+  set setPin(pin) => this.pin = pin;
 
   String get getPhoneNumber => phoneNumber;
 
@@ -53,15 +55,15 @@ class Account extends IAccount {
 
   set setSalt(salt) => this.salt = salt;
 
-  // String get getid => id;
+  String get getGender => gender;
 
-  // set setAddress(address) => this.address = address;
+  set setGender(String gender) => this.gender = gender;
 
   String get getStatus => status;
 
   set setStatus(status) => this.status = status;
 
-  double get getBalance => balance;
+  int get getBalance => balance;
 
   set setBalance(balance) => this.balance = balance;
 
@@ -73,15 +75,20 @@ class Account extends IAccount {
 
   set setLastTrans(lastTrans) => this.lastTrans = lastTrans;
 
+  int? get getAge => age;
+
+  set setAge(int age) => this.age = age;
+
   Account({
     this.id,
-    required this.email,
-    required this.password,
+    required this.gender,
+    required this.pin,
     required this.phoneNumber,
     required this.salt,
     required this.status,
     required this.balance,
     required this.joinedDate,
+    required this.age,
     this.lastTrans,
   });
 

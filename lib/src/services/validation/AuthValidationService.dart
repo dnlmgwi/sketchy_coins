@@ -1,9 +1,10 @@
+import 'package:sentry/sentry.dart';
 import 'package:sketchy_coins/packages.dart';
 
 class AuthValidationService {
   static Future<Account> findAccount({required String id}) async {
     var response = await DatabaseService.client
-        .from('accounts')
+        .from('beneficiary_accounts')
         .select()
         .match({
           'id': id,
@@ -19,19 +20,21 @@ class AuthValidationService {
       throw AccountNotFoundException();
     }
 
+    // print(response.data[0]);
+
     return Account.fromJson(response.data[0]);
   }
 
   static Future findDuplicateAccountCredentials({
-    required String email,
     required String phoneNumber,
   }) async {
     try {
       var response = await DatabaseService.client
-          .from('accounts')
-          .select('email,phoneNumber')
-          .or(
-            'email.eq.$email, phoneNumber.eq.$phoneNumber',
+          .from('beneficiary_accounts')
+          .select('phone_number')
+          .eq(
+            'phone_number',
+            '$phoneNumber',
           )
           .execute()
           .onError(
@@ -47,15 +50,17 @@ class AuthValidationService {
       if (result.isNotEmpty) {
         throw AccountDuplicationFoundException();
       }
-    } on PostgrestError catch (e) {
-      print(e.code);
-      print(e.message);
+    } on PostgrestError catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+        hint: stackTrace,
+      );
       rethrow;
     }
   }
 
   static Future<bool> isDuplicatedAccount({
-    required String email,
     required String phoneNumber,
   }) async {
     var duplicateAccount = false;
@@ -63,7 +68,6 @@ class AuthValidationService {
       //TODO Refactor this Method
       //If an exception is thrown return true
       await findDuplicateAccountCredentials(
-        email: email,
         phoneNumber: phoneNumber,
       );
     } catch (e) {

@@ -6,12 +6,14 @@ part 'transAccount.g.dart';
 class TransAccount {
   late String? id;
 
+  @JsonKey(name: 'phone_number')
   String phoneNumber;
 
   String status;
 
-  double balance;
+  int balance;
 
+  @JsonKey(name: 'last_trans')
   int? lastTrans;
 
   String get getid => id!;
@@ -26,7 +28,7 @@ class TransAccount {
 
   set setStatus(status) => this.status = status;
 
-  double get getBalance => balance;
+  int get getBalance => balance;
 
   set setBalance(balance) => this.balance = balance;
 

@@ -1,35 +1,33 @@
 import 'package:sketchy_coins/packages.dart';
-import 'package:sketchy_coins/src/models/interfaces/i_block.dart';
 
 part 'block.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-class Block implements IBlock {
-  @override
-  late int? index;
+class Block {
+  String id;
 
-  @override
+  int? index;
+
   int timestamp;
 
-  @override
-  List? transactions;
+  @JsonKey(name: 'block_transactions')
+  List blockTransactions;
 
-  @override
   int proof;
 
-  @override
-  late String? prevHash;
+  @JsonKey(name: 'prev_hash')
+  String prevHash;
 
   Block({
     this.index,
     required this.timestamp,
     required this.proof,
     required this.prevHash,
-    required this.transactions,
+    required this.id,
+    required this.blockTransactions,
   });
 
   factory Block.fromJson(Map<String, dynamic> json) => _$BlockFromJson(json);
 
-  @override
   Map<String, dynamic> toJson() => _$BlockToJson(this);
 }

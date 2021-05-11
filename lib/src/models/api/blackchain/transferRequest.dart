@@ -8,15 +8,15 @@ part 'transferRequest.g.dart';
 class TransferRequest {
   late String? id;
 
-  late double? amount;
+  late int? amount;
 
   String? get getId => id;
 
   set setId(String? id) => this.id = id;
 
-  double? get getAmount => amount;
+  int? get getAmount => amount;
 
-  set setAmount(amount) => this.amount = amount;
+  set setAmount(int? amount) => this.amount = amount;
 
   TransferRequest({
     required this.id,

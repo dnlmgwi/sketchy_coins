@@ -5,7 +5,7 @@ part 'mineResult.g.dart';
 class MineResult {
   final String message;
 
-  final int? blockIndex;
+  final int? index;
 
   final bool? validBlock;
 
@@ -16,9 +16,9 @@ class MineResult {
   final String prevHash;
 
   MineResult({
+    required this.index,
     required this.message,
     required this.validBlock,
-    required this.blockIndex,
     required this.transactions,
     required this.proof,
     required this.prevHash,

@@ -14,6 +14,7 @@ export 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 export 'package:dotenv/dotenv.dart';
 export 'package:hex/hex.dart';
 export 'package:hive/hive.dart';
+export 'package:hive_crdt/hive_crdt.dart';
 export 'package:json_annotation/json_annotation.dart';
 export 'package:postgrest/postgrest.dart';
 export 'package:redis_dart/redis_dart.dart';
@@ -51,17 +52,22 @@ export './src/services/interfaces/i_AuthService.dart';
 export './src/services/interfaces/i_WalletService.dart';
 
 /// Models
-export './src/Models/1.transactionRecord/transactionRecord.dart';
-export './src/Models/2.rechargeNotification/rechargeNotification.dart';
+/// Hive
+export './src/Models/hive/0.transactionRecord/transactionRecord.dart';
+export './src/Models/hive/1.rechargeNotification/rechargeNotification.dart';
+
+///Json Models
 export './src/Models/account/account.dart';
 export './src/Models/account/transAccount.dart';
 export './src/Models/block/block.dart';
 export './src/Models/mineResult/mineResult.dart';
 export './src/Models/tokenPair/tokenPair.dart';
+export './src/models/api/auth/registerRequest.dart';
+export './src/models/api/blackchain/transferRequest.dart';
 
-//Blockchain Api
-export './src/api/blockchain/validation/responses.dart';
-export './src/api/blockchain/validation/validation.dart';
+//Account Api
+export './src/api/account/validation/responses.dart';
+export './src/api/account/validation/validation.dart';
 
 //Account Api
 export './src/api/account/account_api.dart';

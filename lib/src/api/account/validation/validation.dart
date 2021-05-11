@@ -1,6 +1,6 @@
 import 'package:sketchy_coins/packages.dart';
 
-class BlockChainApiValidation {
+class AccountApiValidation {
   //Check if the correct Keys Where Provided in the request if null prompt the user on what to provide.
   static void nullInputValidation({required recipientid, required amount}) {
     if (recipientid == null) {
@@ -12,9 +12,9 @@ class BlockChainApiValidation {
   }
 
   //Is Amount > Min Amount
-  static bool amountCheck(double amount) {
+  static bool amountCheck(int amount) {
     return amount <
-        double.parse(
+        int.parse(
           Env.minTransactionAmount!,
         );
   }
