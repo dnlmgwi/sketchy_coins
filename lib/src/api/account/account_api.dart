@@ -79,8 +79,6 @@ class AccountApi {
           var data = TransferRequest.fromJson(
               json.decode(await request.readAsString()));
 
-          print(data.toJson());
-
           AccountApiValidation.nullInputValidation(
             recipientid: data.id,
             amount: data.amount,

@@ -26,6 +26,7 @@ dependencies:
   dotenv: ^3.0.0-nullsafety.0
   calc: ^0.2.1
   realtime_client: ^0.0.8
+  throttling: ^1.0.0
 
 dev_dependencies:
   pedantic: ^1.11.0

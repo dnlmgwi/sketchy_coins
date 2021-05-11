@@ -22,8 +22,12 @@ class StatisticsService {
       }
 
       result = inputs.pmf('$term');
-    } on PostgrestError catch (e) {
-      print('PostgrestError ${e.code} ${e.message}');
+    } on PostgrestError catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+        hint: stackTrace,
+      );
       rethrow;
     } catch (e) {
       print(e);
@@ -52,8 +56,12 @@ class StatisticsService {
           (element) => input.add(double.parse(element[term].toString())));
 
       return calculateStats(term, input);
-    } on PostgrestError catch (e) {
-      print('PostgrestError ${e.code} ${e.message}');
+    } on PostgrestError catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+        hint: stackTrace,
+      );
       rethrow;
     } catch (e) {
       print(e);

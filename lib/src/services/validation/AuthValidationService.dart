@@ -1,3 +1,4 @@
+import 'package:sentry/sentry.dart';
 import 'package:sketchy_coins/packages.dart';
 
 class AuthValidationService {
@@ -19,7 +20,7 @@ class AuthValidationService {
       throw AccountNotFoundException();
     }
 
-    print(response.data[0]);
+    // print(response.data[0]);
 
     return Account.fromJson(response.data[0]);
   }
@@ -49,9 +50,12 @@ class AuthValidationService {
       if (result.isNotEmpty) {
         throw AccountDuplicationFoundException();
       }
-    } on PostgrestError catch (e) {
-      print(e.code);
-      print(e.message);
+    } on PostgrestError catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+        hint: stackTrace,
+      );
       rethrow;
     }
   }

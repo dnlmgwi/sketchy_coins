@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:sentry/sentry.dart';
 import 'package:sketchy_coins/packages.dart';
 import 'package:supabase/supabase.dart';
+import 'package:throttling/throttling.dart';
 
 class AutomatedTasks {
   WalletService walletService;
@@ -13,35 +14,38 @@ class AutomatedTasks {
     required this.walletService,
   });
 
-  // realtime
-  final subscription1 = DatabaseService.sbClient
-      .from('beneficiary_accounts')
-      .on(SupabaseEventTypes.all, (x) async {
-    print('on countries.delete: ${x.table} ${x.eventType} ${x.oldRecord}');
-  }).subscribe((String event, {String? errorMsg}) {
-    print('event: $event error: $errorMsg');
-  });
-
-  //Todo Use Websockets
+  /// Use Websockets Done! Listerning to Internal Stream
   Future<void> startAutomatedTasks() async {
-    await Future.delayed(Duration(minutes: 10))
-        .then((value) => // remember to remove subscription
-            DatabaseService.sbClient.removeSubscription(subscription1));
+    var transStream = walletService.pendingTransactions.watch();
+    var depositStream = walletService.pendingDepositsTansactions.watch();
+    transStream.listen((event) async {
+      final deb = Debouncing(duration: const Duration(seconds: 30));
+      await deb.debounce(() async {
+        if (walletService.pendingTransactions.isNotEmpty) {
+          await _processPendingPayments();
+        }
+      });
+    });
+
+    depositStream.listen((event) async {
+      final deb = Debouncing(duration: const Duration(seconds: 5));
+      await deb.debounce(() async {
+        if (walletService.pendingDepositsTansactions.isEmpty) {
+          await _getUnclaimedDeposits();
+        }
+      });
+    });
   }
 
   Future<void> _processPendingPayments() async {
     print('payments?');
-    if (walletService.pendingTansactions.isEmpty) {
-      throw NoPendingTransactionException();
-    } else if (walletService.pendingTansactions.isNotEmpty) {
-      try {
-        await miner.mine().then((_) => DatabaseService.sbClient);
-      } catch (exception, stackTrace) {
-        await Sentry.captureException(
-          exception,
-          stackTrace: stackTrace,
-        );
-      }
+    try {
+      await miner.mine();
+    } catch (exception, stackTrace) {
+      await Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+      );
     }
   }
 
@@ -65,7 +69,7 @@ class AutomatedTasks {
           );
 
       if (response.data == null) {
-        DatabaseService.sbClient;
+        //TODO Review
       } else {
         if ((response.data as List).isNotEmpty) {
           print('Found something');

@@ -5,7 +5,6 @@ import 'package:sketchy_coins/src/api/offlineSync_api.dart';
 import 'package:sketchy_coins/src/api/stats/stats_api.dart';
 import 'package:sketchy_coins/src/services/statisticsService/statisticsService.dart';
 import 'package:sentry/sentry.dart';
-import 'package:supabase/supabase.dart';
 
 void main(List<String> arguments) async {
   ///Env
@@ -54,10 +53,6 @@ void initApp() async {
   final statsService = StatisticsService();
   //Automated Tasks
   unawaited(automatedTasks.startAutomatedTasks());
-  automatedTasks.subscription1.on('INSERT', (payload, {ref}) {
-    print('started again');
-    automatedTasks.startAutomatedTasks();
-  });
 
   /// Shelf Router
   var app = Router();
