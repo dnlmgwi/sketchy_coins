@@ -225,20 +225,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.0"
-  envify:
-    dependency: transitive
-    description:
-      name: envify
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.0.0"
-  envify_generator:
-    dependency: "direct dev"
-    description:
-      name: envify_generator
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.0.0"
   file:
     dependency: transitive
     description:

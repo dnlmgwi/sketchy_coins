@@ -5,8 +5,9 @@ class TokenService {
   late RedisClient client;
 
   final String _prefix = 'token';
-  final refreshTokenExpiry =
-      Duration(days: 7); //TODO: 7 Days is best practice? Add To Env
+  final refreshTokenExpiry = Duration(
+    days: 2,
+  ); //TODO: 7 Days is best practice? Add To Env
 
   Future<void> start() async {
     try {
@@ -62,7 +63,7 @@ class TokenService {
     await client.expire(
       '$_prefix: $id',
       Duration(
-        days: expiry.inSeconds,
+        hours: expiry.inSeconds,
       ),
     );
   }
@@ -72,6 +73,6 @@ class TokenService {
   }
 
   Future<void> removeRefreshToken(String? id) async {
-    await client.expire('$_prefix: $id', Duration(seconds: 0));
+    await client.expireAt('$_prefix: $id', DateTime.now());
   }
 }
