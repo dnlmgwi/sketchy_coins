@@ -2,7 +2,7 @@ import 'package:sketchy_coins/packages.dart';
 
 class Env {
   /// Server Side
-  static final port = env['PORT'];
+  static final port = Platform.environment['PORT'];
   static final hostName = '0.0.0.0'; //DO NOT TOUCH
 
   static final sentry = env['SENTRY'];
