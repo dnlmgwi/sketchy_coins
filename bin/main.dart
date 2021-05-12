@@ -1,7 +1,6 @@
 import 'package:pedantic/pedantic.dart';
 import 'package:sketchy_coins/packages.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
-import 'package:sketchy_coins/src/api/offlineSync_api.dart';
 import 'package:sketchy_coins/src/api/stats/stats_api.dart';
 import 'package:sketchy_coins/src/services/statisticsService/statisticsService.dart';
 import 'package:sentry/sentry.dart';
