@@ -24,9 +24,9 @@ void initApp() async {
   Hive.registerAdapter(RechargeNotificationAdapter());
   await Hive.openBox<TransactionRecord>('transactions');
   await Hive.openBox<RechargeNotification>('rechargeNotifications');
-  var offlineScans = await HiveCrdt.open('./offlineScans', Env.systemAddress!);
-  var offlineTransactions =
-      await HiveCrdt.open('./offlineTransactions', Env.systemAddress!);
+  // var offlineScans = await HiveCrdt.open('./offlineScans', Env.systemAddress!);
+  // var offlineTransactions =
+  //     await HiveCrdt.open('./offlineTransactions', Env.systemAddress!);
 
   /// Start Redis Token Service
   final tokenService = TokenService();
@@ -75,13 +75,13 @@ void initApp() async {
     StatsApi(statsService: statsService).router,
   );
 
-  app.mount(
-    '/v1/sync/',
-    OfflineSyncApi(
-      offlineScans: offlineScans,
-      offlineTransactions: offlineTransactions,
-    ).router,
-  );
+  // app.mount(
+  //   '/v1/sync/',
+  //   OfflineSyncApi(
+  //     offlineScans: offlineScans,
+  //     offlineTransactions: offlineTransactions,
+  //   ).router,
+  // );
 
   app.mount(
     '/v1/auth/',
