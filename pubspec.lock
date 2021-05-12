@@ -183,13 +183,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.2"
-  crdt:
-    dependency: transitive
-    description:
-      name: crdt
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "4.0.1"
   crypto:
     dependency: "direct main"
     description:
@@ -288,13 +281,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.4"
-  hive_crdt:
-    dependency: "direct main"
-    description:
-      name: hive_crdt
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.1.0"
   hive_generator:
     dependency: "direct main"
     description:

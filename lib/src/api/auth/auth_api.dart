@@ -185,9 +185,8 @@ class AuthApi {
             },
           );
         } catch (e) {
-          return Response(
-            HttpStatus.badRequest,
-            body: json.encode({
+          return Response.notFound(
+            json.encode({
               'data': {'message': e.toString()}
             }),
             headers: {

@@ -11,3 +11,5 @@ doc/api/
 *.g.dart
 *.lock
 .env
+.vuerd
+documentation
