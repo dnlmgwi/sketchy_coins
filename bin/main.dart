@@ -105,8 +105,10 @@ void initApp() async {
     ).router,
   );
 
-  var server =
-      await shelf_io.serve(handler, Env.hostName, int.parse(Env.port!));
+  var portEnv = Platform.environment['PORT'];
+  var port = portEnv == null ? 9999 : int.parse(portEnv);
+
+  var server = await shelf_io.serve(handler, '0.0.0.0', port);
   server.autoCompress;
   print('Serving at http://${server.address.host}:${server.port}');
 }
