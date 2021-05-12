@@ -1,6 +1,6 @@
 library packages;
 
-export 'src/utils.dart';
+export './src/utils.dart';
 
 /// Core Packages
 export 'dart:convert';
@@ -23,57 +23,57 @@ export 'package:uuid/uuid.dart';
 export 'package:validators/validators.dart';
 
 /// Config File
-export 'src/config.dart';
+export './src/config.dart';
 
 /// Api Endpoints
-export 'src/api/account/account_api.dart';
-export 'src/api/auth/auth_api.dart';
-export 'src/api/status/status_api.dart';
-export 'src/api/blockchain/blockchain_api.dart';
+export './src/api/account/account_api.dart';
+export './src/api/auth/auth_api.dart';
+export './src/api/status/status_api.dart';
+export './src/api/blockchain/blockchain_api.dart';
 
 //Validation Services
-export 'src/services/validation/AuthValidationService.dart';
-export 'src/services/validation/blockchainValidationService.dart';
+export './src/services/validation/AuthValidationService.dart';
+export './src/services/validation/blockchainValidationService.dart';
 
 /// Services
-export 'src/services/accountService.dart';
-export 'src/services/authService.dart';
-export 'src/services/automatedTasks.dart';
-export 'src/services/blockchainService.dart';
-export 'src/services/databaseService.dart';
-export 'src/services/mineService.dart';
-export 'src/services/token_service.dart';
-export 'src/services/walletServices.dart';
+export './src/services/accountService.dart';
+export './src/services/authService.dart';
+export './src/services/automatedTasks.dart';
+export './src/services/blockchainService.dart';
+export './src/services/databaseService.dart';
+export './src/services/mineService.dart';
+export './src/services/token_service.dart';
+export './src/services/walletServices.dart';
 
 ///Service Interfaces
-export 'src/services/interfaces/i_AccountService.dart';
-export 'src/services/interfaces/i_AuthService.dart';
-export 'src/services/interfaces/i_WalletService.dart';
+export './src/services/interfaces/i_AccountService.dart';
+export './src/services/interfaces/i_AuthService.dart';
+export './src/services/interfaces/i_WalletService.dart';
 
 /// Models
 /// Hive
-export 'src/Models/hive/0.transactionRecord/transactionRecord.dart';
-export 'src/Models/hive/1.rechargeNotification/rechargeNotification.dart';
+export './src/Models/hive/0.transactionRecord/transactionRecord.dart';
+export './src/Models/hive/1.rechargeNotification/rechargeNotification.dart';
 
 ///Json Models
-export 'src/Models/account/account.dart';
-export 'src/Models/account/transAccount.dart';
-export 'src/Models/block/block.dart';
-export 'src/Models/mineResult/mineResult.dart';
-export 'src/Models/tokenPair/tokenPair.dart';
-export 'src/models/api/auth/registerRequest.dart';
-export 'src/models/api/blackchain/transferRequest.dart';
+export './src/Models/account/account.dart';
+export './src/Models/account/transAccount.dart';
+export './src/Models/block/block.dart';
+export './src/Models/mineResult/mineResult.dart';
+export './src/Models/tokenPair/tokenPair.dart';
+export './src/models/api/auth/registerRequest.dart';
+export './src/models/api/blackchain/transferRequest.dart';
 
 //Account Api
-export 'src/api/account/validation/responses.dart';
-export 'src/api/account/validation/validation.dart';
+export './src/api/account/validation/responses.dart';
+export './src/api/account/validation/validation.dart';
 
 //Account Api
-export 'src/api/account/account_api.dart';
+export './src/api/account/account_api.dart';
 
 /// Model Interfaces
-export 'src/Models/interfaces/i_account.dart';
+export './src/Models/interfaces/i_account.dart';
 
 /// Exceptions
-export 'src/errors/accountExceptions.dart';
-export 'src/errors/authExceptions.dart';
+export './src/errors/accountExceptions.dart';
+export './src/errors/authExceptions.dart';
