@@ -3,7 +3,7 @@ import 'package:sketchy_coins/packages.dart';
 class Env {
   /// Server Side
   static final port = env['PORT'];
-  static final hostName = env['HOST_NAME'];
+  static final hostName = '0.0.0.0';
 
   static final sentry = env['SENTRY'];
 
