@@ -5,37 +5,27 @@ part 'account.g.dart';
 /// An annotation for the code generator to know that this class needs the
 /// JSON serialization logic to be generated.
 @JsonSerializable(explicitToJson: true)
-class Account extends IAccount {
-  @override
+class Account {
   String? id;
 
-  @override
   String gender;
 
-  @override
   String pin;
 
-  @override
   @JsonKey(name: 'phone_number')
   String phoneNumber;
 
-  @override
   String salt;
 
-  @override
   String status;
 
-  @override
   int balance;
 
-  @override
   @JsonKey(name: 'joined_date')
   int joinedDate;
 
-  @override
   int age;
 
-  @override
   @JsonKey(name: 'last_trans')
   late int? lastTrans;
 
@@ -95,6 +85,5 @@ class Account extends IAccount {
   factory Account.fromJson(Map<String, dynamic> json) =>
       _$AccountFromJson(json);
 
-  @override
   Map<String, dynamic> toJson() => _$AccountToJson(this);
 }

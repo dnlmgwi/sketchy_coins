@@ -1,8 +1,7 @@
 import 'package:sentry/sentry.dart';
 import 'package:sketchy_coins/packages.dart';
 
-class AuthService implements IAuthService {
-  @override
+class AuthService {
   Future register({
     required String pin,
     required String gender,
@@ -67,7 +66,6 @@ class AuthService implements IAuthService {
     }
   }
 
-  @override
   Future<TokenPair> login({
     required String pin,
     required String id,

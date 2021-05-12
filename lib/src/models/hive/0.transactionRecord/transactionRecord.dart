@@ -1,8 +1,8 @@
 import 'package:sketchy_coins/packages.dart';
 part 'transactionRecord.g.dart';
 
-@HiveType(typeId: 0)
 @JsonSerializable()
+@HiveType(typeId: 0)
 class TransactionRecord extends HiveObject {
   @HiveField(1)
   String sender;

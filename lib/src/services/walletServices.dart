@@ -1,7 +1,7 @@
 import 'package:sentry/sentry.dart';
 import 'package:sketchy_coins/packages.dart';
 
-class WalletService implements IWalletService {
+class WalletService {
   AccountService accountService;
 
   WalletService({required this.accountService});
@@ -10,7 +10,6 @@ class WalletService implements IWalletService {
   var pendingDepositsTansactions =
       Hive.box<RechargeNotification>('rechargeNotifications');
 
-  @override
   Future<void> processPayments(Block prevBlock, String id) async {
     try {
       if (DateTime.fromMillisecondsSinceEpoch(prevBlock.timestamp)
@@ -74,7 +73,6 @@ class WalletService implements IWalletService {
     }
   }
 
-  @override
   Future<void> depositProcess(TransactionRecord element) async {
     try {
       var foundAccount = await accountService.findAccountDetails(
@@ -91,7 +89,6 @@ class WalletService implements IWalletService {
     }
   }
 
-  @override
   Future<void> withdrawProcess(TransactionRecord element) async {
     try {
       var foundAccount =
@@ -107,7 +104,6 @@ class WalletService implements IWalletService {
     }
   }
 
-  @override
   Future<void> transferProcess(TransactionRecord element) async {
     try {
       var recipientAccount = await accountService.findAccountDetails(
@@ -135,7 +131,6 @@ class WalletService implements IWalletService {
     }
   }
 
-  @override
   Future editAccountBalance({
     required TransAccount senderAccount,
     TransAccount? recipientAccount,
@@ -171,7 +166,6 @@ class WalletService implements IWalletService {
     }
   }
 
-  @override
   Future<TransAccount> deposit({
     required int value,
     required TransAccount account,
@@ -189,7 +183,6 @@ class WalletService implements IWalletService {
     }
   }
 
-  @override
   Future<void> transfer({
     required int value,
     required TransAccount senderAccount,
@@ -216,7 +209,6 @@ class WalletService implements IWalletService {
     }
   }
 
-  @override
   Future<void> withdraw({
     required int value,
     required TransAccount account,
@@ -245,7 +237,6 @@ class WalletService implements IWalletService {
     }
   }
 
-  @override
   Future<void> checkAccountBalance({
     required int value,
     required TransAccount account,
@@ -267,7 +258,6 @@ class WalletService implements IWalletService {
     // return account.balance;
   }
 
-  @override
   Future<void> initiateTopUp({required Box<RechargeNotification> data}) async {
     try {
       //Check if TransID and Amount match the recieved notification.
@@ -287,11 +277,9 @@ class WalletService implements IWalletService {
     }
   }
 
-  @override
   int extractMKAmount(RechargeNotification item) =>
       int.parse(item.amount.toString().split('MK').last);
 
-  @override
   Future<void> initiateTransfer({
     required String? senderid,
     required String recipientid,
@@ -328,7 +316,6 @@ class WalletService implements IWalletService {
     }
   }
 
-  @override
   Future addToPendingDeposit(
       String sender, String recipient, int amount) async {
     /// Edit User Account Balance
@@ -345,7 +332,6 @@ class WalletService implements IWalletService {
     ));
   }
 
-  @override
   void addToPendingWithDraw(String sender, String recipient, int amount) async {
     /// Edit User Account Balance
     /// String id - User P23 id
@@ -361,7 +347,6 @@ class WalletService implements IWalletService {
     ));
   }
 
-  @override
   void addToPendingTransfer(String sender, String recipient, int amount) async {
     //Allows users to transfer points between each other
     /// String transactionType - 0: Withdraw, 1: Deposit, 2: Transfer
@@ -375,7 +360,6 @@ class WalletService implements IWalletService {
     ));
   }
 
-  @override
   Future<bool> accountStatusCheck(String sender) async {
     var foundAccount = await accountService.findAccountDetails(
       id: sender,
@@ -383,7 +367,6 @@ class WalletService implements IWalletService {
     return foundAccount.status == 'normal';
   }
 
-  @override
   Future<bool> recipientValidation(
     String recipient,
   ) async {
@@ -413,7 +396,6 @@ class WalletService implements IWalletService {
     }
   }
 
-  @override
   Future<void> changeAccountStatusToProcessing(String id) async {
     //Changes the Users Account Status to processing.
     try {
@@ -433,7 +415,6 @@ class WalletService implements IWalletService {
     }
   }
 
-  @override
   Future<void> changeClaimToTrue(String transID) async {
     await DatabaseService.client
         .from('recharge_notifications')
@@ -442,7 +423,6 @@ class WalletService implements IWalletService {
         .execute(); //TODOD Error Handling
   }
 
-  @override
   Future<void> changeAccountStatusNormal(String? id) async {
     //Changes the Users Account Status to normal.
     try {

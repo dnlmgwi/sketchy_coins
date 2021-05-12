@@ -45,22 +45,17 @@ export './src/services/mineService.dart';
 export './src/services/token_service.dart';
 export './src/services/walletServices.dart';
 
-///Service Interfaces
-export './src/services/interfaces/i_AccountService.dart';
-export './src/services/interfaces/i_AuthService.dart';
-export './src/services/interfaces/i_WalletService.dart';
-
-/// Models
+/// models
 /// Hive
-export './src/Models/hive/0.transactionRecord/transactionRecord.dart';
-export './src/Models/hive/1.rechargeNotification/rechargeNotification.dart';
+export './src/models/hive/0.transactionRecord/transactionRecord.dart';
+export './src/models/hive/1.rechargeNotification/rechargeNotification.dart';
 
-///Json Models
-export './src/Models/account/account.dart';
-export './src/Models/account/transAccount.dart';
-export './src/Models/block/block.dart';
-export './src/Models/mineResult/mineResult.dart';
-export './src/Models/tokenPair/tokenPair.dart';
+///Json models
+export './src/models/account/account.dart';
+export './src/models/account/transAccount.dart';
+export './src/models/block/block.dart';
+export './src/models/mineResult/mineResult.dart';
+export './src/models/tokenPair/tokenPair.dart';
 export './src/models/api/auth/registerRequest.dart';
 export './src/models/api/blackchain/transferRequest.dart';
 
@@ -70,9 +65,6 @@ export './src/api/account/validation/validation.dart';
 
 //Account Api
 export './src/api/account/account_api.dart';
-
-/// Model Interfaces
-export './src/Models/interfaces/i_account.dart';
 
 /// Exceptions
 export './src/errors/accountExceptions.dart';

@@ -1,8 +1,7 @@
 import 'package:sentry/sentry.dart';
 import 'package:sketchy_coins/packages.dart';
 
-class AccountService implements IAccountService {
-  @override
+class AccountService {
   Future<TransAccount> findAccountDetails({required String id}) async {
     var response;
     try {
@@ -31,7 +30,6 @@ class AccountService implements IAccountService {
     return TransAccount.fromJson(response.data[0]);
   }
 
-  @override
   Future<TransAccount> findRecipientDepositAccount(
       {required String phoneNumber}) async {
     var response;
